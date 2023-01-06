@@ -1,2 +1,22 @@
 # FEC
-FEC Codec IP core library for a some famous codes (BCH, RS, LDPC, Turbo)
+FEC Codec IP core library for a some famous codes (BCH, RS, LDPC, Turbo, Polar and etc)
+
+FEC IP cores are a synthesable and self-documented RTL code with limited functionality and performance to explore or using for any applications. 
+
+The library contain: 
+1. BCH code with optional erasures
+2. RS code with optional erasures 
+3. Viterby code for soft-decoding
+4. DVB/Wimax RSC duo-binary turbo code 
+5. NASA GSFC LDPC code
+6. Wimax LDPC code 
+7. 3GPP LDPC code 
+8. 3GPP Polar code 
+9. Soft decision Golay code 
+10. DVB-S LDPC code
+11. CCSDS Turbo code 
+12. 4D-8PSK TCM code 
+13. Hamming code 
+14. QAM LLR demappers 
+
+All codes has static configuration and constrained performance. Call me if you need any IP core extension 
