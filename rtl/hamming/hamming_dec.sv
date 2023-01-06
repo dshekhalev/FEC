@@ -94,7 +94,7 @@ module hamming_dec
   parameter bit pEXT    = 0; // extended hamming code (2^pR, 2^pR - pR) or not (2^pR - 1, 2^pR - pR - 1)
   parameter int pTAG_W  = 1;
 
-  `include "hamming_parameters.vh"
+  `include "hamming_parameters.svh"
 
   //------------------------------------------------------------------------------------------------------
   //

@@ -94,7 +94,7 @@ module hamming_enc
 
   parameter int pTAG_W  = 1;
 
-  `include "hamming_parameters.vh"
+  `include "hamming_parameters.svh"
 
   //------------------------------------------------------------------------------------------------------
   //
