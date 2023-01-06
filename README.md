@@ -19,4 +19,4 @@ The library contain:
 13. Hamming code 
 14. QAM LLR demappers 
 
-All codes has static configuration and constrained performance. Call me if you need any IP core extension 
+All FEC IP Cores has static configuration and constrained performance. Call me if you need any IP core extension 
