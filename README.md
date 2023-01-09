@@ -1,5 +1,5 @@
 # FEC
-FEC Codec IP core library for a some famous codes (BCH, RS, LDPC, Turbo, Polar and etc)
+FEC Codec IP core library for some famous codes (BCH, RS, LDPC, Turbo, Polar and etc)
 
 FEC IP cores are a synthesable and self-documented RTL code (System Verilog) with limited functionality and performance to explore or using for any applications. 
 
