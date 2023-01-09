@@ -6,4 +6,5 @@ Decoder use Chase II algorithm with 16 candidates and syndrome decoding.
 vivado 2019.1 Artix 7 - 2
 
 Encoder : LUT/REG 	18/52 		>250MHz (3Gbps) 
+
 Decoder : LUT/REG/RAMB 	652/936/2 	>250MHz (250Mbps) 
