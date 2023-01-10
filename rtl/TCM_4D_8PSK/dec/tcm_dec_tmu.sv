@@ -172,12 +172,15 @@ module tcm_dec_tmu
       for (int z = 0; z < 4; z++) begin
         for (int idx = 0; idx < 16; idx++) begin
           bm_tree__isymb_m    [bm][idx][z] = isymb_m[z][cSM_IDX_275_TAB[bm][idx][z]];
-          if (idx < 8)
+          if (idx < 8) begin
             bm_tree8__isymb_m [bm][idx][z] = isymb_m[z][cSM_IDX_250_TAB[bm][idx][z]];
-          if (idx < 4)
+          end
+          if (idx < 4) begin
             bm_tree4__isymb_m [bm][idx][z] = isymb_m[z][cSM_IDX_225_TAB[bm][idx][z]];
-          if (idx < 2)
+          end
+          if (idx < 2) begin
             bm_tree2__isymb_m [bm][idx][z] = isymb_m[z][cSM_IDX_200_TAB[bm][idx][z]];
+          end
         end
       end
     end

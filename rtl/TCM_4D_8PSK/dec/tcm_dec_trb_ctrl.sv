@@ -241,10 +241,12 @@ module tcm_dec_trb_ctrl
         for (int state = 0; state < cSTATE_NUM; state++) begin
           tmp_pre_state = trel.preStates[state][idecision[state]];
           //
-          if (isop | waddr_trb_edge)
+          if (isop | waddr_trb_edge) begin
             pre_trb_state[state] <= tmp_pre_state;
-          else
+          end
+          else begin
             pre_trb_state[state] <= pre_trb_state[tmp_pre_state];
+          end
         end // state
       end // ival
     end // iclkena
@@ -287,10 +289,12 @@ module tcm_dec_trb_ctrl
       //
       do_stop   <= ival & ieop;
       // trb length frame "counter"
-      if (do_start | do_stop)
+      if (do_start | do_stop) begin
         trb_offset <= 1'b0;
-      else if (val & waddr_trb_edge)
+      end
+      else if (val & waddr_trb_edge) begin
         trb_offset <= 1'b1;
+      end
     end
   end
 

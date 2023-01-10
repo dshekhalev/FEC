@@ -173,8 +173,9 @@ module tcm_dec_rp
       for (int x3x2x1 = 0; x3x2x1 < 8; x3x2x1++) begin
         acsu__istatem[trel.nextStates[state][x3x2x1]][x3x2x1] =    acsu__ostatem[state];
         acsu__ibm[trel.nextStates[state][x3x2x1]][x3x2x1]     = ibm[trel.outputs[state][x3x2x1]];
-        if (isop & !pSOP_STATE_SYNC_DISABLE)
+        if (isop & !pSOP_STATE_SYNC_DISABLE) begin
           acsu__istatem[trel.nextStates[state][x3x2x1]][x3x2x1] = (state == 0) ? cSTATE_0_INIT : cSTATE_INIT;
+        end
       end
     end
   end
