@@ -6,7 +6,7 @@ Encoder : LUT/REG 	21/22		>250MHz (250Mbps -> 500Mbps)
 
 Decoder : LUT/REG/RAMB 	3k/1.5k/1.5 	~200MHz (400Mbps -> 200Mbps) 
 
-Single configuration convolution envoder and Viterbi decoder for 3/4 code 
+Single configuration convolution envoder and Viterbi decoder for 3/4 code from TCM_4D_8PSK
 
 vivado 2019.1 Artix 7 - 2 Constraint Length = 7 
 
