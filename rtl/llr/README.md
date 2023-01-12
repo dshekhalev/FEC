@@ -13,6 +13,7 @@ Odd QAM LLR demapper up to QAM2048	: LUT/REG/RAMB 	600/760/12.0 	>250MHz
 Odd QAM LLR demapper up to QAM512 	: LUT/REG/RAMB 	331/483/7.5 	>250MHz 
 
 Odd QAM LLR demapper up to QAM128 	: LUT/REG/RAMB 	151/275/3.0 	>250MHz 
+
 					: LUT/REG 	645/548 	>250MHz 
 
 Attnetion: the used map bits to quadrature value converter rules see in tb_qam_mapper.sv file (!!!)
