@@ -223,14 +223,18 @@ module llr_even_qam_demapper_core
         oqam    <= qam[4];
         oLLR[0] <= saturate_llr(bit0_llr[4] + bit0_lsb_llr[4]);
         oLLR[1] <= saturate_llr(bit1_llr[4] + bit1_lsb_llr[4]);
-        if (pBMAX > 4)
+        if (pBMAX > 4) begin
           oLLR[2] <= saturate_llr(bit2_llr[4] + bit2_lsb_llr[4]);
-        if (pBMAX > 6)
+        end
+        if (pBMAX > 6) begin
           oLLR[3] <= saturate_llr(bit3_llr[4] + bit3_lsb_llr[4]);
-        if (pBMAX > 8)
+        end
+        if (pBMAX > 8) begin
           oLLR[4] <= saturate_llr(bit4_llr[4] + bit4_lsb_llr[4]);
-        if (pBMAX > 10)
+        end
+        if (pBMAX > 10) begin
           oLLR[5] <= saturate_llr(bit5_llr[4] + bit5_lsb_llr[4]);
+        end
       end
     end
   end
@@ -260,10 +264,12 @@ module llr_even_qam_demapper_core
     poverflow = (dat > cMAX_POS);
     noverflow = (dat < cMIN_NEG);
     //
-    if (poverflow | noverflow)
+    if (poverflow | noverflow) begin
       saturate_llr = poverflow ? cMAX_POS[pLLR_W-1 : 0] : cMIN_NEG[pLLR_W-1 : 0];
-    else
+    end
+    else begin
       saturate_llr = dat[pLLR_W-1 : 0];
+    end
   end
   endfunction
 

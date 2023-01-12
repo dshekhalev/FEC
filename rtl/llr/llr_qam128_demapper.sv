@@ -924,10 +924,12 @@ module llr_qam128_demapper
     poverflow = (dat > cMAX_POS);
     noverflow = (dat < cMIN_NEG);
     //
-    if (poverflow | noverflow)
+    if (poverflow | noverflow) begin
       saturate_llr = poverflow ? cMAX_POS[pLLR_W-1 : 0] : cMIN_NEG[pLLR_W-1 : 0];
-    else
+    end
+    else begin
       saturate_llr = dat[pLLR_W-1 : 0];
+    end
   end
   endfunction
 

@@ -361,140 +361,199 @@ module llr_qam2048_demapper
           bit_tab_sel[0]  <= !adat_im_less32 & !adat_re_less24 & !adat_re_more40;
 
           // bit 9
-          if (adat_im_less30)
+          if (adat_im_less30) begin
             bit_math_dat[9] <= cLEVEL_32 - adat_re;
-          else if (adat_re_less24)
+          end
+          else if (adat_re_less24) begin
             bit_math_dat[9] <= cLEVEL_32 - adat_im;
-          else
+          end
+          else begin
             bit_math_dat[9] <= -7;
+          end
 
           // bit 8
-          if (adat_im_less30)
+          if (adat_im_less30) begin
             bit_math_dat[8] <= adat_re - cLEVEL_16;
-          else
+          end
+          else begin
             bit_math_dat[8] <= -7;
+          end
 
           // bit 7
-          if (adat_re_less16)
+          if (adat_re_less16) begin
             bit_math_dat[7] <= adat_re - cLEVEL_8;
-          else if (adat_re_less32)
+          end
+          else if (adat_re_less32) begin
             bit_math_dat[7] <= cLEVEL_24 - adat_re;
-          else if (adat_im_less24)
+          end
+          else if (adat_im_less24) begin
             bit_math_dat[7] <= adat_re - cLEVEL_40;
-          else
+          end
+          else begin
             bit_math_dat[7] <= -7;
+          end
           // bit 6
-          if (adat_re_less8)
+          if (adat_re_less8) begin
             bit_math_dat[6] <= adat_re - cLEVEL_4;
-          else if (adat_re_less16)
+          end
+          else if (adat_re_less16) begin
             bit_math_dat[6] <= cLEVEL_12 - adat_re;
-          else if (adat_re_less24)
+          end
+          else if (adat_re_less24) begin
             bit_math_dat[6] <= adat_re - cLEVEL_20;
-          else if (adat_re_less32)
+          end
+          else if (adat_re_less32) begin
             bit_math_dat[6] <= cLEVEL_28 - adat_re;
+          end
           else if (adat_im_less24) begin
-            if (adat_re_less40)
+            if (adat_re_less40) begin
               bit_math_dat[6] <= adat_re - cLEVEL_36;
-            else
+            end
+            else begin
               bit_math_dat[6] <= cLEVEL_44 - adat_re;
+            end
           end
-          else
+          else begin
             bit_math_dat[6] <= -7;
-          // bit 5
-          if (adat_re_less4)
-            bit_math_dat[5] <= adat_re - cLEVEL_2;
-          else if (adat_re_less8)
-            bit_math_dat[5] <= cLEVEL_6 - adat_re;
-          else if (adat_re_less12)
-            bit_math_dat[5] <= adat_re - cLEVEL_10;
-          else if (adat_re_less16)
-            bit_math_dat[5] <= cLEVEL_14 - adat_re;
-          else if (adat_re_less20)
-            bit_math_dat[5] <= adat_re - cLEVEL_18;
-          else if (adat_re_less24)
-            bit_math_dat[5] <= cLEVEL_22 - adat_re;
-          else if (adat_re_less28)
-            bit_math_dat[5] <= adat_re - cLEVEL_26;
-          else if (adat_re_less32)
-            bit_math_dat[5] <= cLEVEL_30 - adat_re;
-          else if (adat_im_less24) begin
-            if (adat_re_less36)
-              bit_math_dat[5] <= adat_re - cLEVEL_34;
-            else if (adat_re_less40)
-              bit_math_dat[5] <= cLEVEL_38 - adat_re;
-            else if (adat_re_less44)
-              bit_math_dat[5] <= adat_re - cLEVEL_42;
-            else
-              bit_math_dat[5] <= cLEVEL_46 - adat_re;
           end
-          else
+          // bit 5
+          if (adat_re_less4) begin
+            bit_math_dat[5] <= adat_re - cLEVEL_2;
+          end
+          else if (adat_re_less8) begin
+            bit_math_dat[5] <= cLEVEL_6 - adat_re;
+          end
+          else if (adat_re_less12) begin
+            bit_math_dat[5] <= adat_re - cLEVEL_10;
+          end
+          else if (adat_re_less16) begin
+            bit_math_dat[5] <= cLEVEL_14 - adat_re;
+          end
+          else if (adat_re_less20) begin
+            bit_math_dat[5] <= adat_re - cLEVEL_18;
+          end
+          else if (adat_re_less24) begin
+            bit_math_dat[5] <= cLEVEL_22 - adat_re;
+          end
+          else if (adat_re_less28) begin
+            bit_math_dat[5] <= adat_re - cLEVEL_26;
+          end
+          else if (adat_re_less32) begin
+            bit_math_dat[5] <= cLEVEL_30 - adat_re;
+          end
+          else if (adat_im_less24) begin
+            if (adat_re_less36) begin
+              bit_math_dat[5] <= adat_re - cLEVEL_34;
+            end
+            else if (adat_re_less40) begin
+              bit_math_dat[5] <= cLEVEL_38 - adat_re;
+            end
+            else if (adat_re_less44) begin
+              bit_math_dat[5] <= adat_re - cLEVEL_42;
+            end
+            else begin
+              bit_math_dat[5] <= cLEVEL_46 - adat_re;
+            end
+          end
+          else begin
             bit_math_dat[5] <= -7;
+          end
 
           // bit 3
-          if (adat_im_less24)
+          if (adat_im_less24) begin
             bit_math_dat[3] <= cLEVEL_16 - adat_im;
-          else if (adat_im_more40)
+          end
+          else if (adat_im_more40) begin
             bit_math_dat[3] <= cLEVEL_16 - adat_re;
-          else if (adat_re_less8)
+          end
+          else if (adat_re_less8) begin
             bit_math_dat[3] <= adat_im - cLEVEL_32;
-          else
+          end
+          else begin
             bit_math_dat[3] <= -7;
+          end
 
           // bit 2
-          if (adat_im_less16)
+          if (adat_im_less16) begin
             bit_math_dat[2] <= adat_im - cLEVEL_8;
-          else if (adat_im_less32)
+          end
+          else if (adat_im_less32) begin
             bit_math_dat[2] <= cLEVEL_24 - adat_im;
-          else if (adat_re_less24)
+          end
+          else if (adat_re_less24) begin
             bit_math_dat[2] <= adat_im - cLEVEL_40;
-          else
+          end
+          else begin
             bit_math_dat[2] <= -7;
+          end
+
           // bit 1
-          if (adat_im_less8)
+          if (adat_im_less8) begin
             bit_math_dat[1] <= adat_im - cLEVEL_4;
-          else if (adat_im_less16)
+          end
+          else if (adat_im_less16) begin
             bit_math_dat[1] <= cLEVEL_12 - adat_im;
-          else if (adat_im_less24)
+          end
+          else if (adat_im_less24) begin
             bit_math_dat[1] <= adat_im - cLEVEL_20;
-          else if (adat_im_less32)
+          end
+          else if (adat_im_less32) begin
             bit_math_dat[1] <= cLEVEL_28 - adat_im;
+          end
           else if (adat_re_less24) begin
-            if (adat_im_less40)
+            if (adat_im_less40) begin
               bit_math_dat[1] <= adat_im - cLEVEL_36;
-            else
+            end
+            else begin
               bit_math_dat[1] <= cLEVEL_44 - adat_im;
+            end
           end
-          else
+          else begin
             bit_math_dat[1] <= -7;
-          // bit 0
-          if (adat_im_less4)
-            bit_math_dat[0] <= adat_im - cLEVEL_2;
-          else if (adat_im_less8)
-            bit_math_dat[0] <= cLEVEL_6 - adat_im;
-          else if (adat_im_less12)
-            bit_math_dat[0] <= adat_im - cLEVEL_10;
-          else if (adat_im_less16)
-            bit_math_dat[0] <= cLEVEL_14 - adat_im;
-          else if (adat_im_less20)
-            bit_math_dat[0] <= adat_im - cLEVEL_18;
-          else if (adat_im_less24)
-            bit_math_dat[0] <= cLEVEL_22 - adat_im;
-          else if (adat_im_less28)
-            bit_math_dat[0] <= adat_im - cLEVEL_26;
-          else if (adat_im_less32)
-            bit_math_dat[0] <= cLEVEL_30 - adat_im;
-          else if (adat_re_less24) begin
-            if (adat_im_less36)
-              bit_math_dat[0] <= adat_im - cLEVEL_34;
-            else if (adat_im_less40)
-              bit_math_dat[0] <= cLEVEL_38 - adat_im;
-            else if (adat_im_less44)
-              bit_math_dat[0] <= adat_im - cLEVEL_42;
-            else
-              bit_math_dat[0] <= cLEVEL_46 - adat_im;
           end
-          else
+
+          // bit 0
+          if (adat_im_less4) begin
+            bit_math_dat[0] <= adat_im - cLEVEL_2;
+          end
+          else if (adat_im_less8) begin
+            bit_math_dat[0] <= cLEVEL_6 - adat_im;
+          end
+          else if (adat_im_less12) begin
+            bit_math_dat[0] <= adat_im - cLEVEL_10;
+          end
+          else if (adat_im_less16) begin
+            bit_math_dat[0] <= cLEVEL_14 - adat_im;
+          end
+          else if (adat_im_less20) begin
+            bit_math_dat[0] <= adat_im - cLEVEL_18;
+          end
+          else if (adat_im_less24) begin
+            bit_math_dat[0] <= cLEVEL_22 - adat_im;
+          end
+          else if (adat_im_less28) begin
+            bit_math_dat[0] <= adat_im - cLEVEL_26;
+          end
+          else if (adat_im_less32) begin
+            bit_math_dat[0] <= cLEVEL_30 - adat_im;
+          end
+          else if (adat_re_less24) begin
+            if (adat_im_less36) begin
+              bit_math_dat[0] <= adat_im - cLEVEL_34;
+            end
+            else if (adat_im_less40) begin
+              bit_math_dat[0] <= cLEVEL_38 - adat_im;
+            end
+            else if (adat_im_less44) begin
+              bit_math_dat[0] <= adat_im - cLEVEL_42;
+            end
+            else begin
+              bit_math_dat[0] <= cLEVEL_46 - adat_im;
+            end
+          end
+          else begin
             bit_math_dat[0] <= -7;
+          end
         end
       end
 
@@ -532,22 +591,22 @@ module llr_qam2048_demapper
         if (iclkena) begin
           //
           // val[0]
-          dat4sat_re  <= saturate(dat_re, cEDGE_NEG, cEDGE_POS);
-          dat4sat_im  <= saturate(dat_im, cEDGE_NEG, cEDGE_POS);
+          dat4sat_re    <= saturate(dat_re, cEDGE_NEG, cEDGE_POS);
+          dat4sat_im    <= saturate(dat_im, cEDGE_NEG, cEDGE_POS);
           //
           // val[1]
-          bit4_llr [2] <= saturate_llr(-dat4sat_im);
-          bit10_llr[2] <= saturate_llr( dat4sat_re);
+          bit4_llr [2]  <= saturate_llr(-dat4sat_im);
+          bit10_llr[2]  <= saturate_llr( dat4sat_re);
 
-          adat_re     <= (dat4sat_re < 0) ? -dat4sat_re : dat4sat_re;
-          adat_im     <= (dat4sat_im < 0) ? -dat4sat_im : dat4sat_im;
+          adat_re       <= (dat4sat_re < 0) ? -dat4sat_re : dat4sat_re;
+          adat_im       <= (dat4sat_im < 0) ? -dat4sat_im : dat4sat_im;
           //
           // val[2]
-          bit4_llr [3] <= bit4_llr [2];
-          bit10_llr[3] <= bit10_llr[2];
+          bit4_llr [3]  <= bit4_llr [2];
+          bit10_llr[3]  <= bit10_llr[2];
 
-          are         <= adat_re;
-          aim         <= adat_im;
+          are           <= adat_re;
+          aim           <= adat_im;
         end
       end
 
@@ -619,10 +678,12 @@ module llr_qam2048_demapper
     poverflow = (dat > max);
     noverflow = (dat < min);
     //
-    if (poverflow | noverflow)
+    if (poverflow | noverflow) begin
       saturate = poverflow ? max : min;
-    else
+    end
+    else begin
       saturate = dat;
+    end
   end
   endfunction
 
@@ -633,10 +694,12 @@ module llr_qam2048_demapper
     poverflow = (dat > cMAX_POS);
     noverflow = (dat < cMIN_NEG);
     //
-    if (poverflow | noverflow)
+    if (poverflow | noverflow) begin
       saturate_llr = poverflow ? cMAX_POS[pLLR_W-1 : 0] : cMIN_NEG[pLLR_W-1 : 0];
-    else
+    end
+    else begin
       saturate_llr = dat[pLLR_W-1 : 0];
+    end
   end
   endfunction
 

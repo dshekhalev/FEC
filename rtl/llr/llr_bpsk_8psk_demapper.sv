@@ -131,9 +131,9 @@ module llr_bpsk_8psk_demapper
   this_t        adat_re;
   this_t        adat_im;
 
-  this_t        bit0_llr [1 : 3] /*synthesis keep*/;
-  this_t        bit1_llr [1 : 3] /*synthesis keep*/;
-  this_t        bit2_llr [1 : 3] /*synthesis keep*/;
+  this_t        bit0_llr [1 : 3] ;
+  this_t        bit1_llr [1 : 3] ;
+  this_t        bit2_llr [1 : 3] ;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -200,12 +200,13 @@ module llr_bpsk_8psk_demapper
     poverflow = (dat > cMAX_POS);
     noverflow = (dat < cMIN_NEG);
     //
-    if (poverflow | noverflow)
+    if (poverflow | noverflow) begin
       saturate_llr = poverflow ? cMAX_POS[pLLR_W-1 : 0] : cMIN_NEG[pLLR_W-1 : 0];
-    else
+    end
+    else begin
       saturate_llr = dat[pLLR_W-1 : 0];
+    end
   end
   endfunction
-
 
 endmodule
