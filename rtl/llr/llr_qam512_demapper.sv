@@ -1048,42 +1048,56 @@ module llr_qam512_demapper
           bit_tab_sel[0]  <= !adat_im_less16;
 
           // bit 7
-          if (adat_im_less8)
+          if (adat_im_less8) begin
             bit_math_dat[7] <= cLEVEL_16 - adat_re;
-          else
+          end
+          else begin
             bit_math_dat[7] <= cLEVEL_16 - adat_im;
+          end
           // bit 6
           bit_math_dat[6] <= adat_re - cLEVEL_8;
           // bit 5
-          if (adat_re_less8)
+          if (adat_re_less8) begin
             bit_math_dat[5] <= adat_re - cLEVEL_4;
-          else
+          end
+          else begin
             bit_math_dat[5] <= cLEVEL_12 - adat_re;
+          end
           // bit 4
-          if (adat_re_less4)
+          if (adat_re_less4) begin
             bit_math_dat[4] <= adat_re - cLEVEL_2;
-          else if (adat_re_less8)
+          end
+          else if (adat_re_less8) begin
             bit_math_dat[4] <= cLEVEL_6 - adat_re;
-          else if (adat_re_less12)
+          end
+          else if (adat_re_less12) begin
             bit_math_dat[4] <= adat_re - cLEVEL_10;
-          else
+          end
+          else begin
             bit_math_dat[4] <= cLEVEL_14 - adat_re;
+          end
           // bit 2
           bit_math_dat[2] <= cLEVEL_8 - adat_im;
           // bit 1
-          if (adat_im_less8)
+          if (adat_im_less8) begin
             bit_math_dat[1] <= adat_im - cLEVEL_4;
-          else
+          end
+          else begin
             bit_math_dat[1] <= cLEVEL_12 - adat_im;
+          end
           // bit 0
-          if (adat_im_less4)
+          if (adat_im_less4) begin
             bit_math_dat[0] <= adat_im - cLEVEL_2;
-          else if (adat_im_less8)
+          end
+          else if (adat_im_less8) begin
             bit_math_dat[0] <= cLEVEL_6 - adat_im;
-          else if (adat_im_less12)
+          end
+          else if (adat_im_less12) begin
             bit_math_dat[0] <= adat_im - cLEVEL_10;
-          else
+          end
+          else begin
             bit_math_dat[0] <= cLEVEL_14 - adat_im;
+          end
         end
       end
 
@@ -1195,10 +1209,12 @@ module llr_qam512_demapper
     poverflow = (dat > max);
     noverflow = (dat < min);
     //
-    if (poverflow | noverflow)
+    if (poverflow | noverflow) begin
       saturate = poverflow ? max : min;
-    else
+    end
+    else begin
       saturate = dat;
+    end
   end
   endfunction
 
@@ -1209,10 +1225,12 @@ module llr_qam512_demapper
     poverflow = (dat > cMAX_POS);
     noverflow = (dat < cMIN_NEG);
     //
-    if (poverflow | noverflow)
+    if (poverflow | noverflow) begin
       saturate_llr = poverflow ? cMAX_POS[pLLR_W-1 : 0] : cMIN_NEG[pLLR_W-1 : 0];
-    else
+    end
+    else begin
       saturate_llr = dat[pLLR_W-1 : 0];
+    end
   end
   endfunction
 

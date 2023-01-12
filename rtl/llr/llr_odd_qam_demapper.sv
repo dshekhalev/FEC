@@ -81,7 +81,7 @@ module llr_odd_qam_demapper
   parameter int pBMAX     = 12 ,
   parameter int pDAT_W    =  9 , // fixed, don't change
   parameter int pLLR_W    =  4 , // fixed, don't change
-  parameter bit pUSE_RAMB =  0
+  parameter bit pUSE_RAMB =  1
 )
 (
   iclk    ,
@@ -387,16 +387,19 @@ module llr_odd_qam_demapper
           4'd1    : oLLR[0]     <= bpsk_8psk_demapper__oLLR[0];
           4'd3    : oLLR[0 : 2] <= bpsk_8psk_demapper__oLLR;
           4'd5    : begin
-            if (pBMAX > 4)
+            if (pBMAX > 4) begin
               oLLR[0 : 4] <= qam32_demapper__oLLR;
+            end
           end
           4'd7    : begin
-            if (pBMAX > 6)
+            if (pBMAX > 6) begin
               oLLR[0 : 6] <= qam128_demapper__oLLR;
+            end
           end
           4'd9    : begin
-            if (pBMAX > 8)
+            if (pBMAX > 8) begin
               oLLR[0 : 8] <= qam512_demapper__oLLR;
+            end
           end
         endcase
       end
