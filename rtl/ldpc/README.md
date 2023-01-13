@@ -10,14 +10,13 @@ Decoder use 2D normalized Min-Sum algorithm with optional metric self-corrected 
 
 Only decoder with least performance include in repo!!!
 
-
 vivado 2019.1 Artix 7 - 2 
 
 Coderate = 5/6, Block length = 2304.
 
 Encoder speed = 8 bits per tick 
 
-Encoder 	: LUT/REG 	755/252		>250MHz (1.65Gps -> 2Gps) 
+Encoder 	: LUT/REG 	755/252		>250MHz (1.65Gbps -> 2Gbps) 
 
 Decoder speed 8 metrics per tick, LLR bitwidth = 4bits, 10 iteration
 
