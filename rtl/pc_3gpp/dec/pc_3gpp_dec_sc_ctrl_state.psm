@@ -1,0 +1,171 @@
+//
+// FSM
+//
+
+branch
+  // buffer flags
+  ibuf_full     = br0;
+  obuf_empty    = br1;
+  //
+  beta_done     = br2;
+  //
+  phi00_is_zero = br3;
+  phi10_is_zero = br4;
+  phi20_is_zero = br5;
+  phi30_is_zero = br6;
+  phi40_is_zero = br7;
+  phi50_is_zero = br8;
+  //
+  phiU          = br9;
+  //
+  dec_done      = br10;
+  dec_1cycle    = br11;
+  dec_3cycle    = br12;
+endbranch
+
+const
+  // buffer controls
+  ibuf_set_empty  = 0x01;
+  obuf_set_full   = 0x02;
+  nbusy           = 0x04;
+  //
+  // counter controls
+  phi_clear       = 0x10;
+  phi_incr        = 0x20;
+  beta_clear      = 0x40;
+  beta_incr       = 0x80;
+  //
+  // layers index
+  lambda_m_3      = 0x700;
+  lambda_m_4      = 0x600;
+  lambda_m_5      = 0x500;
+  lambda_m_6      = 0x400;
+  lambda_m_7      = 0x300;
+  lambda_m_8      = 0x200;
+  lambda_m_9      = 0x100;
+  //
+  // alu opcode
+  do8x8           = 0x1000;
+  do8x8_W         = 0x3000;
+
+  calcFG          = 0x8000;
+  calcFG_LLR      = 0x9000;
+
+  calcG_int       = 0xE000;
+
+  comb_by_8_int   = 0x4000;
+  comb_by_8_intc  = 0x5000;
+  comb_by_8_ext   = 0x6000;
+  comb_by_8_last  = 0x7000;
+
+endconst
+
+begin
+
+Reset :
+  nop, 0;
+//
+// wait sync buffer handshake
+Wait_BufferReay :
+  if (ibuf_full & obuf_empty) nop,  nbusy + phi_clear + beta_clear;
+  else                        wait, nbusy + phi_clear + beta_clear;
+
+DoStart :
+  nop, phi_incr;
+
+  if      (phi50_is_zero) jump FG512, 0;
+  else if (phi40_is_zero) jump FG256, 0;
+  else if (phi30_is_zero) jump FG128, 0;
+  else if (phi20_is_zero) jump FG64,  0;
+  else if (phi10_is_zero) jump FG32,  0;
+  else if (phi00_is_zero) jump FG16,  0;
+  else                    jump FG8,   0;
+
+// F/G functions
+FG512:
+  if      (beta_done) nop,  lambda_m_9 + calcFG_LLR + beta_incr;
+  else                wait, lambda_m_9 + calcFG_LLR + beta_incr;
+FG256:
+  if      (beta_done) nop,  lambda_m_8 + calcFG + beta_incr;
+  else                wait, lambda_m_8 + calcFG + beta_incr;
+FG128:
+  if      (beta_done) nop,  lambda_m_7 + calcFG + beta_incr;
+  else                wait, lambda_m_7 + calcFG + beta_incr;
+FG64:
+  if      (beta_done) nop,  lambda_m_6 + calcFG + beta_incr;
+  else                wait, lambda_m_6 + calcFG + beta_incr;
+FG32:
+  if      (beta_done) nop,  lambda_m_5 + calcFG + beta_incr;
+  else                wait, lambda_m_5 + calcFG + beta_incr;
+FG16:
+  if      (beta_done) nop,  lambda_m_4 + calcFG + beta_incr;
+  else                wait, lambda_m_4 + calcFG + beta_incr;
+
+  nop, 0; // wait ram write
+
+FG8:  // no beta_done logic. FG8 takes 2 cycle only
+  nop, lambda_m_3 + calcFG + beta_incr;
+  nop, lambda_m_3 + calcFG + beta_clear;
+
+Do_8x8 :
+  if  (dec_1cycle)  nop,           do8x8 + phi_incr;
+  else              call F_Do_8x8, do8x8 + phi_incr;
+
+G8:  // no beta_done logic. FG8 takes 2 cycle only
+  nop, lambda_m_3 + calcG_int + beta_incr;
+  nop, lambda_m_3 + calcG_int + beta_clear;
+
+Do_8x8g :
+  if  (dec_1cycle)  nop,           do8x8;
+  else              call F_Do_8x8, do8x8;
+
+// no beta_done logic. Comb8 takes 2 cycle only
+Comb8 :
+  nop,                    lambda_m_3 + comb_by_8_int + beta_incr ;
+  if (phiU) nop,          lambda_m_3 + comb_by_8_int + beta_clear;  // phi1
+  else      jump DoStart, lambda_m_3 + comb_by_8_int + beta_clear;
+
+  nop, 0; // wait ram write
+
+Comb16 :
+  if      (beta_done & phiU) nop,          lambda_m_4 + comb_by_8_ext + beta_incr;  // phi2
+  else if (beta_done)        jump DoStart, lambda_m_4 + comb_by_8_ext + beta_incr;
+  else                       wait,         lambda_m_4 + comb_by_8_ext + beta_incr;
+
+Comb32 :
+  if      (beta_done & phiU) nop,          lambda_m_5 + comb_by_8_ext + beta_incr;  // phi3
+  else if (beta_done)        jump DoStart, lambda_m_5 + comb_by_8_ext + beta_incr;
+  else                       wait,         lambda_m_5 + comb_by_8_ext + beta_incr;
+
+Comb64 :
+  if      (beta_done & phiU) nop,          lambda_m_6 + comb_by_8_ext + beta_incr;  // phi4
+  else if (beta_done)        jump DoStart, lambda_m_6 + comb_by_8_ext + beta_incr;
+  else                       wait,         lambda_m_6 + comb_by_8_ext + beta_incr;
+
+Comb128 :
+  if      (beta_done & phiU) nop,          lambda_m_7 + comb_by_8_ext + beta_incr;  // phi5
+  else if (beta_done)        jump DoStart, lambda_m_7 + comb_by_8_ext + beta_incr;
+  else                       wait,         lambda_m_7 + comb_by_8_ext + beta_incr;
+
+Comb256 :
+  if      (beta_done & phiU) nop,          lambda_m_8 + comb_by_8_ext + beta_incr;  // phi6
+  else if (beta_done)        jump DoStart, lambda_m_8 + comb_by_8_ext + beta_incr;
+  else                       wait,         lambda_m_8 + comb_by_8_ext + beta_incr;
+
+Comb512 :
+  if      (beta_done)        nop,          lambda_m_9 + comb_by_8_last + beta_incr;
+  else                       wait,         lambda_m_9 + comb_by_8_last + beta_incr;
+
+Done :
+  jump Wait_BufferReay, ibuf_set_empty + obuf_set_full;
+
+F_Do_8x8 :
+  nop,                  do8x8_W;
+
+  if (dec_3cycle) ret,  do8x8_W;
+  else            nop,  do8x8_W;
+
+  nop,                  do8x8_W;
+  ret,                  do8x8_W;
+
+end

@@ -1,0 +1,100 @@
+//
+// FSM
+//
+
+branch
+  // buffer flags
+  ibuf_full     = br0;
+  obuf_empty    = br1;
+  //
+  beta_done     = br2;
+  //
+  phiU          = br3;
+endbranch
+
+const
+  // buffer controls
+  ibuf_set_empty  = 0x01;
+  obuf_set_full   = 0x02;
+  nbusy           = 0x04;
+  //
+  // counter controls
+  phi_clear       = 0x10;
+  phi_incr        = 0x20;
+  beta_clear      = 0x40;
+  beta_incr       = 0x80;
+  //
+  // layers index
+  lambda_m_3      = 0x700;
+  lambda_m_4      = 0x600;
+  lambda_m_5      = 0x500;
+  lambda_m_6      = 0x400;
+  lambda_m_7      = 0x300;
+  lambda_m_8      = 0x200;
+  lambda_m_9      = 0x100;
+  //
+  // alu opcode
+  do8x8           = 0x1000;
+
+  comb_by_8_int   = 0x4000;
+  comb_by_8_intc  = 0x5000;
+  comb_by_8_ext   = 0x6000;
+  comb_by_8_last  = 0x7000;
+endconst
+
+begin
+
+Reset :
+  nop, 0;
+//
+// wait sync buffer handshake
+Wait_BufferReay :
+  if (ibuf_full & obuf_empty) jump Do_8x8,  nbusy + phi_clear + beta_clear;
+  else                        wait       ,  nbusy + phi_clear + beta_clear;
+
+Do_8x8 :
+  nop, phi_incr + do8x8;
+  nop, phi_incr + do8x8;
+
+// no beta_done logic. Comb8 takes 2 cycle only
+Comb8 :
+  nop,                    lambda_m_3 + comb_by_8_int + beta_incr ;
+
+  if (phiU) nop,          lambda_m_3 + comb_by_8_int + beta_clear;
+  else      jump Do_8x8,  lambda_m_3 + comb_by_8_int + beta_clear;
+
+//nop, lambda_m_3; // need if small cashe is not using
+
+Comb16 :
+  if      (beta_done & phiU) nop,         lambda_m_4 + comb_by_8_intc + beta_incr; // phi2 >>
+  else if (beta_done)        jump Do_8x8, lambda_m_4 + comb_by_8_intc + beta_incr;
+  else                       wait,        lambda_m_4 + comb_by_8_intc + beta_incr;
+
+Comb32 :
+  if      (beta_done & phiU) nop,         lambda_m_5 + comb_by_8_ext + beta_incr; // phi3 >>
+  else if (beta_done)        jump Do_8x8, lambda_m_5 + comb_by_8_ext + beta_incr;
+  else                       wait,        lambda_m_5 + comb_by_8_ext + beta_incr;
+
+Comb64 :
+  if      (beta_done & phiU) nop,         lambda_m_6 + comb_by_8_ext + beta_incr; // phi4 >>
+  else if (beta_done)        jump Do_8x8, lambda_m_6 + comb_by_8_ext + beta_incr;
+  else                       wait,        lambda_m_6 + comb_by_8_ext + beta_incr;
+
+Comb128 :
+  if      (beta_done & phiU) nop,         lambda_m_7 + comb_by_8_ext + beta_incr; // phi5 >>
+  else if (beta_done)        jump Do_8x8, lambda_m_7 + comb_by_8_ext + beta_incr;
+  else                       wait,        lambda_m_7 + comb_by_8_ext + beta_incr;
+
+Comb256 :
+  if      (beta_done & phiU) nop,         lambda_m_8 + comb_by_8_ext + beta_incr; // phi6 >>
+  else if (beta_done)        jump Do_8x8, lambda_m_8 + comb_by_8_ext + beta_incr;
+  else                       wait,        lambda_m_8 + comb_by_8_ext + beta_incr;
+
+Comb512 :
+  if      (beta_done)        nop,         lambda_m_9 + comb_by_8_last + beta_incr;
+  else                       wait,        lambda_m_9 + comb_by_8_last + beta_incr;
+
+Done :
+  jump Wait_BufferReay, ibuf_set_empty + obuf_set_full;
+
+end
