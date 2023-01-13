@@ -12,7 +12,7 @@ Only decoder with least performance include in repo!!!
 
 vivado 2019.1 Artix 7 - 2 
 
-Coderate = 5/6, Block length = 2304.
+Coderate = 5/6, Block length = 2304 bits
 
 Encoder speed = 8 bits per tick 
 
