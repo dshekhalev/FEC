@@ -22,7 +22,7 @@ Decoder speed 8 metrics per tick, LLR bitwidth = 4bits, 10 iteration
 
 Decoder simple	: LUT/REG/RAMB 	4.6k/7.6k/17.0 	~250MHz (90Mbps -> 75Mbps) 
 
-Attention: to facilitate synthesis, the encoder uses the address file generated during the simulation. The contents of the file depend on the decoder performance settings. Before synthesizing the decoder, run the simulation in the desired mode!!!
+Attention: to facilitate synthesis, the decoder uses the address file generated during the simulation. The file content depend on the decoder performance settings. Before synthesizing the decoder, run the simulation in the desired mode!!!
 
 
 
