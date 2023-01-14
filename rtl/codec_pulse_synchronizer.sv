@@ -92,12 +92,15 @@ module codec_pulse_synchronizer
   //------------------------------------------------------------------------------------------------------
 
   always_ff @(posedge clkin or posedge resetin) begin
-    if (resetin)
+    if (resetin) begin
       level <= 1'b0;
-    else if (sin)
+    end
+    else if (sin) begin
       level <= 1'b1;
-    else if (level_clrin)
+    end
+    else if (level_clrin) begin
       level <= 1'b0;
+    end
   end
 
   //------------------------------------------------------------------------------------------------------
@@ -105,10 +108,12 @@ module codec_pulse_synchronizer
   //------------------------------------------------------------------------------------------------------
 
   always_ff @(posedge clkout or posedge resetout) begin
-    if (resetout)
-      dffout <=0;
-    else
+    if (resetout) begin
+      dffout <= '0;
+    end
+    else begin
       dffout <= {dffout[pLENGTH-2:0], level};
+    end
   end
 
   assign sout           = ~dffout[pLENGTH-1] & dffout[pLENGTH-2]; // posedge
@@ -119,10 +124,12 @@ module codec_pulse_synchronizer
   //------------------------------------------------------------------------------------------------------
 
   always_ff @(posedge clkin or posedge resetin) begin
-    if (resetin)
-      dffin <= 0;
-    else
+    if (resetin) begin
+      dffin <= '0;
+    end
+    else begin
       dffin <= {dffin[0], level_clrout};
+    end
   end
 
   assign level_clrin = dffin[1];

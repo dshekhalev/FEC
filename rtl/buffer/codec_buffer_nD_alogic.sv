@@ -172,10 +172,12 @@ module codec_buffer_nD_alogic
     end
     else begin
       for (int i = 0; i < cBNUM; i++) begin
-        if (iwfull & (b_wused == i))
+        if (iwfull & (b_wused == i)) begin
           b_w_is_busy[i] <= 1'b1;
-        else if (rempty_at_wclk[i])
+        end
+        else if (rempty_at_wclk[i]) begin
           b_w_is_busy[i] <= 1'b0;
+        end
       end
       // switch only if there is next empty bank or full bank is ready to empty
       if ((iwfull & (rempty_at_wclk != 0)) | (iwfull & ~b_w_is_busy[b_wused + 1'b1]) | ((rempty_at_wclk != 0) & b_w_is_busy[b_wused])) begin
@@ -203,10 +205,12 @@ module codec_buffer_nD_alogic
     end
     else begin
       for (int i = 0; i < cBNUM; i++) begin
-        if (wfull_at_rclk[i])
+        if (wfull_at_rclk[i]) begin
           b_r_is_busy[i] <= 1'b1;
-        else if (irempty & (b_rused == i))
+        end
+        else if (irempty & (b_rused == i)) begin
           b_r_is_busy[i] <= 1'b0;
+        end
       end
       // switch only if there is next full bank
       if (((wfull_at_rclk != 0) & irempty) | (irempty & b_r_is_busy[b_rused])) begin

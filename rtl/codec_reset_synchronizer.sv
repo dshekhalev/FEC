@@ -72,10 +72,12 @@ module codec_reset_synchronizer
   //------------------------------------------------------------------------------------------------------
 
   always_ff @(posedge clk or posedge reset_in) begin : reset_shift_register
-    if (reset_in)
+    if (reset_in) begin
       reset_srl <= '1;
-    else
+    end
+    else begin
       reset_srl <= (reset_srl << 1) | reset_carry_in;
+    end
   end
 
   assign reset_out = reset_srl[$high(reset_srl)];
