@@ -183,11 +183,11 @@ module codec_map_dec_output_ram
   generate
     if (pRDAT_W/pWDAT_W == 4) begin
 
-      logic [pWDAT_W-1 : 0] ram00 [0 : 2**(cADDR_W-1)-1]  /*synthesis syn_ramstyle = "no_rw_check"*/;
-      logic [pWDAT_W-1 : 0] ram01 [0 : 2**(cADDR_W-1)-1]  /*synthesis syn_ramstyle = "no_rw_check"*/;
+      bit   [pWDAT_W-1 : 0] ram00 [2**(cADDR_W-1)]  /*synthesis syn_ramstyle = "no_rw_check"*/;
+      bit   [pWDAT_W-1 : 0] ram01 [2**(cADDR_W-1)]  /*synthesis syn_ramstyle = "no_rw_check"*/;
 
-      logic [pWDAT_W-1 : 0] ram10 [0 : 2**(cADDR_W-1)-1]  /*synthesis syn_ramstyle = "no_rw_check"*/;
-      logic [pWDAT_W-1 : 0] ram11 [0 : 2**(cADDR_W-1)-1]  /*synthesis syn_ramstyle = "no_rw_check"*/;
+      bit   [pWDAT_W-1 : 0] ram10 [2**(cADDR_W-1)]  /*synthesis syn_ramstyle = "no_rw_check"*/;
+      bit   [pWDAT_W-1 : 0] ram11 [2**(cADDR_W-1)]  /*synthesis syn_ramstyle = "no_rw_check"*/;
 
       logic [pWDAT_W-1 : 0] rdata00;
       logic [pWDAT_W-1 : 0] rdata01;
@@ -197,15 +197,19 @@ module codec_map_dec_output_ram
 
       always_ff @(posedge iwclk) begin
         if (write) begin
-          if (waddr0[0])
+          if (waddr0[0]) begin
             ram01[waddr0[cADDR_W-1 : 1]] <= wdata0;
-          else
+          end
+          else begin
             ram00[waddr0[cADDR_W-1 : 1]] <= wdata0;
+          end
           //
-          if (waddr1[0])
+          if (waddr1[0]) begin
             ram11[waddr1[cADDR_W-1 : 1]] <= wdata1;
-          else
+          end
+          else begin
             ram10[waddr1[cADDR_W-1 : 1]] <= wdata1;
+          end
         end
       end
 
@@ -225,8 +229,8 @@ module codec_map_dec_output_ram
     end
     else if (pRDAT_W/pWDAT_W == 2) begin
 
-      logic [pWDAT_W-1 : 0] ram0 [0 : 2**cADDR_W-1] /*synthesis syn_ramstyle = "no_rw_check"*/;
-      logic [pWDAT_W-1 : 0] ram1 [0 : 2**cADDR_W-1] /*synthesis syn_ramstyle = "no_rw_check"*/;
+      bit   [pWDAT_W-1 : 0] ram0 [2**cADDR_W] /*synthesis syn_ramstyle = "no_rw_check"*/;
+      bit   [pWDAT_W-1 : 0] ram1 [2**cADDR_W] /*synthesis syn_ramstyle = "no_rw_check"*/;
 
       logic [pWDAT_W-1 : 0] rdata0;
       logic [pWDAT_W-1 : 0] rdata1;
@@ -260,8 +264,8 @@ module codec_map_dec_output_ram
     end
     else begin // pRDAT_W == pWDAT_W
 
-      logic [pWDAT_W-1 : 0] ram0 [0 : 2**cADDR_W-1] /*synthesis syn_ramstyle = "no_rw_check"*/;
-      logic [pWDAT_W-1 : 0] ram1 [0 : 2**cADDR_W-1] /*synthesis syn_ramstyle = "no_rw_check"*/;
+      bit   [pWDAT_W-1 : 0] ram0 [2**cADDR_W] /*synthesis syn_ramstyle = "no_rw_check"*/;
+      bit   [pWDAT_W-1 : 0] ram1 [2**cADDR_W] /*synthesis syn_ramstyle = "no_rw_check"*/;
 
       logic [pWDAT_W-1 : 0] rdata0;
       logic [pWDAT_W-1 : 0] rdata1;
@@ -296,8 +300,5 @@ module codec_map_dec_output_ram
 
     end
   endgenerate
-
-
-
 
 endmodule

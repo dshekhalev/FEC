@@ -132,8 +132,8 @@ module codec_map_dec_input_ram
   //
   //------------------------------------------------------------------------------------------------------
 
-  logic [pDATA_W-1 : 0] ram0 [0 : 2**cADDR_W-1] /*synthesis syn_ramstyle = "no_rw_check"*/;
-  logic [pDATA_W-1 : 0] ram1 [0 : 2**cADDR_W-1] /*synthesis syn_ramstyle = "no_rw_check"*/;
+  bit   [pDATA_W-1 : 0] ram0 [2**cADDR_W] /*synthesis syn_ramstyle = "no_rw_check"*/;
+  bit   [pDATA_W-1 : 0] ram1 [2**cADDR_W] /*synthesis syn_ramstyle = "no_rw_check"*/;
 
   logic [cADDR_W-1 : 0] waddr;
 
@@ -146,15 +146,15 @@ module codec_map_dec_input_ram
   logic [pDATA_W-1 : 0] rdata1;
 
   //------------------------------------------------------------------------------------------------------
-  //
+  // write side
   //------------------------------------------------------------------------------------------------------
 
-  wire wsel   = iwaddr[0];
+  wire wsel     = iwaddr[0];
 
-  wire write0 = iwrite &  wsel;
-  wire write1 = iwrite & !wsel;
+  wire write0   = iwrite &  wsel;
+  wire write1   = iwrite & !wsel;
 
-  assign waddr = iwaddr[pADDR_W-1 : 1];
+  assign waddr  = iwaddr[pADDR_W-1 : 1];
 
   always_ff @(posedge iwclk) begin
     if (iwclkena) begin
@@ -168,7 +168,7 @@ module codec_map_dec_input_ram
   end
 
   //------------------------------------------------------------------------------------------------------
-  //
+  // read side
   //------------------------------------------------------------------------------------------------------
 
   generate

@@ -17,5 +17,5 @@ vlog -work $workdir +initreg+0 -sv +incdir+$incdir+$tbdir/bch $tbdir/ccsds_turbo
 
 set seed [clock seconds]
 
-vsim -sv_seed $seed bertest -lib $workdir
+vsim -sv_seed $seed bertest -lib $workdir +nowarn+3813
 run -all

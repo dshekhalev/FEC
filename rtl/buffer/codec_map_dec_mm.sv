@@ -97,26 +97,29 @@ module codec_map_dec_mm
 
   always_comb begin
     ram_addr = addr;
-    if (iwrite | iread)
+    if (iwrite | iread) begin
       ram_addr = iwrite ? (addr + 1'b1) : (addr - 1'b1);
+    end
   end
 
   always_ff @(posedge iclk or posedge ireset) begin
-    if (ireset)
+    if (ireset) begin
       addr <= '0;
-    else if (iclkena)
+    end
+    else if (iclkena) begin
       addr <= ram_addr;
+    end
   end
 
-  logic [pDATA_W-1 : 0] ram [0 : 2**pADDR_W-1] ;
+  logic [pDATA_W-1 : 0] ram [2**pADDR_W] ;
 
   logic [pADDR_W-1 : 0] raddr;
 
-
   always_ff @(posedge iclk) begin
     if (iclkena) begin
-      if (iwrite)
+      if (iwrite) begin
         ram[ram_addr] <= iwdata;
+      end
       //
       raddr <= ram_addr;
     end
