@@ -1,4 +1,4 @@
-Static configuration DVB-RSC (ETSI EN 301 790 V1.5.1) & Wimax CTC (EEE Std 802.16-2009) duo-binary convolution turbo code with MAX-Log-MAP decoding.
+Static configuration DVB-RSC (ETSI EN 301 790 V1.5.1) & Wimax CTC (IEEE Std 802.16-2009) duo-binary convolution turbo code with MAX-Log-MAP decoding.
 
 Supported modes: DVB-RCS 12 modes, Wimax OFDM 4 P0 factor up to 4096 duo-bits , Wimax OFDMA 16 modes.
 
