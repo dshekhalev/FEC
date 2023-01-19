@@ -9,59 +9,56 @@
   parameter int pTAG_W         = 1 ;
   //
   parameter int pMMAX_TYPE     = 0 ;
-  parameter bit pUSE_WIMAX     = 0 ;
   parameter int pUSE_IBUF_PIPE = 1 ;
   parameter int pUSE_RP_P_COMP = 1 ;
-  //
-  parameter int pFIX_MODE      = 0 ;
 
 
 
-  logic                      rsc_dec_engine__iclk            ;
-  logic                      rsc_dec_engine__ireset          ;
-  logic                      rsc_dec_engine__iclkena         ;
+  logic                      rsc2_dec_engine__iclk            ;
+  logic                      rsc2_dec_engine__ireset          ;
+  logic                      rsc2_dec_engine__iclkena         ;
   //
-  logic                      rsc_dec_engine__irbuf_full      ;
-  code_ctx_t                 rsc_dec_engine__icode_ctx       ;
-  logic              [3 : 0] rsc_dec_engine__iNiter          ;
-  logic       [pTAG_W-1 : 0] rsc_dec_engine__irtag           ;
-  logic                      rsc_dec_engine__orempty         ;
+  logic                      rsc2_dec_engine__irbuf_full      ;
+  code_ctx_t                 rsc2_dec_engine__icode_ctx       ;
+  logic              [3 : 0] rsc2_dec_engine__iNiter          ;
+  logic       [pTAG_W-1 : 0] rsc2_dec_engine__irtag           ;
+  logic                      rsc2_dec_engine__orempty         ;
   //
-  bit_llr_t                  rsc_dec_engine__irfsLLR     [2] ;
-  bit_llr_t                  rsc_dec_engine__irfyLLR     [2] ;
-  bit_llr_t                  rsc_dec_engine__irfwLLR     [2] ;
-  logic      [pDTAG_W-1 : 0] rsc_dec_engine__irfsLLRtag      ;
-  logic      [pADDR_W-1 : 0] rsc_dec_engine__ofsaddr         ;
-  logic      [pADDR_W-1 : 0] rsc_dec_engine__ofpaddr         ;
+  bit_llr_t                  rsc2_dec_engine__irfsLLR     [2] ;
+  bit_llr_t                  rsc2_dec_engine__irfyLLR     [2] ;
+  bit_llr_t                  rsc2_dec_engine__irfwLLR     [2] ;
+  logic      [pDTAG_W-1 : 0] rsc2_dec_engine__irfsLLRtag      ;
+  logic      [pADDR_W-1 : 0] rsc2_dec_engine__ofsaddr         ;
+  logic      [pADDR_W-1 : 0] rsc2_dec_engine__ofpaddr         ;
   //
-  bit_llr_t                  rsc_dec_engine__irbsLLR     [2] ;
-  bit_llr_t                  rsc_dec_engine__irbyLLR     [2] ;
-  bit_llr_t                  rsc_dec_engine__irbwLLR     [2] ;
-  logic      [pDTAG_W-1 : 0] rsc_dec_engine__irbsLLRtag      ;
-  logic      [pADDR_W-1 : 0] rsc_dec_engine__obsaddr         ;
-  logic      [pADDR_W-1 : 0] rsc_dec_engine__obpaddr         ;
+  bit_llr_t                  rsc2_dec_engine__irbsLLR     [2] ;
+  bit_llr_t                  rsc2_dec_engine__irbyLLR     [2] ;
+  bit_llr_t                  rsc2_dec_engine__irbwLLR     [2] ;
+  logic      [pDTAG_W-1 : 0] rsc2_dec_engine__irbsLLRtag      ;
+  logic      [pADDR_W-1 : 0] rsc2_dec_engine__obsaddr         ;
+  logic      [pADDR_W-1 : 0] rsc2_dec_engine__obpaddr         ;
   //
-  logic                      rsc_dec_engine__iwbuf_empty     ;
+  logic                      rsc2_dec_engine__iwbuf_empty     ;
   //
-  logic                      rsc_dec_engine__owrite          ;
-  logic                      rsc_dec_engine__owfull          ;
-  dbits_num_t                rsc_dec_engine__ownum           ;
-  logic       [pTAG_W-1 : 0] rsc_dec_engine__owtag           ;
-  logic             [15 : 0] rsc_dec_engine__owerr           ;
+  logic                      rsc2_dec_engine__owrite          ;
+  logic                      rsc2_dec_engine__owfull          ;
+  dbits_num_t                rsc2_dec_engine__ownum           ;
+  logic       [pTAG_W-1 : 0] rsc2_dec_engine__owtag           ;
+  logic             [15 : 0] rsc2_dec_engine__owerr           ;
   //
-  logic      [pADDR_W-1 : 0] rsc_dec_engine__owfaddr         ;
-  logic              [1 : 0] rsc_dec_engine__owfdat          ;
-  logic              [1 : 0] rsc_dec_engine__owfderr         ;
-  logic      [pDTAG_W-1 : 0] rsc_dec_engine__owfdtag         ;
+  logic      [pADDR_W-1 : 0] rsc2_dec_engine__owfaddr         ;
+  logic              [1 : 0] rsc2_dec_engine__owfdat          ;
+  logic              [1 : 0] rsc2_dec_engine__owfderr         ;
+  logic      [pDTAG_W-1 : 0] rsc2_dec_engine__owfdtag         ;
   //
-  logic      [pADDR_W-1 : 0] rsc_dec_engine__owbaddr         ;
-  logic              [1 : 0] rsc_dec_engine__owbdat          ;
-  logic              [1 : 0] rsc_dec_engine__owbderr         ;
-  logic      [pDTAG_W-1 : 0] rsc_dec_engine__owbdtag         ;
+  logic      [pADDR_W-1 : 0] rsc2_dec_engine__owbaddr         ;
+  logic              [1 : 0] rsc2_dec_engine__owbdat          ;
+  logic              [1 : 0] rsc2_dec_engine__owbderr         ;
+  logic      [pDTAG_W-1 : 0] rsc2_dec_engine__owbdtag         ;
 
 
 
-  rsc_dec_engine
+  rsc2_dec_engine
   #(
     .pLLR_W         ( pLLR_W         ) ,
     .pLLR_FP        ( pLLR_FP        ) ,
@@ -70,74 +67,71 @@
     .pTAG_W         ( pTAG_W         ) ,
     //
     .pMMAX_TYPE     ( pMMAX_TYPE     ) ,
-    .pUSE_WIMAX     ( pUSE_WIMAX     ) ,
     .pUSE_IBUF_PIPE ( pUSE_IBUF_PIPE ) ,
-    .pUSE_RP_P_COMP ( pUSE_RP_P_COMP ) ,
-    //
-    .pFIX_MODE      ( pFIX_MODE      ) ,
+    .pUSE_RP_P_COMP ( pUSE_RP_P_COMP )
   )
-  rsc_dec_engine
+  rsc2_dec_engine
   (
-    .iclk        ( rsc_dec_engine__iclk        ) ,
-    .ireset      ( rsc_dec_engine__ireset      ) ,
-    .iclkena     ( rsc_dec_engine__iclkena     ) ,
+    .iclk        ( rsc2_dec_engine__iclk        ) ,
+    .ireset      ( rsc2_dec_engine__ireset      ) ,
+    .iclkena     ( rsc2_dec_engine__iclkena     ) ,
     //
-    .irbuf_full  ( rsc_dec_engine__irbuf_full  ) ,
-    .icode_ctx   ( rsc_dec_engine__icode_ctx   ) ,
-    .iNiter      ( rsc_dec_engine__iNiter      ) ,
-    .irtag       ( rsc_dec_engine__irtag       ) ,
-    .orempty     ( rsc_dec_engine__orempty     ) ,
+    .irbuf_full  ( rsc2_dec_engine__irbuf_full  ) ,
+    .icode_ctx   ( rsc2_dec_engine__icode_ctx   ) ,
+    .iNiter      ( rsc2_dec_engine__iNiter      ) ,
+    .irtag       ( rsc2_dec_engine__irtag       ) ,
+    .orempty     ( rsc2_dec_engine__orempty     ) ,
     //
-    .irfsLLR     ( rsc_dec_engine__irfsLLR     ) ,
-    .irfyLLR     ( rsc_dec_engine__irfyLLR     ) ,
-    .irfwLLR     ( rsc_dec_engine__irfwLLR     ) ,
-    .irfsLLRtag  ( rsc_dec_engine__irfsLLRtag  ) ,
-    .ofsaddr     ( rsc_dec_engine__ofsaddr     ) ,
-    .ofpaddr     ( rsc_dec_engine__ofpaddr     ) ,
+    .irfsLLR     ( rsc2_dec_engine__irfsLLR     ) ,
+    .irfyLLR     ( rsc2_dec_engine__irfyLLR     ) ,
+    .irfwLLR     ( rsc2_dec_engine__irfwLLR     ) ,
+    .irfsLLRtag  ( rsc2_dec_engine__irfsLLRtag  ) ,
+    .ofsaddr     ( rsc2_dec_engine__ofsaddr     ) ,
+    .ofpaddr     ( rsc2_dec_engine__ofpaddr     ) ,
     //
-    .irbsLLR     ( rsc_dec_engine__irbsLLR     ) ,
-    .irbyLLR     ( rsc_dec_engine__irbyLLR     ) ,
-    .irbwLLR     ( rsc_dec_engine__irbwLLR     ) ,
-    .irbsLLRtag  ( rsc_dec_engine__irbsLLRtag  ) ,
-    .obsaddr     ( rsc_dec_engine__obsaddr     ) ,
-    .obpaddr     ( rsc_dec_engine__obpaddr     ) ,
+    .irbsLLR     ( rsc2_dec_engine__irbsLLR     ) ,
+    .irbyLLR     ( rsc2_dec_engine__irbyLLR     ) ,
+    .irbwLLR     ( rsc2_dec_engine__irbwLLR     ) ,
+    .irbsLLRtag  ( rsc2_dec_engine__irbsLLRtag  ) ,
+    .obsaddr     ( rsc2_dec_engine__obsaddr     ) ,
+    .obpaddr     ( rsc2_dec_engine__obpaddr     ) ,
     //
-    .iwbuf_empty ( rsc_dec_engine__iwbuf_empty ) ,
+    .iwbuf_empty ( rsc2_dec_engine__iwbuf_empty ) ,
     //
-    .owrite      ( rsc_dec_engine__owrite      ) ,
-    .owfull      ( rsc_dec_engine__owfull      ) ,
-    .ownum       ( rsc_dec_engine__ownum       ) ,
-    .owtag       ( rsc_dec_engine__owtag       ) ,
-    .owerr       ( rsc_dec_engine__owerr       ) ,
+    .owrite      ( rsc2_dec_engine__owrite      ) ,
+    .owfull      ( rsc2_dec_engine__owfull      ) ,
+    .ownum       ( rsc2_dec_engine__ownum       ) ,
+    .owtag       ( rsc2_dec_engine__owtag       ) ,
+    .owerr       ( rsc2_dec_engine__owerr       ) ,
     //
-    .owfaddr     ( rsc_dec_engine__owfaddr     ) ,
-    .owfdat      ( rsc_dec_engine__owfdat      ) ,
-    .owfderr     ( rsc_dec_engine__owfderr     ) ,
-    .owfdtag     ( rsc_dec_engine__owfdtag     ) ,
+    .owfaddr     ( rsc2_dec_engine__owfaddr     ) ,
+    .owfdat      ( rsc2_dec_engine__owfdat      ) ,
+    .owfderr     ( rsc2_dec_engine__owfderr     ) ,
+    .owfdtag     ( rsc2_dec_engine__owfdtag     ) ,
     //
-    .owbaddr     ( rsc_dec_engine__owbaddr     ) ,
-    .owbdat      ( rsc_dec_engine__owbdat      ) ,
-    .owbderr     ( rsc_dec_engine__owbderr     ) ,
-    .owbdtag     ( rsc_dec_engine__owbdtag     )
+    .owbaddr     ( rsc2_dec_engine__owbaddr     ) ,
+    .owbdat      ( rsc2_dec_engine__owbdat      ) ,
+    .owbderr     ( rsc2_dec_engine__owbderr     ) ,
+    .owbdtag     ( rsc2_dec_engine__owbdtag     )
   );
 
 
-  assign rsc_dec_engine__iclk        = '0 ;
-  assign rsc_dec_engine__ireset      = '0 ;
-  assign rsc_dec_engine__iclkena     = '0 ;
-  assign rsc_dec_engine__irbuf_full  = '0 ;
-  assign rsc_dec_engine__icode_ctx   = '0 ;
-  assign rsc_dec_engine__iNiter      = '0 ;
-  assign rsc_dec_engine__irtag       = '0 ;
-  assign rsc_dec_engine__irfsLLR     = '0 ;
-  assign rsc_dec_engine__irfyLLR     = '0 ;
-  assign rsc_dec_engine__irfwLLR     = '0 ;
-  assign rsc_dec_engine__irfsLLRtag  = '0 ;
-  assign rsc_dec_engine__irbsLLR     = '0 ;
-  assign rsc_dec_engine__irbyLLR     = '0 ;
-  assign rsc_dec_engine__irbwLLR     = '0 ;
-  assign rsc_dec_engine__irbsLLRtag  = '0 ;
-  assign rsc_dec_engine__iwbuf_empty = '0 ;
+  assign rsc2_dec_engine__iclk        = '0 ;
+  assign rsc2_dec_engine__ireset      = '0 ;
+  assign rsc2_dec_engine__iclkena     = '0 ;
+  assign rsc2_dec_engine__irbuf_full  = '0 ;
+  assign rsc2_dec_engine__icode_ctx   = '0 ;
+  assign rsc2_dec_engine__iNiter      = '0 ;
+  assign rsc2_dec_engine__irtag       = '0 ;
+  assign rsc2_dec_engine__irfsLLR     = '0 ;
+  assign rsc2_dec_engine__irfyLLR     = '0 ;
+  assign rsc2_dec_engine__irfwLLR     = '0 ;
+  assign rsc2_dec_engine__irfsLLRtag  = '0 ;
+  assign rsc2_dec_engine__irbsLLR     = '0 ;
+  assign rsc2_dec_engine__irbyLLR     = '0 ;
+  assign rsc2_dec_engine__irbwLLR     = '0 ;
+  assign rsc2_dec_engine__irbsLLRtag  = '0 ;
+  assign rsc2_dec_engine__iwbuf_empty = '0 ;
 
 
 
@@ -146,11 +140,11 @@
 //
 // Project       : rsc
 // Author        : Shekhalev Denis (des00)
-// Workfile      : rsc_dec_engine.sv
+// Workfile      : rsc2_dec_engine.sv
 // Description   : RSC decoder engine top level
 //
 
-module rsc_dec_engine
+module rsc2_dec_engine
 #(
   parameter int pLLR_W         = 5 ,
   parameter int pLLR_FP        = 2 ,
@@ -159,11 +153,8 @@ module rsc_dec_engine
   parameter int pTAG_W         = 1 ,
   //
   parameter int pMMAX_TYPE     = 0 ,
-  parameter bit pUSE_WIMAX     = 0 ,
   parameter bit pUSE_IBUF_PIPE = 1 ,
-  parameter int pUSE_RP_P_COMP = 1 ,
-  //
-  parameter int pFIX_MODE      = 0
+  parameter int pUSE_RP_P_COMP = 1
 )
 (
   iclk        ,
@@ -209,8 +200,8 @@ module rsc_dec_engine
   owbdtag
 );
 
-  `include "../rsc_constants.svh"
-  `include "rsc_dec_types.svh"
+  `include "../rsc2_constants.svh"
+  `include "rsc2_dec_types.svh"
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -271,7 +262,7 @@ module rsc_dec_engine
 
   //
   // parameter table
-  logic                 [4 : 0] ptab__iptype   ;
+  ptype_t                       ptab__iptype   ;
   dbits_num_t                   ptab__iN       ;
 
   dbits_num_t                   used_N         ;
@@ -279,7 +270,6 @@ module rsc_dec_engine
   dbits_num_t                   used_P     [4] ;
   dbits_num_t                   used_P0comp    ;
   dbits_num_t                   used_Pincr     ;
-  logic                         used_Pdvbinv   ;
 
   //
   // ctrl
@@ -375,58 +365,28 @@ module rsc_dec_engine
   logic [cEXTR_RAM_DATA_W-1 : 0] extr_ram__ordata1  ;
 
   //------------------------------------------------------------------------------------------------------
-  // decode permutation type decoder
+  // permutation type table
   //------------------------------------------------------------------------------------------------------
 
-  generate
-    if (pFIX_MODE) begin
-      rsc_ptable
-      ptab
-      (
-        .iclk       ( iclk         ) ,
-        .ireset     ( ireset       ) ,
-        .iclkena    ( iclkena      ) ,
-        //
-        .iptype     ( ptab__iptype ) ,
-        .iN         ( ptab__iN     ) ,
-        //
-        .oN         ( used_N       ) ,
-        .oNm1       ( used_Nm1     ) ,
-        .oNmod7     (              ) ,  // n.u.
-        //
-        .oP         ( used_P       ) ,
-        .oP0comp    ( used_P0comp  ) ,
-        .oPAx2_comp (              ) , // n.u.
-        .oPincr     ( used_Pincr   ) ,
-        .oPdvbinv   ( used_Pdvbinv )
-      );
-    end
-    else begin
-      rsc_ptable_gen
-      ptab
-      (
-        .iclk       ( iclk         ) ,
-        .ireset     ( ireset       ) ,
-        .iclkena    ( iclkena      ) ,
-        //
-        .iptype     ( ptab__iptype ) ,
-        .iN         ( ptab__iN     ) ,
-        //
-        .oN         ( used_N       ) ,
-        .oNm1       ( used_Nm1     ) ,
-        .oNmod7     (              ) ,  // n.u.
-        //
-        .oP         ( used_P       ) ,
-        .oP0comp    ( used_P0comp  ) ,
-        .oPAx2_comp (              ) , // n.u.
-        .oPincr     ( used_Pincr   ) ,
-        .oPdvbinv   ( used_Pdvbinv )
-      );
-    end
-  endgenerate
+  rsc2_ptable
+  ptab
+  (
+    .iclk     ( iclk         ) ,
+    .ireset   ( ireset       ) ,
+    .iclkena  ( iclkena      ) ,
+    //
+    .iptype   ( ptab__iptype ) ,
+    //
+    .oN       ( used_N       ) ,
+    .oNm1     ( used_Nm1     ) ,
+    .oNmod15  (              ) ,  // n.u.
+    //
+    .oP       ( used_P       ) ,
+    .oP0comp  ( used_P0comp  ) ,
+    .oPincr   ( used_Pincr   )
+  );
 
   assign ptab__iptype = icode_ctx.ptype;
-  assign ptab__iN     = pUSE_WIMAX ? icode_ctx.Ndbits : '0;
 
   //------------------------------------------------------------------------------------------------------
   // decoder FSM
@@ -486,7 +446,7 @@ module rsc_dec_engine
     .iP       ( used_P             ) ,
     .iP0comp  ( used_P0comp        ) ,
     .iPincr   ( used_Pincr         ) ,
-    .iPdvbinv ( used_Pdvbinv       ) ,
+    .iPdvbinv ( 1'b1               ) ,
     //
     .osaddr   ( faddr_gen__osaddr  ) ,
     .opaddr   ( faddr_gen__opaddr  ) ,
@@ -515,7 +475,7 @@ module rsc_dec_engine
     .iP       ( used_P             ) ,
     .iP0comp  ( used_P0comp        ) ,
     .iPincr   ( used_Pincr         ) ,
-    .iPdvbinv ( used_Pdvbinv       ) ,
+    .iPdvbinv ( 1'b1               ) ,
     //
     .osaddr   ( baddr_gen__osaddr  ) ,
     .opaddr   ( baddr_gen__opaddr  ) ,
@@ -538,7 +498,7 @@ module rsc_dec_engine
   logic [pADDR_W-1 : 0] map_faddr   ;
   logic [pADDR_W-1 : 0] map_baddr   ;
 
-  rsc_dec_map_engine
+  rsc2_dec_map_engine
   #(
     .pLLR_W         ( pLLR_W         ) ,
     .pLLR_FP        ( pLLR_FP        ) ,

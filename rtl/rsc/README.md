@@ -12,8 +12,8 @@ vivado 2019.1 Artix 7 - 2
 
 Wimax OFDMA Nduobits = 1920(3840 bits), coderate = 2/3, 5bit metric, 10 iteration. Encoder use output buffer 
 
-Encoder 	: LUT/REG/RAMB	210/179/2.0	>200MHz (100Mbps -> 150Mbps) 
+Encoder 	: LUT/REG/RAMB	210/179/2.0	>200MHz (200Mbps -> 300Mbps) 
 
-Decoder simple	: LUT/REG/RAMB 	5.3k/4.7k/12.0 	~160MHz (12Mbps -> 8Mbps) 
+Decoder simple	: LUT/REG/RAMB 	5.3k/4.7k/12.0 	~160MHz (24Mbps -> 16Mbps) 
 
 Attention: This is only CTC codecs. There is no bits permutation or interleaving. The coder and decoder correspond each other but can have different bit order with standard codes. 

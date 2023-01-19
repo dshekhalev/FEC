@@ -12,57 +12,57 @@
 
 
 
-  logic                       rsc_dec_map_engine__iclk             ;
-  logic                       rsc_dec_map_engine__ireset           ;
-  logic                       rsc_dec_map_engine__iclkena          ;
-  logic                       rsc_dec_map_engine__ifirst           ;
-  logic                       rsc_dec_map_engine__ilast            ;
-  logic                       rsc_dec_map_engine__ieven            ;
-  logic                       rsc_dec_map_engine__ibitswap         ;
-  logic                       rsc_dec_map_engine__iwarm            ;
-  logic                       rsc_dec_map_engine__isop             ;
-  logic                       rsc_dec_map_engine__ival             ;
-  logic                       rsc_dec_map_engine__ieop             ;
-  logic       [pADDR_W-1 : 0] rsc_dec_map_engine__ifaddr           ;
-  bit_llr_t                   rsc_dec_map_engine__ifsLLR   [0 : 1] ;
-  bit_llr_t                   rsc_dec_map_engine__ifyLLR   [0 : 1] ;
-  bit_llr_t                   rsc_dec_map_engine__ifwLLR   [0 : 1] ;
-  Lextr_t                     rsc_dec_map_engine__ifLextr          ;
-  logic       [pDTAG_W-1 : 0] rsc_dec_map_engine__ifsLLRtag        ;
-  logic       [pADDR_W-1 : 0] rsc_dec_map_engine__ibaddr           ;
-  bit_llr_t                   rsc_dec_map_engine__ibsLLR   [0 : 1] ;
-  bit_llr_t                   rsc_dec_map_engine__ibyLLR   [0 : 1] ;
-  bit_llr_t                   rsc_dec_map_engine__ibwLLR   [0 : 1] ;
-  Lextr_t                     rsc_dec_map_engine__ibLextr          ;
-  logic       [pDTAG_W-1 : 0] rsc_dec_map_engine__ibsLLRtag        ;
-  state_t                     rsc_dec_map_engine__if_rp_state_even ;
-  state_t                     rsc_dec_map_engine__if_rp_state_odd  ;
-  state_t                     rsc_dec_map_engine__ib_rp_state_even ;
-  state_t                     rsc_dec_map_engine__ib_rp_state_odd  ;
-  state_t                     rsc_dec_map_engine__of_rp_state_even ;
-  state_t                     rsc_dec_map_engine__of_rp_state_odd  ;
-  state_t                     rsc_dec_map_engine__ob_rp_state_even ;
-  state_t                     rsc_dec_map_engine__ob_rp_state_odd  ;
-  logic                       rsc_dec_map_engine__osop             ;
-  logic                       rsc_dec_map_engine__oeop             ;
-  logic                       rsc_dec_map_engine__oval             ;
-  logic                       rsc_dec_map_engine__odatval          ;
-  logic       [pADDR_W-1 : 0] rsc_dec_map_engine__ofaddr           ;
-  Lextr_t                     rsc_dec_map_engine__ofLextr          ;
-  logic               [1 : 0] rsc_dec_map_engine__ofdat            ;
-  logic               [1 : 0] rsc_dec_map_engine__ofderr           ;
-  logic       [pDTAG_W-1 : 0] rsc_dec_map_engine__ofdtag           ;
-  logic       [pADDR_W-1 : 0] rsc_dec_map_engine__obaddr           ;
-  Lextr_t                     rsc_dec_map_engine__obLextr          ;
-  logic               [1 : 0] rsc_dec_map_engine__obdat            ;
-  logic               [1 : 0] rsc_dec_map_engine__obderr           ;
-  logic       [pDTAG_W-1 : 0] rsc_dec_map_engine__obdtag           ;
-  logic                       rsc_dec_map_engine__odone            ;
-  logic              [15 : 0] rsc_dec_map_engine__oerr             ;
+  logic                       rsc2_dec_map_engine__iclk             ;
+  logic                       rsc2_dec_map_engine__ireset           ;
+  logic                       rsc2_dec_map_engine__iclkena          ;
+  logic                       rsc2_dec_map_engine__ifirst           ;
+  logic                       rsc2_dec_map_engine__ilast            ;
+  logic                       rsc2_dec_map_engine__ieven            ;
+  logic                       rsc2_dec_map_engine__ibitswap         ;
+  logic                       rsc2_dec_map_engine__iwarm            ;
+  logic                       rsc2_dec_map_engine__isop             ;
+  logic                       rsc2_dec_map_engine__ival             ;
+  logic                       rsc2_dec_map_engine__ieop             ;
+  logic       [pADDR_W-1 : 0] rsc2_dec_map_engine__ifaddr           ;
+  bit_llr_t                   rsc2_dec_map_engine__ifsLLR   [0 : 1] ;
+  bit_llr_t                   rsc2_dec_map_engine__ifyLLR   [0 : 1] ;
+  bit_llr_t                   rsc2_dec_map_engine__ifwLLR   [0 : 1] ;
+  Lextr_t                     rsc2_dec_map_engine__ifLextr          ;
+  logic       [pDTAG_W-1 : 0] rsc2_dec_map_engine__ifsLLRtag        ;
+  logic       [pADDR_W-1 : 0] rsc2_dec_map_engine__ibaddr           ;
+  bit_llr_t                   rsc2_dec_map_engine__ibsLLR   [0 : 1] ;
+  bit_llr_t                   rsc2_dec_map_engine__ibyLLR   [0 : 1] ;
+  bit_llr_t                   rsc2_dec_map_engine__ibwLLR   [0 : 1] ;
+  Lextr_t                     rsc2_dec_map_engine__ibLextr          ;
+  logic       [pDTAG_W-1 : 0] rsc2_dec_map_engine__ibsLLRtag        ;
+  state_t                     rsc2_dec_map_engine__if_rp_state_even ;
+  state_t                     rsc2_dec_map_engine__if_rp_state_odd  ;
+  state_t                     rsc2_dec_map_engine__ib_rp_state_even ;
+  state_t                     rsc2_dec_map_engine__ib_rp_state_odd  ;
+  state_t                     rsc2_dec_map_engine__of_rp_state_even ;
+  state_t                     rsc2_dec_map_engine__of_rp_state_odd  ;
+  state_t                     rsc2_dec_map_engine__ob_rp_state_even ;
+  state_t                     rsc2_dec_map_engine__ob_rp_state_odd  ;
+  logic                       rsc2_dec_map_engine__osop             ;
+  logic                       rsc2_dec_map_engine__oeop             ;
+  logic                       rsc2_dec_map_engine__oval             ;
+  logic                       rsc2_dec_map_engine__odatval          ;
+  logic       [pADDR_W-1 : 0] rsc2_dec_map_engine__ofaddr           ;
+  Lextr_t                     rsc2_dec_map_engine__ofLextr          ;
+  logic               [1 : 0] rsc2_dec_map_engine__ofdat            ;
+  logic               [1 : 0] rsc2_dec_map_engine__ofderr           ;
+  logic       [pDTAG_W-1 : 0] rsc2_dec_map_engine__ofdtag           ;
+  logic       [pADDR_W-1 : 0] rsc2_dec_map_engine__obaddr           ;
+  Lextr_t                     rsc2_dec_map_engine__obLextr          ;
+  logic               [1 : 0] rsc2_dec_map_engine__obdat            ;
+  logic               [1 : 0] rsc2_dec_map_engine__obderr           ;
+  logic       [pDTAG_W-1 : 0] rsc2_dec_map_engine__obdtag           ;
+  logic                       rsc2_dec_map_engine__odone            ;
+  logic              [15 : 0] rsc2_dec_map_engine__oerr             ;
 
 
 
-  rsc_dec_map_engine
+  rsc2_dec_map_engine
   #(
     .pLLR_W         ( pLLR_W         ) ,
     .pLLR_FP        ( pLLR_FP        ) ,
@@ -72,100 +72,99 @@
     .pMMAX_TYPE     ( pMMAX_TYPE     ) ,
     .pUSE_RP_P_COMP ( pUSE_RP_P_COMP )
   )
-  rsc_dec_map_engine
+  rsc2_dec_map_engine
   (
-    .iclk             ( rsc_dec_map_engine__iclk             ) ,
-    .ireset           ( rsc_dec_map_engine__ireset           ) ,
-    .iclkena          ( rsc_dec_map_engine__iclkena          ) ,
-    .ifirst           ( rsc_dec_map_engine__ifirst           ) ,
-    .ilast            ( rsc_dec_map_engine__ilast            ) ,
-    .ieven            ( rsc_dec_map_engine__ieven            ) ,
-    .ibitswap         ( rsc_dec_map_engine__ibitswap         ) ,
-    .iwarm            ( rsc_dec_map_engine__iwarm            ) ,
-    .isop             ( rsc_dec_map_engine__isop             ) ,
-    .ival             ( rsc_dec_map_engine__ival             ) ,
-    .ieop             ( rsc_dec_map_engine__ieop             ) ,
-    .ifaddr           ( rsc_dec_map_engine__ifaddr           ) ,
-    .ifsLLR           ( rsc_dec_map_engine__ifsLLR           ) ,
-    .ifyLLR           ( rsc_dec_map_engine__ifyLLR           ) ,
-    .ifwLLR           ( rsc_dec_map_engine__ifwLLR           ) ,
-    .ifLextr          ( rsc_dec_map_engine__ifLextr          ) ,
-    .ifsLLRtag        ( rsc_dec_map_engine__ifsLLRtag        ) ,
-    .ibaddr           ( rsc_dec_map_engine__ibaddr           ) ,
-    .ibsLLR           ( rsc_dec_map_engine__ibsLLR           ) ,
-    .ibyLLR           ( rsc_dec_map_engine__ibyLLR           ) ,
-    .ibwLLR           ( rsc_dec_map_engine__ibwLLR           ) ,
-    .ibLextr          ( rsc_dec_map_engine__ibLextr          ) ,
-    .ibsLLRtag        ( rsc_dec_map_engine__ibsLLRtag        ) ,
-    .if_rp_state_even ( rsc_dec_map_engine__if_rp_state_even ) ,
-    .if_rp_state_odd  ( rsc_dec_map_engine__if_rp_state_odd  ) ,
-    .ib_rp_state_even ( rsc_dec_map_engine__ib_rp_state_even ) ,
-    .ib_rp_state_odd  ( rsc_dec_map_engine__ib_rp_state_odd  ) ,
-    .of_rp_state_even ( rsc_dec_map_engine__of_rp_state_even ) ,
-    .of_rp_state_odd  ( rsc_dec_map_engine__of_rp_state_odd  ) ,
-    .ob_rp_state_even ( rsc_dec_map_engine__ob_rp_state_even ) ,
-    .ob_rp_state_odd  ( rsc_dec_map_engine__ob_rp_state_odd  ) ,
-    .osop             ( rsc_dec_map_engine__osop             ) ,
-    .oeop             ( rsc_dec_map_engine__oeop             ) ,
-    .oval             ( rsc_dec_map_engine__oval             ) ,
-    .odatval          ( rsc_dec_map_engine__odatval          ) ,
-    .ofaddr           ( rsc_dec_map_engine__ofaddr           ) ,
-    .ofLextr          ( rsc_dec_map_engine__ofLextr          ) ,
-    .ofdat            ( rsc_dec_map_engine__ofdat            ) ,
+    .iclk             ( rsc2_dec_map_engine__iclk             ) ,
+    .ireset           ( rsc2_dec_map_engine__ireset           ) ,
+    .iclkena          ( rsc2_dec_map_engine__iclkena          ) ,
+    .ifirst           ( rsc2_dec_map_engine__ifirst           ) ,
+    .ilast            ( rsc2_dec_map_engine__ilast            ) ,
+    .ieven            ( rsc2_dec_map_engine__ieven            ) ,
+    .ibitswap         ( rsc2_dec_map_engine__ibitswap         ) ,
+    .iwarm            ( rsc2_dec_map_engine__iwarm            ) ,
+    .isop             ( rsc2_dec_map_engine__isop             ) ,
+    .ival             ( rsc2_dec_map_engine__ival             ) ,
+    .ieop             ( rsc2_dec_map_engine__ieop             ) ,
+    .ifaddr           ( rsc2_dec_map_engine__ifaddr           ) ,
+    .ifsLLR           ( rsc2_dec_map_engine__ifsLLR           ) ,
+    .ifyLLR           ( rsc2_dec_map_engine__ifyLLR           ) ,
+    .ifwLLR           ( rsc2_dec_map_engine__ifwLLR           ) ,
+    .ifLextr          ( rsc2_dec_map_engine__ifLextr          ) ,
+    .ifsLLRtag        ( rsc2_dec_map_engine__ifsLLRtag        ) ,
+    .ibaddr           ( rsc2_dec_map_engine__ibaddr           ) ,
+    .ibsLLR           ( rsc2_dec_map_engine__ibsLLR           ) ,
+    .ibyLLR           ( rsc2_dec_map_engine__ibyLLR           ) ,
+    .ibwLLR           ( rsc2_dec_map_engine__ibwLLR           ) ,
+    .ibLextr          ( rsc2_dec_map_engine__ibLextr          ) ,
+    .ibsLLRtag        ( rsc2_dec_map_engine__ibsLLRtag        ) ,
+    .if_rp_state_even ( rsc2_dec_map_engine__if_rp_state_even ) ,
+    .if_rp_state_odd  ( rsc2_dec_map_engine__if_rp_state_odd  ) ,
+    .ib_rp_state_even ( rsc2_dec_map_engine__ib_rp_state_even ) ,
+    .ib_rp_state_odd  ( rsc2_dec_map_engine__ib_rp_state_odd  ) ,
+    .of_rp_state_even ( rsc2_dec_map_engine__of_rp_state_even ) ,
+    .of_rp_state_odd  ( rsc2_dec_map_engine__of_rp_state_odd  ) ,
+    .ob_rp_state_even ( rsc2_dec_map_engine__ob_rp_state_even ) ,
+    .ob_rp_state_odd  ( rsc2_dec_map_engine__ob_rp_state_odd  ) ,
+    .osop             ( rsc2_dec_map_engine__osop             ) ,
+    .oeop             ( rsc2_dec_map_engine__oeop             ) ,
+    .oval             ( rsc2_dec_map_engine__oval             ) ,
+    .odatval          ( rsc2_dec_map_engine__odatval          ) ,
+    .ofaddr           ( rsc2_dec_map_engine__ofaddr           ) ,
+    .ofLextr          ( rsc2_dec_map_engine__ofLextr          ) ,
+    .ofdat            ( rsc2_dec_map_engine__ofdat            ) ,
     .ofderr           ( rsc_dec_map_engine__ofderr           ) ,
     .ofdtag           ( rsc_dec_map_engine__ofdtag           ) ,
-    .obaddr           ( rsc_dec_map_engine__obaddr           ) ,
-    .obLextr          ( rsc_dec_map_engine__obLextr          ) ,
-    .obdat            ( rsc_dec_map_engine__obdat            ) ,
-    .obderr           ( rsc_dec_map_engine__obderr           ) ,
-    .obdtag           ( rsc_dec_map_engine__obdtag           ) ,
-    .odone            ( rsc_dec_map_engine__odone            ) ,
-    .oerr             ( rsc_dec_map_engine__oerr             )
+    .obaddr           ( rsc2_dec_map_engine__obaddr           ) ,
+    .obLextr          ( rsc2_dec_map_engine__obLextr          ) ,
+    .obdat            ( rsc2_dec_map_engine__obdat            ) ,
+    .obderr           ( rsc2_dec_map_engine__obderr           ) ,
+    .obdtag           ( rsc2_dec_map_engine__obdtag           ) ,
+    .odone            ( rsc2_dec_map_engine__odone            ) ,
+    .oerr             ( rsc2_dec_map_engine__oerr             )
   );
 
 
-  assign rsc_dec_map_engine__iclk             = '0 ;
-  assign rsc_dec_map_engine__ireset           = '0 ;
-  assign rsc_dec_map_engine__iclkena          = '0 ;
-  assign rsc_dec_map_engine__ifirst           = '0 ;
-  assign rsc_dec_map_engine__ilast            = '0 ;
-  assign rsc_dec_map_engine__ieven            = '0 ;
-  assign rsc_dec_map_engine__ibitswap         = '0 ;
-  assign rsc_dec_map_engine__iwarm            = '0 ;
-  assign rsc_dec_map_engine__isop             = '0 ;
-  assign rsc_dec_map_engine__ival             = '0 ;
-  assign rsc_dec_map_engine__ieop             = '0 ;
-  assign rsc_dec_map_engine__ifaddr           = '0 ;
-  assign rsc_dec_map_engine__ifsLLR           = '0 ;
-  assign rsc_dec_map_engine__ifyLLR           = '0 ;
-  assign rsc_dec_map_engine__ifwLLR           = '0 ;
-  assign rsc_dec_map_engine__ifLextr          = '0 ;
-  assign rsc_dec_map_engine__ifsLLRtag        = '0 ;
-  assign rsc_dec_map_engine__ibaddr           = '0 ;
-  assign rsc_dec_map_engine__ibsLLR           = '0 ;
-  assign rsc_dec_map_engine__ibyLLR           = '0 ;
-  assign rsc_dec_map_engine__ibwLLR           = '0 ;
-  assign rsc_dec_map_engine__ibLextr          = '0 ;
-  assign rsc_dec_map_engine__ibsLLRtag        = '0 ;
-  assign rsc_dec_map_engine__if_rp_state_even = '0 ;
-  assign rsc_dec_map_engine__if_rp_state_odd  = '0 ;
-  assign rsc_dec_map_engine__ib_rp_state_even = '0 ;
-  assign rsc_dec_map_engine__ib_rp_state_odd  = '0 ;
+  assign rsc2_dec_map_engine__iclk             = '0 ;
+  assign rsc2_dec_map_engine__ireset           = '0 ;
+  assign rsc2_dec_map_engine__iclkena          = '0 ;
+  assign rsc2_dec_map_engine__ifirst           = '0 ;
+  assign rsc2_dec_map_engine__ilast            = '0 ;
+  assign rsc2_dec_map_engine__ieven            = '0 ;
+  assign rsc2_dec_map_engine__ibitswap         = '0 ;
+  assign rsc2_dec_map_engine__iwarm            = '0 ;
+  assign rsc2_dec_map_engine__isop             = '0 ;
+  assign rsc2_dec_map_engine__ival             = '0 ;
+  assign rsc2_dec_map_engine__ieop             = '0 ;
+  assign rsc2_dec_map_engine__ifaddr           = '0 ;
+  assign rsc2_dec_map_engine__ifsLLR           = '0 ;
+  assign rsc2_dec_map_engine__ifyLLR           = '0 ;
+  assign rsc2_dec_map_engine__ifwLLR           = '0 ;
+  assign rsc2_dec_map_engine__ifLextr          = '0 ;
+  assign rsc2_dec_map_engine__ifsLLRtag        = '0 ;
+  assign rsc2_dec_map_engine__ibaddr           = '0 ;
+  assign rsc2_dec_map_engine__ibsLLR           = '0 ;
+  assign rsc2_dec_map_engine__ibyLLR           = '0 ;
+  assign rsc2_dec_map_engine__ibwLLR           = '0 ;
+  assign rsc2_dec_map_engine__ibLextr          = '0 ;
+  assign rsc2_dec_map_engine__ifsLLRtag        = '0 ;
+  assign rsc2_dec_map_engine__if_rp_state_even = '0 ;
+  assign rsc2_dec_map_engine__if_rp_state_odd  = '0 ;
+  assign rsc2_dec_map_engine__ib_rp_state_even = '0 ;
+  assign rsc2_dec_map_engine__ib_rp_state_odd  = '0 ;
 
 
 
 */
 
 //
-// Project       : rsc
+// Project       : rsc2
 // Author        : Shekhalev Denis (des00)
-// Workfile      : rsc_dec_map_engine.sv
-// Description   : top module sub iteration decoder (i.e. decoder max-log MAP engine).
-//                 Module use concurrent forward and backward ways computing.
-//                 This feature require special rams with two write and read ports.
+// Workfile      : rsc2_dec_map_engine.sv
+// Description   : top module of sub iteration decoder (i.e. decoder engine). Module use concurrent forward and backward
+//                 ways computing. This feature require special rams with two write and read ports.
 //
 
-module rsc_dec_map_engine
+module rsc2_dec_map_engine
 #(
   parameter int pLLR_W         =         5 ,
   parameter int pLLR_FP        =         3 ,
@@ -238,7 +237,7 @@ module rsc_dec_map_engine
   oerr
 );
 
-  `include "rsc_dec_types.svh"
+  `include "rsc2_dec_types.svh"
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -308,7 +307,7 @@ module rsc_dec_map_engine
 
   localparam int cBMC_DELAY   = 2;
   localparam int cRP_DELAY    = 1;
-  localparam int cLAPO_DELAY  = 5;
+  localparam int cLAPO_DELAY  = 6;
   localparam int cLEXTR_DELAY = 2;
 
   localparam int cDELAY = cBMC_DELAY + cRP_DELAY + cLAPO_DELAY + cLEXTR_DELAY;
@@ -379,10 +378,10 @@ module rsc_dec_map_engine
   //
   // metric memory LIFO
   logic                     f_mm__iwrite      ;
-  logic  [cSTATE_W*8-1 : 0] f_mm__iwdata      ;
+  logic [cSTATE_W*16-1 : 0] f_mm__iwdata      ;
   logic                     f_mm__iread       ;
-  logic  [cSTATE_W*8-1 : 0] f_mm__ordata      ;
-  logic  [cSTATE_W*8-1 : 0] b_mm__ordata      ;
+  logic [cSTATE_W*16-1 : 0] f_mm__ordata      ;
+  logic [cSTATE_W*16-1 : 0] b_mm__ordata      ;
   //
   // aposteriory L
   logic                     f_Lapo__ival      ;
@@ -407,7 +406,7 @@ module rsc_dec_map_engine
   // BMC
   //------------------------------------------------------------------------------------------------------
 
-  rsc_dec_bmc
+  rsc2_dec_bmc
   #(
     .pLLR_W  ( pLLR_W  ) ,
     .pLLR_FP ( pLLR_FP )
@@ -439,7 +438,7 @@ module rsc_dec_map_engine
   // recursion processor
   //------------------------------------------------------------------------------------------------------
 
-  rsc_dec_rp_mod
+  rsc2_dec_rp_mod
   #(
     .pB_nF        ( 0              ) ,
     .pLLR_W       ( pLLR_W         ) ,
@@ -505,8 +504,8 @@ module rsc_dec_map_engine
 
   codec_map_dec_mm
   #(
-    .pDATA_W ( cSTATE_W * 8 ) ,
-    .pADDR_W ( pMM_ADDR_W   )   // 1/N of pN
+    .pDATA_W ( cSTATE_W * 16 ) ,
+    .pADDR_W ( pMM_ADDR_W    )   // 1/N of pN
   )
   f_mm
   (
@@ -523,14 +522,16 @@ module rsc_dec_map_engine
   assign f_mm__iwrite = f_rp__oval &  warm[cBMC_DELAY + cRP_DELAY-1];
   assign f_mm__iread  = f_rp__oval & !warm[cBMC_DELAY + cRP_DELAY-1];
 
-  assign f_mm__iwdata = {f_rp__ostate2mm[0], f_rp__ostate2mm[1], f_rp__ostate2mm[2], f_rp__ostate2mm[3],
-                         f_rp__ostate2mm[4], f_rp__ostate2mm[5], f_rp__ostate2mm[6], f_rp__ostate2mm[7]};
+  assign f_mm__iwdata = {f_rp__ostate2mm[0],  f_rp__ostate2mm[1],  f_rp__ostate2mm[2],  f_rp__ostate2mm[3],
+                         f_rp__ostate2mm[4],  f_rp__ostate2mm[5],  f_rp__ostate2mm[6],  f_rp__ostate2mm[7],
+                         f_rp__ostate2mm[8],  f_rp__ostate2mm[9],  f_rp__ostate2mm[10], f_rp__ostate2mm[11],
+                         f_rp__ostate2mm[12], f_rp__ostate2mm[13], f_rp__ostate2mm[14], f_rp__ostate2mm[15]};
 
   //------------------------------------------------------------------------------------------------------
   // Lapo
   //------------------------------------------------------------------------------------------------------
 
-  rsc_dec_Lapo
+  rsc2_dec_Lapo
   #(
     .pB_nF      ( 0          ) ,
     .pLLR_W     ( pLLR_W     ) ,
@@ -554,8 +555,10 @@ module rsc_dec_map_engine
   assign f_Lapo__ival   = f_rp__oval & !warm[cBMC_DELAY + cRP_DELAY-1];
   assign f_Lapo__igamma = f_rp__ogamma;
 
-  assign {f_Lapo__istate[0], f_Lapo__istate[1], f_Lapo__istate[2], f_Lapo__istate[3],
-          f_Lapo__istate[4], f_Lapo__istate[5], f_Lapo__istate[6], f_Lapo__istate[7]} = b_mm__ordata;
+  assign {f_Lapo__istate[0],  f_Lapo__istate[1],  f_Lapo__istate[2],  f_Lapo__istate[3],
+          f_Lapo__istate[4],  f_Lapo__istate[5],  f_Lapo__istate[6],  f_Lapo__istate[7],
+          f_Lapo__istate[8],  f_Lapo__istate[9],  f_Lapo__istate[10], f_Lapo__istate[11],
+          f_Lapo__istate[12], f_Lapo__istate[13], f_Lapo__istate[14], f_Lapo__istate[15]} = b_mm__ordata;
 
   //------------------------------------------------------------------------------------------------------
   // delay line for Lapri & hd
@@ -577,7 +580,7 @@ module rsc_dec_map_engine
   // Lextr
   //------------------------------------------------------------------------------------------------------
 
-  rsc_dec_Lextr
+  rsc2_dec_Lextr
   #(
     .pLLR_W     ( pLLR_W     ) ,
     .pLLR_FP    ( pLLR_FP    ) ,
@@ -643,7 +646,7 @@ module rsc_dec_map_engine
   //
   // metric memory LIFO
   logic                     b_mm__iwrite      ;
-  logic  [cSTATE_W*8-1 : 0] b_mm__iwdata      ;
+  logic [cSTATE_W*16-1 : 0] b_mm__iwdata      ;
   logic                     b_mm__iread       ;
   //
   // aposteriory L
@@ -669,7 +672,7 @@ module rsc_dec_map_engine
   // BMC
   //------------------------------------------------------------------------------------------------------
 
-  rsc_dec_bmc
+  rsc2_dec_bmc
   #(
     .pLLR_W  ( pLLR_W  ) ,
     .pLLR_FP ( pLLR_FP )
@@ -701,7 +704,7 @@ module rsc_dec_map_engine
   // RP
   //------------------------------------------------------------------------------------------------------
 
-  rsc_dec_rp_mod
+  rsc2_dec_rp_mod
   #(
     .pB_nF        ( 1              ) ,
     .pLLR_W       ( pLLR_W         ) ,
@@ -767,8 +770,8 @@ module rsc_dec_map_engine
 
   codec_map_dec_mm
   #(
-    .pDATA_W ( cSTATE_W * 8 ) ,
-    .pADDR_W ( pMM_ADDR_W   )   // 1/N of pN
+    .pDATA_W ( cSTATE_W * 16 ) ,
+    .pADDR_W ( pMM_ADDR_W    )   // 1/N of pN
   )
   b_mm
   (
@@ -785,14 +788,16 @@ module rsc_dec_map_engine
   assign b_mm__iwrite = b_rp__oval &  warm[cBMC_DELAY + cRP_DELAY-1];
   assign b_mm__iread  = b_rp__oval & !warm[cBMC_DELAY + cRP_DELAY-1];
 
-  assign b_mm__iwdata = {b_rp__ostate2mm[0], b_rp__ostate2mm[1], b_rp__ostate2mm[2], b_rp__ostate2mm[3],
-                         b_rp__ostate2mm[4], b_rp__ostate2mm[5], b_rp__ostate2mm[6], b_rp__ostate2mm[7]};
+  assign b_mm__iwdata = {b_rp__ostate2mm[0],  b_rp__ostate2mm[1],  b_rp__ostate2mm[2],  b_rp__ostate2mm[3],
+                         b_rp__ostate2mm[4],  b_rp__ostate2mm[5],  b_rp__ostate2mm[6],  b_rp__ostate2mm[7],
+                         b_rp__ostate2mm[8],  b_rp__ostate2mm[9],  b_rp__ostate2mm[10], b_rp__ostate2mm[11],
+                         b_rp__ostate2mm[12], b_rp__ostate2mm[13], b_rp__ostate2mm[14], b_rp__ostate2mm[15]};
 
   //------------------------------------------------------------------------------------------------------
   // Lapo
   //------------------------------------------------------------------------------------------------------
 
-  rsc_dec_Lapo
+  rsc2_dec_Lapo
   #(
     .pB_nF      ( 1          ) ,
     .pLLR_W     ( pLLR_W     ) ,
@@ -816,8 +821,10 @@ module rsc_dec_map_engine
   assign b_Lapo__ival   = b_rp__oval & !warm[cBMC_DELAY + cRP_DELAY-1];
   assign b_Lapo__igamma = b_rp__ogamma;
 
-  assign {b_Lapo__istate[0], b_Lapo__istate[1], b_Lapo__istate[2], b_Lapo__istate[3],
-          b_Lapo__istate[4], b_Lapo__istate[5], b_Lapo__istate[6], b_Lapo__istate[7]} = f_mm__ordata;
+  assign {b_Lapo__istate[0],  b_Lapo__istate[1],  b_Lapo__istate[2],  b_Lapo__istate[3],
+          b_Lapo__istate[4],  b_Lapo__istate[5],  b_Lapo__istate[6],  b_Lapo__istate[7],
+          b_Lapo__istate[8],  b_Lapo__istate[9],  b_Lapo__istate[10], b_Lapo__istate[11],
+          b_Lapo__istate[12], b_Lapo__istate[13], b_Lapo__istate[14], b_Lapo__istate[15]} = f_mm__ordata;
 
   //------------------------------------------------------------------------------------------------------
   // delay line for Lapri & hd
@@ -839,7 +846,7 @@ module rsc_dec_map_engine
   // Lextr
   //------------------------------------------------------------------------------------------------------
 
-  rsc_dec_Lextr
+  rsc2_dec_Lextr
   #(
     .pLLR_W     ( pLLR_W     ) ,
     .pLLR_FP    ( pLLR_FP    ) ,

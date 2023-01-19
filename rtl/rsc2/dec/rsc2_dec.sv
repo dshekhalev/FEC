@@ -11,130 +11,122 @@
   //
   parameter int pMMAX_TYPE            =  0 ;
   parameter bit pUSE_W_BIT            =  0 ;
-  parameter bit pUSE_WIMAX            =  1 ;
-  parameter bit pUSE_FIXED_CODE       =  0 ;
   //
   parameter bit pUSE_RP_P_COMP        =  1 ;
   parameter bit pUSE_RAM_PIPE         =  1 ;
   //
   parameter bit pUSE_SRC_EOP_VAL_MASK =  1 ;
 
-
-
-  logic                       rsc_dec__iclk            ;
-  logic                       rsc_dec__ireset          ;
-  logic                       rsc_dec__iclkena         ;
-  logic               [3 : 0] rsc_dec__icode           ;
-  logic               [4 : 0] rsc_dec__iptype          ;
-  logic              [12 : 0] rsc_dec__iN              ;
-  logic               [3 : 0] rsc_dec__iNiter          ;
-  logic        [pTAG_W-1 : 0] rsc_dec__itag            ;
-  logic                       rsc_dec__isop            ;
-  logic                       rsc_dec__ieop            ;
-  logic                       rsc_dec__ival            ;
-  logic signed [pLLR_W-1 : 0] rsc_dec__iLLR    [0 : 1] ;
-  logic                       rsc_dec__obusy           ;
-  logic                       rsc_dec__ordy            ;
-  logic                       rsc_dec__ireq            ;
-  logic                       rsc_dec__ofull           ;
-  logic                       rsc_dec__osop            ;
-  logic                       rsc_dec__oeop            ;
-  logic                       rsc_dec__oval            ;
-  logic       [pODAT_W-1 : 0] rsc_dec__odat            ;
-  logic        [pTAG_W-1 : 0] rsc_dec__otag            ;
-  logic              [15 : 0] rsc_dec__oerr            ;
+  logic                       rsc2_dec__iclk            ;
+  logic                       rsc2_dec__ireset          ;
+  logic                       rsc2_dec__iclkena         ;
+  logic               [3 : 0] rsc2_dec__icode           ;
+  logic               [5 : 0] rsc2_dec__iptype          ;
+  logic               [3 : 0] rsc2_dec__iNiter          ;
+  logic        [pTAG_W-1 : 0] rsc2_dec__itag            ;
+  logic                       rsc2_dec__isop            ;
+  logic                       rsc2_dec__ieop            ;
+  logic                       rsc2_dec__ieof            ;
+  logic                       rsc2_dec__ival            ;
+  logic signed [pLLR_W-1 : 0] rsc2_dec__iLLR    [0 : 1] ;
+  logic                       rsc2_dec__obusy           ;
+  logic                       rsc2_dec__ordy            ;
+  logic                       rsc2_dec__ireq            ;
+  logic                       rsc2_dec__ofull           ;
+  logic        [pTAG_W-1 : 0] rsc2_dec__otag            ;
+  logic                       rsc2_dec__osop            ;
+  logic                       rsc2_dec__oeop            ;
+  logic                       rsc2_dec__oval            ;
+  logic               [1 : 0] rsc2_dec__odat            ;
+  logic              [15 : 0] rsc2_dec__oerr            ;
 
 
 
-  rsc_dec
+  rsc2_dec
   #(
     .pLLR_W                ( pLLR_W                ) ,
     .pLLR_FP               ( pLLR_FP               ) ,
     .pODAT_W               ( pODAT_W               ) ,
     .pTAG_W                ( pTAG_W                ) ,
     //
-    .pMMAX_TYPE            ( pMMAX_TYPE            ) ,
-    //
     .pN_MAX                ( pN_MAX                ) ,
+    //
+    .pMMAX_TYPE            ( pMMAX_TYPE            ) ,
     .pUSE_W_BIT            ( pUSE_W_BIT            ) ,
-    .pUSE_WIMAX            ( pUSE_WIMAX            ) ,
-    .pUSE_FIXED_CODE       ( pUSE_FIXED_CODE       ) ,
     //
     .pUSE_RP_P_COMP        ( pUSE_RP_P_COMP        ) ,
     .pUSE_RAM_PIPE         ( pUSE_RAM_PIPE         ) ,
     //
     .pUSE_SRC_EOP_VAL_MASK ( pUSE_SRC_EOP_VAL_MASK )
   )
-  rsc_dec
+  rsc2_dec
   (
-    .iclk    ( rsc_dec__iclk    ) ,
-    .ireset  ( rsc_dec__ireset  ) ,
-    .iclkena ( rsc_dec__iclkena ) ,
-    .icode   ( rsc_dec__icode   ) ,
-    .iptype  ( rsc_dec__iptype  ) ,
-    .iN      ( rsc_dec__iN      ) ,
-    .iNiter  ( rsc_dec__iNiter  ) ,
-    .itag    ( rsc_dec__itag    ) ,
-    .isop    ( rsc_dec__isop    ) ,
-    .ieop    ( rsc_dec__ieop    ) ,
-    .ival    ( rsc_dec__ival    ) ,
-    .iLLR    ( rsc_dec__iLLR    ) ,
-    .obusy   ( rsc_dec__obusy   ) ,
-    .ordy    ( rsc_dec__ordy    ) ,
-    .ireq    ( rsc_dec__ireq    ) ,
-    .ofull   ( rsc_dec__ofull   ) ,
-    .osop    ( rsc_dec__osop    ) ,
-    .oeop    ( rsc_dec__oeop    ) ,
-    .oval    ( rsc_dec__oval    ) ,
-    .odat    ( rsc_dec__odat    ) ,
-    .otag    ( rsc_dec__otag    ) ,
-    .oerr    ( rsc_dec__oerr    )
+    .iclk    ( rsc2_dec__iclk    ) ,
+    .ireset  ( rsc2_dec__ireset  ) ,
+    .iclkena ( rsc2_dec__iclkena ) ,
+    .icode   ( rsc2_dec__icode   ) ,
+    .iptype  ( rsc2_dec__iptype  ) ,
+    .iNiter  ( rsc2_dec__iNiter  ) ,
+    .itag    ( rsc2_dec__itag    ) ,
+    .isop    ( rsc2_dec__isop    ) ,
+    .ieop    ( rsc2_dec__ieop    ) ,
+    .ieof    ( rsc2_dec__ieof    ) ,
+    .ival    ( rsc2_dec__ival    ) ,
+    .iLLR    ( rsc2_dec__iLLR    ) ,
+    .obusy   ( rsc2_dec__obusy   ) ,
+    .ordy    ( rsc2_dec__ordy    ) ,
+    .ireq    ( rsc2_dec__ireq    ) ,
+    .ofull   ( rsc2_dec__ofull   ) ,
+    .otag    ( rsc2_dec__otag    ) ,
+    .osop    ( rsc2_dec__osop    ) ,
+    .oeop    ( rsc2_dec__oeop    ) ,
+    .oval    ( rsc2_dec__oval    ) ,
+    .odat    ( rsc2_dec__odat    ) ,
+    .oerr    ( rsc2_dec__oerr    )
   );
 
 
-  assign rsc_dec__iclk    = '0 ;
-  assign rsc_dec__ireset  = '0 ;
-  assign rsc_dec__iclkena = '0 ;
-  assign rsc_dec__icode   = '0 ;
-  assign rsc_dec__iptype  = '0 ;
-  assign rsc_dec__iN      = '0 ;
-  assign rsc_dec__iNiter  = '0 ;
-  assign rsc_dec__itag    = '0 ;
-  assign rsc_dec__isop    = '0 ;
-  assign rsc_dec__ieop    = '0 ;
-  assign rsc_dec__ival    = '0 ;
-  assign rsc_dec__iLLR    = '0 ;
-  assign rsc_dec__ireq    = '0 ;
+  assign rsc2_dec__iclk    = '0 ;
+  assign rsc2_dec__ireset  = '0 ;
+  assign rsc2_dec__iclkena = '0 ;
+  assign rsc2_dec__icode   = '0 ;
+  assign rsc2_dec__iptype  = '0 ;
+  assign rsc2_dec__iNiter  = '0 ;
+  assign rsc2_dec__itag    = '0 ;
+  assign rsc2_dec__isop    = '0 ;
+  assign rsc2_dec__ieop    = '0 ;
+  assign rsc2_dec__ieof    = '0 ;
+  assign rsc2_dec__ival    = '0 ;
+  assign rsc2_dec__iLLR    = '0 ;
+  assign rsc2_dec__ireq    = '0 ;
 
 
 
 */
 
 //
-// Project       : rsc
+// Project       : rsc2
 // Author        : Shekhalev Denis (des00)
-// Workfile      : rsc_dec.sv
-// Description   : top level for rsc decoder components with dynamic parameters change on fly
+// Workfile      : rsc2_dec.sv
+// Description   : top level for rsc2 decoder components with dynamic parameters change on fly
 //                 Data process path is :
 //                  source -> 2D input buffer -> decoder + extr_ram -> 2D buffer -> sink
 //
 
 `include "define.vh"
 
-module rsc_dec
+module rsc2_dec
 #(
   parameter int pLLR_W                =        5 ,  // LLR width
   parameter int pLLR_FP               = pLLR_W-2 ,  // LLR fixed point
   parameter int pODAT_W               =        2 ,  // Output data width 2/4/8
   parameter int pTAG_W                =        8 ,  // Tag port bitwidth
   //
-  parameter int pN_MAX                =     4096 ,  // maximum number of data duobit's <= 4096
+  parameter int pN_MAX                =      512 ,  // maximum number of data duobit's <= 4096
   //
   parameter int pMMAX_TYPE            =        0 ,  // 0 - max Log Map (only supported)
                                                     // 1 - const 1 max Log Map
   parameter bit pUSE_W_BIT            =        1 ,  // 0/1 - not use/use coderate with W bits (icode == 0 or icode == 10/11)
-  parameter bit pUSE_WIMAX            =        1 ,  // 1 - use dvb/wimax/wimaxa, 0 - use dvb/wimaxa only
-  parameter bit pUSE_FIXED_CODE       =        0 ,  // 1 - icode/iptype/iN is constant, 0 - icode/iptype/iN is variable
   //
   parameter bit pUSE_RP_P_COMP        =        1 ,  // use parallel comparator for recursion processor
   parameter bit pUSE_RAM_PIPE         =        1 ,  // pipeline rams inside dec_engine
@@ -148,7 +140,6 @@ module rsc_dec
   //
   icode   ,
   iptype  ,
-  iN      ,
   iNiter  ,
   //
   itag    ,
@@ -163,11 +154,11 @@ module rsc_dec
   ireq    ,
   ofull   ,
   //
+  otag    ,
   osop    ,
   oeop    ,
   oval    ,
   odat    ,
-  otag    ,
   //
   oerr
 );
@@ -180,12 +171,8 @@ module rsc_dec
   input  logic                       ireset         ;
   input  logic                       iclkena        ;
   //
-  input  logic               [3 : 0] icode          ; // code rate  0       - 1/3,
-                                                      //            [1 : 9] - [1/2; 2/3; 3/4; 4/5; 5/6; 6/7; 7/8; 8/9; 9/10]
-                                                      //            [10:11] - [2:3]/5
-                                                      //            12      - 3/7
-  input  logic               [4 : 0] iptype         ; // permutation type [0:11] - DVB/[12:15] - Wimax/[16:27] - WimaxA
-  input  logic              [12 : 0] iN             ; // number of data duobit's
+  input  logic               [3 : 0] icode          ; // coderate [0 : 7] - [1/3; 1/2; 2/3; 3/4; 4/5; 5/6; 6/7; 7/8]
+  input  logic               [5 : 0] iptype         ; // permutation type [ 0: 33] - reordered Table A-1/2/4/5
   input  logic               [3 : 0] iNiter         ; // number of iteration >= 2
   //
   input  logic        [pTAG_W-1 : 0] itag           ;
@@ -200,11 +187,11 @@ module rsc_dec
   input  logic                       ireq           ;
   output logic                       ofull          ;
   //
+  output logic        [pTAG_W-1 : 0] otag           ;
   output logic                       osop           ;
   output logic                       oeop           ;
   output logic                       oval           ;
   output logic       [pODAT_W-1 : 0] odat           ;
-  output logic        [pTAG_W-1 : 0] otag           ;
   //
   output logic              [15 : 0] oerr           ;
 
@@ -212,20 +199,20 @@ module rsc_dec
   //
   //------------------------------------------------------------------------------------------------------
 
-  `include "../rsc_constants.svh"
-  `include "rsc_dec_types.svh"
+  `include "../rsc2_constants.svh"
+  `include "rsc2_dec_types.svh"
 
   localparam int cADDR_W = clogb2(pN_MAX);
 
-  localparam int cIB_TAG_W  = (pUSE_FIXED_CODE ? 0 : $bits(code_ctx_t)) + $bits(iNiter) + pTAG_W; // {used_code_ctx, Niter, tag}
-  localparam int cOB_TAG_W  = 16 + $bits(dbits_num_t) + pTAG_W; // {decerr, iN, itag}
+  localparam int cIB_TAG_W =  $bits(code_ctx_t) + $bits(iNiter) + pTAG_W; // {used_code_ctx, Niter, tag}
+  localparam int cOB_TAG_W = 16 + $bits(dbits_num_t) + pTAG_W; // {decerr, iN, tag}
 
   //------------------------------------------------------------------------------------------------------
   //
   //------------------------------------------------------------------------------------------------------
 
   code_ctx_t                used_code_ctx    ;
-  //
+
   // source
   logic                     source__ifulla          ;
   logic                     source__iemptya         ;
@@ -238,7 +225,6 @@ module rsc_dec
   bit_llr_t                 source__oyLLR   [0 : 1] ;
   bit_llr_t                 source__owLLR   [0 : 1] ;
 
-  //
   // input buffer
   logic   [cIB_TAG_W-1 : 0] ibuffer__iwtag           ;
 
@@ -314,7 +300,7 @@ module rsc_dec
   logic                     obuffer__oemptya  ;
   logic                     obuffer__ofull    ;
   logic                     obuffer__ofulla   ;
-
+  //
   // sink
   dbits_num_t               sink__iN      ;
   logic                     sink__ifull   ;
@@ -324,14 +310,26 @@ module rsc_dec
   logic                     sink__orempty ;
   logic     [cADDR_W-1 : 0] sink__oraddr  ;
 
+
   //------------------------------------------------------------------------------------------------------
   //
   //------------------------------------------------------------------------------------------------------
   // synthesis translate_off
+
+  logic [12 : 0] ntable__oN;
+
+  rsc2_ntable
+  ntable
+  (
+    .iptype ( iptype     ) ,
+    .oN     ( ntable__oN ) ,
+    .oNm1   (            )
+  );
+
   initial begin : info
     @(posedge iclk iff iclkena & ival & isop);
     $display("bw paramters used for decoding:");
-    $display("block length %0d. code rate %0d", iN, icode);
+    $display("block length %0d. code rate %0d", ntable__oN, icode);
     case (pMMAX_TYPE)
       1       : $display("C=1.5 MaxLog Map");
       2       : $display("C=2.0 MaxLog Map");
@@ -353,13 +351,12 @@ module rsc_dec
 
   assign used_code_ctx.code   = icode  ;
   assign used_code_ctx.ptype  = iptype ;
-  assign used_code_ctx.Ndbits = iN     ;
 
   //------------------------------------------------------------------------------------------------------
   // source module
   //------------------------------------------------------------------------------------------------------
 
-  rsc_dec_source
+  rsc2_dec_source
   #(
     .pLLR_W            ( pLLR_W                ) ,
     .pLLR_FP           ( pLLR_FP               ) ,
@@ -369,33 +366,31 @@ module rsc_dec
   )
   source
   (
-    .iclk     ( iclk            ) ,
-    .ireset   ( ireset          ) ,
-    .iclkena  ( iclkena         ) ,
+    .iclk    ( iclk             ) ,
+    .ireset  ( ireset           ) ,
+    .iclkena ( iclkena          ) ,
     //
-    .icode    ( icode           ) , // drive by input parameters
-    .iN       ( iN              ) ,
+    .icode   ( icode            ) , // drive by input parameters
+    .iptype  ( iptype           ) ,
     // input interface
-    .isop     ( isop            ) ,
-    .ieop     ( ieop            ) ,
-    .ival     ( ival            ) ,
-    .iLLR     ( iLLR            ) ,
-    .iLLRtag  ( '0              ) , // n.u.
+    .isop    ( isop             ) ,
+    .ieop    ( ieop             ) ,
+    .ival    ( ival             ) ,
+    .iLLR    ( iLLR             ) ,
     //
-    .ifulla   ( source__ifulla  ) ,
-    .iemptya  ( source__iemptya ) ,
+    .ifulla  ( source__ifulla   ) ,
+    .iemptya ( source__iemptya  ) ,
     //
-    .obusy    ( obusy           ) ,
-    .ordy     ( ordy            ) ,
+    .obusy   ( obusy            ) ,
+    .ordy    ( ordy             ) ,
     // ibuffer interface
-    .owrite   ( source__owrite  ) ,
-    .owfull   ( source__owfull  ) ,
-    .owsel    ( source__owsel   ) ,
-    .owaddr   ( source__owaddr  ) ,
-    .osLLR    ( source__osLLR   ) ,
-    .oyLLR    ( source__oyLLR   ) ,
-    .owLLR    ( source__owLLR   ) ,
-    .osLLRtag (                 )   // n.u.
+    .owrite  ( source__owrite   ) ,
+    .owfull  ( source__owfull   ) ,
+    .owsel   ( source__owsel    ) ,
+    .owaddr  ( source__owaddr   ) ,
+    .osLLR   ( source__osLLR    ) ,
+    .oyLLR   ( source__oyLLR    ) ,
+    .owLLR   ( source__owLLR    )
   );
 
   assign source__ifulla  = ibuffer__ofulla;
@@ -414,23 +409,23 @@ module rsc_dec
     //
     .pBNUM_W ( 1             ) ,  // 2D
     //
-    .pDPIPE  ( pUSE_RAM_PIPE )
+    .pDPIPE  ( pUSE_RAM_PIPE )    // no pipe
   )
   ibuffer
   (
-    .iclk    ( iclk             ) ,
-    .ireset  ( ireset           ) ,
-    .iclkena ( iclkena          ) ,
+    .iclk    ( iclk              ) ,
+    .ireset  ( ireset            ) ,
+    .iclkena ( iclkena           ) ,
     //
-    .iwrite  ( source__owrite   ) ,
-    .iwfull  ( source__owfull   ) ,
-    .iwsel   ( source__owsel    ) ,
-    .iwaddr  ( source__owaddr   ) ,
-    .isLLR   ( source__osLLR    ) ,
-    .iyLLR   ( source__oyLLR    ) ,
-    .iwLLR   ( source__owLLR    ) ,
+    .iwrite  ( source__owrite    ) ,
+    .iwfull  ( source__owfull    ) ,
+    .iwsel   ( source__owsel     ) ,
+    .iwaddr  ( source__owaddr    ) ,
+    .isLLR   ( source__osLLR     ) ,
+    .iyLLR   ( source__oyLLR     ) ,
+    .iwLLR   ( source__owLLR     ) ,
     //
-    .iwtag   ( ibuffer__iwtag   ) ,
+    .iwtag   ( ibuffer__iwtag    ) ,
     //
     .irempty ( ibuffer__irempty ) ,
     //
@@ -456,11 +451,10 @@ module rsc_dec
     .ofulla  ( ibuffer__ofulla  )
   );
 
-  //
   always_ff @(posedge iclk) begin
     if (iclkena) begin
       if (isop & ival) begin
-        ibuffer__iwtag <= pUSE_FIXED_CODE ? {iNiter, itag} : {used_code_ctx, iNiter, itag}; // {used_code_ctx, Niter, tag}
+        ibuffer__iwtag <= {used_code_ctx, iNiter, itag}; // {used_code_ctx, Niter, tag}
       end
     end
   end
@@ -477,7 +471,7 @@ module rsc_dec
   // decoder engine
   //------------------------------------------------------------------------------------------------------
 
-  rsc_dec_engine
+  rsc2_dec_engine
   #(
     .pLLR_W         ( pLLR_W          ) ,
     .pLLR_FP        ( pLLR_FP         ) ,
@@ -485,11 +479,8 @@ module rsc_dec
     .pTAG_W         ( pTAG_W          ) ,
     //
     .pMMAX_TYPE     ( pMMAX_TYPE      ) ,
-    .pUSE_WIMAX     ( pUSE_WIMAX      ) ,
     .pUSE_IBUF_PIPE ( pUSE_RAM_PIPE   ) ,
-    .pUSE_RP_P_COMP ( pUSE_RP_P_COMP  ) ,
-    //
-    .pFIX_MODE      ( pUSE_FIXED_CODE )
+    .pUSE_RP_P_COMP ( pUSE_RP_P_COMP  )
   )
   engine
   (
@@ -539,17 +530,9 @@ module rsc_dec
   assign engine__irbuf_full  = ibuffer__ofull;
 
   always_comb begin
-    if (pUSE_FIXED_CODE) begin
-       engine__icode_ctx  = used_code_ctx;
-       //
-      {engine__iNiter,
-       engine__irtag}     = ibuffer__ortag;
-    end
-    else begin
-      {engine__icode_ctx,
-       engine__iNiter,
-       engine__irtag}     = ibuffer__ortag;  // {used_code_ctx, Niter, tag}
-    end
+    {engine__icode_ctx,
+     engine__iNiter,
+     engine__irtag}     = ibuffer__ortag;  // {used_code_ctx, Niter, tag}
   end
 
   assign engine__irfsLLR     = ibuffer__ofsLLR ;
