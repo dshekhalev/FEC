@@ -69,7 +69,7 @@
 */
 
 //
-// Project       : ldpc DVB-S
+// Project       : ldpc DVB-S2
 // Author        : Shekhalev Denis (des00)
 // Workfile      : ldpc_dvb_enc_mux.sv
 // Description   : encoder engine data/parity bits output muxer

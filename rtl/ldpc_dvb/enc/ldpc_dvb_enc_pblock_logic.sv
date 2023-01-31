@@ -59,7 +59,7 @@
 */
 
 //
-// Project       : ldpc DVB-S
+// Project       : ldpc DVB-S2
 // Author        : Shekhalev Denis (des00)
 // Workfile      : ldpc_dvb_enc_pblock_logic.sv
 // Description   : encoder parity bit counter logic

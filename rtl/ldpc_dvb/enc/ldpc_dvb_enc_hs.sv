@@ -66,7 +66,7 @@
 */
 
 //
-// Project       : ldpc DVB-S
+// Project       : ldpc DVB-S2
 // Author        : Shekhalev Denis (des00)
 // Workfile      : ldpc_dvb_enc_hs.sv
 // Description   : Hs coe code context based fixed table

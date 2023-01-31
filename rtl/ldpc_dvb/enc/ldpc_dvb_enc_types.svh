@@ -1,5 +1,5 @@
 //
-// Project       : ldpc DVB-S
+// Project       : ldpc DVB-S2
 // Author        : Shekhalev Denis (des00)
 // Workfile      : ldpc_dvb_enc_types.svh
 // Description   : encoder parameters/types & etc
@@ -43,7 +43,6 @@
   function automatic int get_ibuff_max_addr (input int gr);
     code_ctx_t ctx;
   begin
-    // can use any coderate
     if (gr == cCODEGR_LARGE) begin
       ctx = '{gr : cCODEGR_LARGE, coderate : cCODERATE_9by10};
     end

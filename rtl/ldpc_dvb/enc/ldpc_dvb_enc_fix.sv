@@ -91,7 +91,7 @@
 */
 
 //
-// Project       : ldpc DVB-S
+// Project       : ldpc DVB-S2
 // Author        : Shekhalev Denis (des00)
 // Workfile      : ldpc_dvb_enc_fix.sv
 // Description   : fixed mode DVB RTL encoder with asynchronus input/output/core clocks
@@ -102,8 +102,6 @@ module ldpc_dvb_enc_fix
 (
   iclk      ,
   ireset    ,
-  //
-  icode_ctx ,
   //
   iclkin    ,
   //
@@ -144,7 +142,6 @@ module ldpc_dvb_enc_fix
   input  logic                iclk      ; // core clock
   input  logic                ireset    ;
   //
-  input  code_ctx_t           icode_ctx ;
   input  logic                iclkin    ; // input interface clock
   //
   input  logic                isop      ;

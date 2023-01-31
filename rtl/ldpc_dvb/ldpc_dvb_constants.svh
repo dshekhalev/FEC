@@ -1,5 +1,5 @@
 //
-// Project       : ldpc DVB-S
+// Project       : ldpc DVB-S2
 // Author        : Shekhalev Denis (des00)
 // Workfile      : ldpc_dvb_constants.svh
 // Description   : DVB LDPC codec constants, types, functions
@@ -11,16 +11,16 @@
 
   typedef enum bit [3 : 0] {
     cCODERATE_1by4  = 0  ,
-    cCODERATE_1by3  = 10 ,
-    cCODERATE_2by5  = 11 ,
-    cCODERATE_1by2  = 1  ,
-    cCODERATE_3by5  = 12 ,
-    cCODERATE_2by3  = 2  ,
-    cCODERATE_3by4  = 3  ,
-    cCODERATE_4by5  = 4  ,
-    cCODERATE_5by6  = 5  ,
-    cCODERATE_8by9  = 8  ,
-    cCODERATE_9by10 = 9
+    cCODERATE_1by3  = 1  ,
+    cCODERATE_2by5  = 2  ,
+    cCODERATE_1by2  = 3  ,
+    cCODERATE_3by5  = 4  ,
+    cCODERATE_2by3  = 5  ,
+    cCODERATE_3by4  = 6  ,
+    cCODERATE_4by5  = 7  ,
+    cCODERATE_5by6  = 8  ,
+    cCODERATE_8by9  = 9  ,
+    cCODERATE_9by10 = 10
   } coderate_t;
 
   typedef enum bit [1 : 0] {
@@ -62,8 +62,8 @@
   //------------------------------------------------------------------------------------------------------
 
   typedef logic       [cZC_MAX-1 : 0] zdat_t;
-  typedef logic [cLOG2_COL_MAX-1 : 0] row_t;
-  typedef logic [cLOG2_ROW_MAX-1 : 0] col_t;
+  typedef logic [cLOG2_COL_MAX-1 : 0] col_t;
+  typedef logic [cLOG2_ROW_MAX-1 : 0] row_t;
 
   typedef logic  [cLOG2_ZC_MAX-1 : 0] shift_t;
 
@@ -129,4 +129,17 @@
     get_used_data_col = get_used_col(code_ctx) - get_used_row(code_ctx);
   end
   endfunction
+
+  // synthesis translate_off
+  function automatic real get_used_coderate (input code_ctx_t code_ctx);
+    int used_col;
+    int used_data_col;
+  begin
+    used_col      = get_used_col(code_ctx);
+    used_data_col = get_used_data_col(code_ctx);
+    //
+    get_used_coderate = 1.0*used_data_col/used_col;
+  end
+  endfunction
+  // synthesis translate_on
 

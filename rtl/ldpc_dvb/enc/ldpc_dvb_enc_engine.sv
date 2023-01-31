@@ -86,7 +86,7 @@
 */
 
 //
-// Project       : ldpc DVB-S
+// Project       : ldpc DVB-S2
 // Author        : Shekhalev Denis (des00)
 // Workfile      : ldpc_dvb_enc_engine.sv
 // Description   : variable mode DVB LDPC RTL encoder engine

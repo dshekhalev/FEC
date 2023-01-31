@@ -15,36 +15,36 @@
 
 
 
-  logic                  ldpc_dvb_enc_ibuffer__iwclk    ;
-  logic                  ldpc_dvb_enc_ibuffer__iwreset  ;
+  logic                  ldpc_dvb_dec_ibuffer__iwclk    ;
+  logic                  ldpc_dvb_dec_ibuffer__iwreset  ;
   //
-  logic   [cBUF_N-1 : 0] ldpc_dvb_enc_ibuffer__iwrite   ;
-  logic                  ldpc_dvb_enc_ibuffer__iwfull   ;
-  logic [pWADDR_W-1 : 0] ldpc_dvb_enc_ibuffer__iwaddr   ;
-  logic  [pWDAT_W-1 : 0] ldpc_dvb_enc_ibuffer__iwdat    ;
-  logic   [pTAG_W-1 : 0] ldpc_dvb_enc_ibuffer__iwtag    ;
+  logic   [cBUF_N-1 : 0] ldpc_dvb_dec_ibuffer__iwrite   ;
+  logic                  ldpc_dvb_dec_ibuffer__iwfull   ;
+  logic [pWADDR_W-1 : 0] ldpc_dvb_dec_ibuffer__iwaddr   ;
+  logic  [pWDAT_W-1 : 0] ldpc_dvb_dec_ibuffer__iwdat    ;
+  logic   [pTAG_W-1 : 0] ldpc_dvb_dec_ibuffer__iwtag    ;
   //
-  logic                  ldpc_dvb_enc_ibuffer__owempty  ;
-  logic                  ldpc_dvb_enc_ibuffer__owemptya ;
-  logic                  ldpc_dvb_enc_ibuffer__owfull   ;
-  logic                  ldpc_dvb_enc_ibuffer__owfulla  ;
+  logic                  ldpc_dvb_dec_ibuffer__owempty  ;
+  logic                  ldpc_dvb_dec_ibuffer__owemptya ;
+  logic                  ldpc_dvb_dec_ibuffer__owfull   ;
+  logic                  ldpc_dvb_dec_ibuffer__owfulla  ;
   //
-  logic                  ldpc_dvb_enc_ibuffer__irclk    ;
-  logic                  ldpc_dvb_enc_ibuffer__irreset  ;
+  logic                  ldpc_dvb_dec_ibuffer__irclk    ;
+  logic                  ldpc_dvb_dec_ibuffer__irreset  ;
   //
-  logic                  ldpc_dvb_enc_ibuffer__irempty  ;
-  logic [pRADDR_W-1 : 0] ldpc_dvb_enc_ibuffer__iraddr   ;
-  logic  [pRDAT_W-1 : 0] ldpc_dvb_enc_ibuffer__ordat    ;
-  logic   [pTAG_W-1 : 0] ldpc_dvb_enc_ibuffer__ortag    ;
+  logic                  ldpc_dvb_dec_ibuffer__irempty  ;
+  logic [pRADDR_W-1 : 0] ldpc_dvb_dec_ibuffer__iraddr   ;
+  logic  [pRDAT_W-1 : 0] ldpc_dvb_dec_ibuffer__ordat    ;
+  logic   [pTAG_W-1 : 0] ldpc_dvb_dec_ibuffer__ortag    ;
   //
-  logic                  ldpc_dvb_enc_ibuffer__orempty  ;
-  logic                  ldpc_dvb_enc_ibuffer__oremptya ;
-  logic                  ldpc_dvb_enc_ibuffer__orfull   ;
-  logic                  ldpc_dvb_enc_ibuffer__orfulla  ;
+  logic                  ldpc_dvb_dec_ibuffer__orempty  ;
+  logic                  ldpc_dvb_dec_ibuffer__oremptya ;
+  logic                  ldpc_dvb_dec_ibuffer__orfull   ;
+  logic                  ldpc_dvb_dec_ibuffer__orfulla  ;
 
 
 
-  ldpc_dvb_enc_ibuffer
+  ldpc_dvb_dec_ibuffer
   #(
     .pWADDR_W ( pWADDR_W ) ,
     .pWDAT_W  ( pWDAT_W  ) ,
@@ -57,51 +57,51 @@
     //
     .pPIPE    ( pPIPE    )
   )
-  ldpc_dvb_enc_ibuffer
+  ldpc_dvb_dec_ibuffer
   (
-    .iwclk    ( ldpc_dvb_enc_ibuffer__iwclk    ) ,
-    .iwreset  ( ldpc_dvb_enc_ibuffer__iwreset  ) ,
+    .iwclk    ( ldpc_dvb_dec_ibuffer__iwclk    ) ,
+    .iwreset  ( ldpc_dvb_dec_ibuffer__iwreset  ) ,
     //
-    .iwrite   ( ldpc_dvb_enc_ibuffer__iwrite   ) ,
-    .iwfull   ( ldpc_dvb_enc_ibuffer__iwfull   ) ,
-    .iwaddr   ( ldpc_dvb_enc_ibuffer__iwaddr   ) ,
-    .iwdat    ( ldpc_dvb_enc_ibuffer__iwdat    ) ,
-    .iwtag    ( ldpc_dvb_enc_ibuffer__iwtag    ) ,
+    .iwrite   ( ldpc_dvb_dec_ibuffer__iwrite   ) ,
+    .iwfull   ( ldpc_dvb_dec_ibuffer__iwfull   ) ,
+    .iwaddr   ( ldpc_dvb_dec_ibuffer__iwaddr   ) ,
+    .iwdat    ( ldpc_dvb_dec_ibuffer__iwdat    ) ,
+    .iwtag    ( ldpc_dvb_dec_ibuffer__iwtag    ) ,
     //
-    .owempty  ( ldpc_dvb_enc_ibuffer__owempty  ) ,
-    .owemptya ( ldpc_dvb_enc_ibuffer__owemptya ) ,
-    .owfull   ( ldpc_dvb_enc_ibuffer__owfull   ) ,
-    .owfulla  ( ldpc_dvb_enc_ibuffer__owfulla  ) ,
+    .owempty  ( ldpc_dvb_dec_ibuffer__owempty  ) ,
+    .owemptya ( ldpc_dvb_dec_ibuffer__owemptya ) ,
+    .owfull   ( ldpc_dvb_dec_ibuffer__owfull   ) ,
+    .owfulla  ( ldpc_dvb_dec_ibuffer__owfulla  ) ,
     //
-    .irclk    ( ldpc_dvb_enc_ibuffer__irclk    ) ,
-    .irreset  ( ldpc_dvb_enc_ibuffer__irreset  ) ,
+    .irclk    ( ldpc_dvb_dec_ibuffer__irclk    ) ,
+    .irreset  ( ldpc_dvb_dec_ibuffer__irreset  ) ,
     //
-    .irempty  ( ldpc_dvb_enc_ibuffer__irempty  ) ,
-    .iraddr   ( ldpc_dvb_enc_ibuffer__iraddr   ) ,
-    .ordat    ( ldpc_dvb_enc_ibuffer__ordat    ) ,
-    .ortag    ( ldpc_dvb_enc_ibuffer__ortag    ) ,
+    .irempty  ( ldpc_dvb_dec_ibuffer__irempty  ) ,
+    .iraddr   ( ldpc_dvb_dec_ibuffer__iraddr   ) ,
+    .ordat    ( ldpc_dvb_dec_ibuffer__ordat    ) ,
+    .ortag    ( ldpc_dvb_dec_ibuffer__ortag    ) ,
     //
-    .orempty  ( ldpc_dvb_enc_ibuffer__orempty  ) ,
-    .oremptya ( ldpc_dvb_enc_ibuffer__oremptya ) ,
-    .orfull   ( ldpc_dvb_enc_ibuffer__orfull   ) ,
-    .orfulla  ( ldpc_dvb_enc_ibuffer__orfulla  )
+    .orempty  ( ldpc_dvb_dec_ibuffer__orempty  ) ,
+    .oremptya ( ldpc_dvb_dec_ibuffer__oremptya ) ,
+    .orfull   ( ldpc_dvb_dec_ibuffer__orfull   ) ,
+    .orfulla  ( ldpc_dvb_dec_ibuffer__orfulla  )
   );
 
 
-  assign ldpc_dvb_enc_ibuffer__iwclk    = '0 ;
-  assign ldpc_dvb_enc_ibuffer__iwreset  = '0 ;
+  assign ldpc_dvb_dec_ibuffer__iwclk    = '0 ;
+  assign ldpc_dvb_dec_ibuffer__iwreset  = '0 ;
   //
-  assign ldpc_dvb_enc_ibuffer__iwrite   = '0 ;
-  assign ldpc_dvb_enc_ibuffer__iwfull   = '0 ;
-  assign ldpc_dvb_enc_ibuffer__iwaddr   = '0 ;
-  assign ldpc_dvb_enc_ibuffer__iwdat    = '0 ;
-  assign ldpc_dvb_enc_ibuffer__iwtag    = '0 ;
+  assign ldpc_dvb_dec_ibuffer__iwrite   = '0 ;
+  assign ldpc_dvb_dec_ibuffer__iwfull   = '0 ;
+  assign ldpc_dvb_dec_ibuffer__iwaddr   = '0 ;
+  assign ldpc_dvb_dec_ibuffer__iwdat    = '0 ;
+  assign ldpc_dvb_dec_ibuffer__iwtag    = '0 ;
   //
-  assign ldpc_dvb_enc_ibuffer__irclk    = '0 ;
-  assign ldpc_dvb_enc_ibuffer__irreset  = '0 ;
+  assign ldpc_dvb_dec_ibuffer__irclk    = '0 ;
+  assign ldpc_dvb_dec_ibuffer__irreset  = '0 ;
   //
-  assign ldpc_dvb_enc_ibuffer__irempty  = '0 ;
-  assign ldpc_dvb_enc_ibuffer__iraddr   = '0 ;
+  assign ldpc_dvb_dec_ibuffer__irempty  = '0 ;
+  assign ldpc_dvb_dec_ibuffer__iraddr   = '0 ;
 
 
 
@@ -110,11 +110,11 @@
 //
 // Project       : coding library
 // Author        : Shekhalev Denis (des00)
-// Workfile      : ldpc_dvb_enc_ibuffer.sv
+// Workfile      : ldpc_dvb_dec_ibuffer.sv
 // Description   : asynchronus xD ram buffer with 2D tag interface with DWC options. Ram read latency is 1/2 tick
 //
 
-module ldpc_dvb_enc_ibuffer
+module ldpc_dvb_dec_ibuffer
 #(
   parameter int pWADDR_W = 8 ,
   parameter int pWDAT_W  = 8 ,

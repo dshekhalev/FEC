@@ -80,7 +80,7 @@
 */
 
 //
-// Project       : ldpc DVB-S
+// Project       : ldpc DVB-S2
 // Author        : Shekhalev Denis (des00)
 // Workfile      : ldpc_dvb_enc_source.sv
 // Description   : input encoder interface module with DWC
@@ -162,7 +162,7 @@ module ldpc_dvb_enc_source
   logic                    bwrite;
 
   //------------------------------------------------------------------------------------------------------
-  //
+  // DWC logic
   //------------------------------------------------------------------------------------------------------
 
   generate

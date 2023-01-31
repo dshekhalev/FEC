@@ -56,7 +56,7 @@
 */
 
 //
-// Project       : ldpc DVB-S
+// Project       : ldpc DVB-S2
 // Author        : Shekhalev Denis (des00)
 // Workfile      : ldpc_dvb_barrel_shifter.sv
 // Description   : wide bit barrel shifter
