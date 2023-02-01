@@ -51,11 +51,23 @@
   localparam int cZC_MAX                      = 360;
   localparam int cLOG2_ZC_MAX                 = $clog2(cZC_MAX);
 
-  localparam int cHS_NON_ZERO_MAX             = 1024; // maximimum non zero coe in Hs matrix
+  localparam int cHS_NON_ZERO_MAX             = 1024; // maximimum non zero coe in large Hs matrix
   localparam int cHS_CYCLE_W                  = $clog2(cHS_NON_ZERO_MAX);
 
   localparam int cHS_NON_ZERO_ROW_PER_COL_MAX = 16; // maximim non zero coe in HS col + LLR
   localparam int cHS_NON_ZERO_COL_PER_ROW_MAX = 32; // maximim non zero coe in HS row
+
+  //------------------------------------------------------------------------------------------------------
+  // settings to save resourses for short codeword
+  //------------------------------------------------------------------------------------------------------
+
+  localparam int cCOL_SHORT_MAX               = 45;
+  localparam int cLOG2_COL_SHORT_MAX          = $clog2(cCOL_SHORT_MAX);
+
+  localparam int cLOG2_ROW_SHORT_MAX          = cLOG2_COL_SHORT_MAX; //~can make so, its near the same
+
+  localparam int cHS_SHORT_NON_ZERO_MAX       = 256; // maximimum non zero coe in short Hs matrix
+  localparam int cHS_SHORT_CYCLE_W            = $clog2(cHS_SHORT_NON_ZERO_MAX);
 
   //------------------------------------------------------------------------------------------------------
   // matrix based types
@@ -69,7 +81,7 @@
 
   typedef logic   [cHS_CYCLE_W-1 : 0] cycle_idx_t;
 
-  typedef int                        Hs_t [cROW_MAX][cCOL_MAX][2];
+  typedef int                         Hs_t [cROW_MAX][cCOL_MAX][2];
 
   //------------------------------------------------------------------------------------------------------
   // usefull functions

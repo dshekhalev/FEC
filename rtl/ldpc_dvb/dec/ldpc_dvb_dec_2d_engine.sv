@@ -2,21 +2,25 @@
 
 
 
-  parameter int pLLR_W        =  8 ;
-  parameter int pNODE_W       =  8 ;
+  parameter int pLLR_W            =  8 ;
+  parameter int pNODE_W           =  8 ;
   //
-  parameter int pRADDR_W      =  8 ;
-  parameter int pWADDR_W      =  8 ;
+  parameter int pRADDR_W          =  8 ;
+  parameter int pWADDR_W          =  8 ;
   //
-  parameter int pTAG_W        =  4 ;
+  parameter int pTAG_W            =  4 ;
   //
-  parameter int pERR_W        = 16 ;
+  parameter int pERR_W            = 16 ;
   //
-  parameter int pCNORM_FACTOR =  6 ;
+  parameter bit pCODEGR           =  1 ;
   //
-  parameter bit pUSE_SC_MODE  =  1 ;
+  parameter int pCNORM_FACTOR     =  6 ;
   //
-  parameter bit pFIX_MODE     =  1 ;
+  parameter bit pDO_LLR_INVERSION =  1 ;
+  parameter bit pUSE_SRL_FIFO     =  1 ;
+  parameter bit pUSE_SC_MODE      =  1 ;
+  //
+  parameter bit pFIX_MODE         =  1 ;
 
 
 
@@ -63,9 +67,11 @@
     //
     .pERR_W            ( pERR_W            ) ,
     //
+    .pCODEGR           ( pCODEGR           ) ,
     .pCNORM_FACTOR     ( pCNORM_FACTOR     ) ,
     //
     .pDO_LLR_INVERSION ( pDO_LLR_INVERSION ) ,
+    .pUSE_SRL_FIFO     ( pUSE_SRL_FIFO     ) ,
     .pUSE_SC_MODE      ( pUSE_SC_MODE      ) ,
     //
     .pFIX_MODE         ( pFIX_MODE         )
@@ -166,14 +172,18 @@ module ldpc_dvb_dec_2d_engine
   //
   parameter int pERR_W            = 16 ;
   //
-  parameter int pCNORM_FACTOR     =  6 ;
+  parameter int pCNORM_FACTOR     =  7 ;  // horizontal step normalization factor
 
-  parameter bit pDO_LLR_INVERSION = 0 ;
+  parameter bit pDO_LLR_INVERSION =  1 ;  // do metric inversion inside decoder
+
+  parameter bit pUSE_SRL_FIFO     =  1 ;  // use SRL based internal FIFO
   //
-  parameter int pFIX_MODE         = 0 ;
+  parameter int pFIX_MODE         =  0 ;  // fix mode decoder
 
   `include "../ldpc_dvb_constants.svh"
   `include "ldpc_dvb_dec_types.svh"
+
+  parameter bit pCODEGR           = cCODEGR_LARGE ;  // maximum used graph short(0)/large(1)
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -212,10 +222,10 @@ module ldpc_dvb_dec_2d_engine
   //
   //------------------------------------------------------------------------------------------------------
 
-  localparam int cNODE_RAM_ADDR_W   = cHS_CYCLE_W ;
+  localparam int cNODE_RAM_ADDR_W   = pCODEGR ? cHS_CYCLE_W : cHS_SHORT_CYCLE_W;
   localparam int cNODE_RAM_DAT_W    = pNODE_W * cZC_MAX;
 
-  localparam int cSTATE_RAM_ADDR_W  = cHS_CYCLE_W ;
+  localparam int cSTATE_RAM_ADDR_W  = cNODE_RAM_ADDR_W ;
   localparam int cSTATE_RAM_DAT_W   = (1 + (pUSE_SC_MODE ? $bits(node_state_t) : 0)) * cZC_MAX; // +1 for syndrome decision
 
   //------------------------------------------------------------------------------------------------------
@@ -337,6 +347,8 @@ module ldpc_dvb_dec_2d_engine
   zdat_t                          vnode__obitdat      ;
   zdat_t                          vnode__obiterr      ;
   col_t                           vnode__obitaddr     ;
+  //
+  logic                           vnode__obusy        ;
 
   //------------------------------------------------------------------------------------------------------
   // Hs "generator"
@@ -519,9 +531,9 @@ module ldpc_dvb_dec_2d_engine
   assign ctrl__iused_row      = hs_gen__oused_row;
   assign ctrl__icycle_max_num = hs_gen__ocycle_max_num;
 
-  assign ctrl__ivnode_busy    = (ctrl__ocycle_read | vnode__ovnode_val);
+  assign ctrl__ivnode_busy    = (ctrl__ocycle_read | vnode__obusy);
 
-  assign ctrl__icnode_busy    = (ctrl__ocycle_read | cnode__ocnode_val);
+  assign ctrl__icnode_busy    = (ctrl__ocycle_read | cnode__obusy);
   assign ctrl__icnode_decfail = cnode__odecfail;
 
   //------------------------------------------------------------------------------------------------------
@@ -551,7 +563,7 @@ module ldpc_dvb_dec_2d_engine
     .ordat   ( node_ram__ordat  )
   );
 
-  assign node_ram__iraddr = hs_gen__ocycle_node_raddr;
+  assign node_ram__iraddr = hs_gen__ocycle_node_raddr[cNODE_RAM_ADDR_W-1 : 0];
 
   always_comb begin
     for (int z = 0; z < cZC_MAX; z++) begin
@@ -563,15 +575,15 @@ module ldpc_dvb_dec_2d_engine
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
-      if (ctrl__oc_nv_mode) begin
-        node_ram__iwrite  <= cnode__ocnode_val  ;
-        node_ram__iwaddr  <= cnode__ocnode_addr ;
-        node_ram_wdat     <= cnode__ocnode      ;
+      node_ram__iwrite <= cnode__ocnode_val | vnode__ovnode_val;
+      //
+      if (cnode__ocnode_val) begin
+        node_ram__iwaddr  <= cnode__ocnode_addr[cNODE_RAM_ADDR_W-1 : 0];
+        node_ram_wdat     <= cnode__ocnode;
       end
       else begin
-        node_ram__iwrite  <= vnode__ovnode_val  ;
-        node_ram__iwaddr  <= vnode__ovnode_addr ;
-        node_ram_wdat     <= vnode__ovnode      ;
+        node_ram__iwaddr  <= vnode__ovnode_addr[cNODE_RAM_ADDR_W-1 : 0];
+        node_ram_wdat     <= vnode__ovnode;
       end
     end
   end
@@ -603,12 +615,12 @@ module ldpc_dvb_dec_2d_engine
     .ordat   ( state_ram__ordat  )
   );
 
-  assign state_ram__iraddr = hs_gen__ocycle_node_raddr;
+  assign state_ram__iraddr = hs_gen__ocycle_node_raddr[cSTATE_RAM_ADDR_W-1 : 0];
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
       state_ram__iwrite <= vnode__ovnode_val;
-      state_ram__iwaddr <= vnode__ovnode_addr;
+      state_ram__iwaddr <= vnode__ovnode_addr[cSTATE_RAM_ADDR_W-1 : 0];
       if (pUSE_SC_MODE) begin
         state_ram__iwdat[cSTATE_RAM_DAT_W-1 -: cZC_MAX] <= vnode__ovnode_hd;
         //
@@ -642,9 +654,12 @@ module ldpc_dvb_dec_2d_engine
 
   ldpc_dvb_dec_cnode
   #(
-    .pLLR_W       ( pLLR_W        ) ,
-    .pNODE_W      ( pNODE_W       ) ,
-    .pNORM_FACTOR ( pCNORM_FACTOR )
+    .pLLR_W        ( pLLR_W        ) ,
+    .pNODE_W       ( pNODE_W       ) ,
+    //
+    .pNORM_FACTOR  ( pCNORM_FACTOR ) ,
+    //
+    .pUSE_SRL_FIFO ( pUSE_SRL_FIFO )
   )
   cnode
   (
@@ -691,7 +706,9 @@ module ldpc_dvb_dec_2d_engine
     .pNODE_W           ( pNODE_W           ) ,
     //
     .pUSE_SC_MODE      ( pUSE_SC_MODE      ) ,
-    .pDO_LLR_INVERSION ( pDO_LLR_INVERSION )
+    .pDO_LLR_INVERSION ( pDO_LLR_INVERSION ) ,
+    //
+    .pUSE_SRL_FIFO     ( pUSE_SRL_FIFO     )
   )
   vnode
   (
@@ -720,7 +737,9 @@ module ldpc_dvb_dec_2d_engine
     .obiteop      ( vnode__obiteop      ) ,
     .obitdat      ( vnode__obitdat      ) ,
     .obiterr      ( vnode__obiterr      ) ,
-    .obitaddr     ( vnode__obitaddr     )
+    .obitaddr     ( vnode__obitaddr     ) ,
+    //
+    .obusy        ( vnode__obusy        )
   );
 
   assign vnode__istart       = ctrl__ocycle_start;// & !ctrl__oc_nv_mode;

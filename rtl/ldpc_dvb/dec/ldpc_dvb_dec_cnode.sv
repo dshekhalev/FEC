@@ -2,9 +2,10 @@
 
 
 
-  parameter int pLLR_W       = 4 ;
-  parameter int pNODE_W      = 8 ;
-  parameter int pNORM_FACTOR = 6 ;
+  parameter int pLLR_W        = 4 ;
+  parameter int pNODE_W       = 8 ;
+  parameter int pNORM_FACTOR  = 6 ;
+  parameter bit pUSE_SRL_FIFO = 1 ;
 
 
 
@@ -33,9 +34,10 @@
 
   ldpc_dvb_dec_cnode
   #(
-    .pLLR_W       ( pLLR_W       ) ,
-    .pNODE_W      ( pNODE_W      ) ,
-    .pNORM_FACTOR ( pNORM_FACTOR )
+    .pLLR_W        ( pLLR_W        ) ,
+    .pNODE_W       ( pNODE_W       ) ,
+    .pNORM_FACTOR  ( pNORM_FACTOR  ) ,
+    .pUSE_SRL_FIFO ( pUSE_SRL_FIFO )
   )
   ldpc_dvb_dec_cnode
   (
@@ -110,7 +112,8 @@ module ldpc_dvb_dec_cnode
   obusy
 );
 
-  parameter int pNORM_FACTOR = 7;
+  parameter int pNORM_FACTOR  = 7;
+  parameter bit pUSE_SRL_FIFO = 1;  // use SRL based internal FIFO
 
   `include "../ldpc_dvb_constants.svh"
   `include "ldpc_dvb_dec_types.svh"
@@ -168,21 +171,24 @@ module ldpc_dvb_dec_cnode
   logic signed [cIBS_NODE_W-1 : 0] ibs__odat   [cZC_MAX];
   //
   // sort unit
-  zdat_t                          sort__istart                    ;
+  zdat_t                          sort__istart                       ;
   //
-  zdat_t                          sort__ival                      ;
-  strb_t                          sort__istrb            [cZC_MAX];
-  node_t                          sort__ivnode           [cZC_MAX];
-  zdat_t                          sort__ivmask                    ;
+  zdat_t                          sort__ival                         ;
+  strb_t                          sort__istrb               [cZC_MAX];
+  node_t                          sort__ivnode              [cZC_MAX];
+  zdat_t                          sort__ivmask                       ;
   //
-  zdat_t                          sort__osort_val                 ;
-  vn_min_t                        sort__osort_rslt       [cZC_MAX];
-  vn_min_col_t                    sort__osort_num_m1     [cZC_MAX];
+  zdat_t                          sort__osort_val                    ;
+  vn_min_t                        sort__osort_rslt          [cZC_MAX];
+  vn_min_col_t                    sort__osort_num_m1        [cZC_MAX];
   //
-  zdat_t                          sort__osort_pre_val             ;
-  vn_min_col_t                    sort__osort_pre_num_m1 [cZC_MAX];
+  zdat_t                          sort__osort_b1_pre_val             ;
+  vn_min_col_t                    sort__osort_b1_pre_num_m1 [cZC_MAX];
   //
-  zdat_t                          sort__odecfail                  ;
+  zdat_t                          sort__osort_b2_pre_val             ;
+  vn_min_col_t                    sort__osort_b2_pre_num_m1 [cZC_MAX];
+  //
+  zdat_t                          sort__odecfail                     ;
   //
   // syndrome counter
   logic                           syndrome__istart    ;
@@ -201,6 +207,7 @@ module ldpc_dvb_dec_cnode
   logic [cVNODE_FIFO_DAT_W-1 : 0] vnode_fifo__iwdat   ;
   //
   logic                           vnode_fifo__iread   ;
+  logic                           vnode_fifo__orval   ;
   logic [cVNODE_FIFO_DAT_W-1 : 0] vnode_fifo__ordat   ;
   //
   logic                           vnode_fifo__oempty  ;
@@ -312,25 +319,28 @@ module ldpc_dvb_dec_cnode
       )
       sort
       (
-        .iclk             ( iclk                       ) ,
-        .ireset           ( ireset                     ) ,
-        .iclkena          ( iclkena                    ) ,
+        .iclk                ( iclk                          ) ,
+        .ireset              ( ireset                        ) ,
+        .iclkena             ( iclkena                       ) ,
         //
-        .istart           ( sort__istart           [g] ) ,
+        .istart              ( sort__istart              [g] ) ,
         //
-        .ival             ( sort__ival             [g] ) ,
-        .istrb            ( sort__istrb            [g] ) ,
-        .ivnode           ( sort__ivnode           [g] ) ,
-        .ivmask           ( sort__ivmask           [g] ) ,
+        .ival                ( sort__ival                [g] ) ,
+        .istrb               ( sort__istrb               [g] ) ,
+        .ivnode              ( sort__ivnode              [g] ) ,
+        .ivmask              ( sort__ivmask              [g] ) ,
         //
-        .osort_val        ( sort__osort_val        [g] ) ,
-        .osort_rslt       ( sort__osort_rslt       [g] ) ,
-        .osort_num_m1     ( sort__osort_num_m1     [g] ) ,
+        .osort_val           ( sort__osort_val           [g] ) ,
+        .osort_rslt          ( sort__osort_rslt          [g] ) ,
+        .osort_num_m1        ( sort__osort_num_m1        [g] ) ,
         //
-        .osort_pre_val    ( sort__osort_pre_val    [g] ) ,
-        .osort_pre_num_m1 ( sort__osort_pre_num_m1 [g] ) ,
+        .osort_b1_pre_val    ( sort__osort_b1_pre_val    [g] ) ,
+        .osort_b1_pre_num_m1 ( sort__osort_b1_pre_num_m1 [g] ) ,
         //
-        .odecfail         ( sort__odecfail         [g] )
+        .osort_b2_pre_val    ( sort__osort_b2_pre_val    [g] ) ,
+        .osort_b2_pre_num_m1 ( sort__osort_b2_pre_num_m1 [g] ) ,
+        //
+        .odecfail            ( sort__odecfail            [g] )
       );
 
       assign sort__istart [g] = istart;
@@ -386,31 +396,61 @@ module ldpc_dvb_dec_cnode
   end
 
   //------------------------------------------------------------------------------------------------------
-  // vnode dynamic align line : save vnode sign and vnode context
+  // vnode dynamic align line : save vnode sign and vnode context (1 tick delay)
   //------------------------------------------------------------------------------------------------------
 
-  ldpc_dvb_dec_fifo
-  #(
-    .pDEPTH_W ( cVNODE_FIFO_DEPTH_W ) ,
-    .pDAT_W   ( cVNODE_FIFO_DAT_W   )
-  )
-  vnode_fifo
-  (
-    .iclk    ( iclk               ) ,
-    .ireset  ( 1'b0               ) , // don'n need because there is iclear used
-    .iclkena ( iclkena            ) ,
-    //
-    .iclear  ( vnode_fifo__iclear ) ,
-    //
-    .iwrite  ( vnode_fifo__iwrite ) ,
-    .iwdat   ( vnode_fifo__iwdat  ) ,
-    //
-    .iread   ( vnode_fifo__iread  ) ,
-    .ordat   ( vnode_fifo__ordat  ) ,
-    //
-    .oempty  ( vnode_fifo__oempty ) ,
-    .ofull   ( vnode_fifo__ofull  )
-  );
+  generate
+    if (pUSE_SRL_FIFO) begin
+      ldpc_dvb_dec_srl_fifo
+      #(
+        .pDEPTH_W ( cVNODE_FIFO_DEPTH_W ) ,
+        .pDAT_W   ( cVNODE_FIFO_DAT_W   )
+      )
+      vnode_fifo
+      (
+        .iclk    ( iclk               ) ,
+        .ireset  ( 1'b0               ) , // don'n need because there is iclear used
+        .iclkena ( iclkena            ) ,
+        //
+        .iclear  ( vnode_fifo__iclear ) ,
+        //
+        .iwrite  ( vnode_fifo__iwrite ) ,
+        .iwdat   ( vnode_fifo__iwdat  ) ,
+        //
+        .iread   ( vnode_fifo__iread  ) ,
+        .orval   ( vnode_fifo__orval  ) ,
+        .ordat   ( vnode_fifo__ordat  ) ,
+        //
+        .oempty  ( vnode_fifo__oempty ) ,
+        .ofull   ( vnode_fifo__ofull  )
+      );
+    end
+    else begin
+      ldpc_dvb_dec_fifo
+      #(
+        .pDEPTH_W ( cVNODE_FIFO_DEPTH_W ) ,
+        .pDAT_W   ( cVNODE_FIFO_DAT_W   )
+      )
+      vnode_fifo
+      (
+        .iclk    ( iclk               ) ,
+        .ireset  ( 1'b0               ) , // don'n need because there is iclear used
+        .iclkena ( iclkena            ) ,
+        //
+        .iclear  ( vnode_fifo__iclear ) ,
+        //
+        .iwrite  ( vnode_fifo__iwrite ) ,
+        .iwdat   ( vnode_fifo__iwdat  ) ,
+        //
+        .iread   ( vnode_fifo__iread  ) ,
+        .orval   ( vnode_fifo__orval  ) ,
+        .ordat   ( vnode_fifo__ordat  ) ,
+        //
+        .oempty  ( vnode_fifo__oempty ) ,
+        .ofull   ( vnode_fifo__ofull  )
+      );
+    end
+  endgenerate
 
   assign vnode_fifo__iclear = istart;
 
@@ -424,7 +464,10 @@ module ldpc_dvb_dec_cnode
     end
   end
 
-  assign vnode_fifo__iread = ctrl__oread;
+  //
+  // any FIFO version use look ahead reading but with different tick offset
+  //
+  assign vnode_fifo__iread = ctrl__oread | ctrl__irdy; // look ahead reading
 
   //------------------------------------------------------------------------------------------------------
   // cnode generator ctrl
@@ -447,8 +490,19 @@ module ldpc_dvb_dec_cnode
     .oread_idx  ( ctrl__oread_idx  )
   );
 
-  assign ctrl__irdy    = sort__osort_pre_val    [0];
-  assign ctrl__inum_m1 = sort__osort_pre_num_m1 [0];
+  //
+  // RAMB fifo read 2 tick before result, SRL fifo read 1 tick before result
+  //
+  generate
+    if (pUSE_SRL_FIFO) begin
+      assign ctrl__irdy    = sort__osort_b1_pre_val    [0] ;
+      assign ctrl__inum_m1 = sort__osort_b1_pre_num_m1 [0] - 1'b1; // do -1 offset because use look ahead reading
+    end
+    else begin
+      assign ctrl__irdy    = sort__osort_b2_pre_val    [0] ;
+      assign ctrl__inum_m1 = sort__osort_b2_pre_num_m1 [0] - 1'b1; // do -1 offset because use look ahead reading
+    end
+  endgenerate
 
   //------------------------------------------------------------------------------------------------------
   // cnode generator
@@ -482,23 +536,45 @@ module ldpc_dvb_dec_cnode
         .ocnode      ( restore__ocnode      [g] )
       );
 
-      assign restore__ivnode_mask [g] = (g == 0); // mask_0_bit is insode restore unit
+      assign restore__ivnode_mask [g] = (g == 0); // mask_0_bit is inside restore unit
 
-      //
-      //
-      always_ff @(posedge iclk) begin
-        if (iclkena) begin
-          restore__ival       [g] <= ctrl__oread ;
-          restore__ivnode_idx [g] <= ctrl__oread_idx ;
-          //
-          restore__ivn_min    [g] <= sort__osort_rslt[g]; // decision holded for all cycle
+      if (pUSE_SRL_FIFO) begin
+
+        assign restore__ival        [g] = vnode_fifo__orval ;
+
+        assign restore__ivnode_idx  [g] = ctrl__oread_idx ;
+
+        assign restore__ivn_min     [g] = sort__osort_rslt[g]; // decision holded for all cycle
+
+        //
+        // srl fifo has 1 tick delay
+        assign restore__icnode_ctx  [g] = vnode_fifo__ordat[cVNODE_FIFO_DAT_W-1 -: cNODE_TAG_W];
+        assign restore__ivnode_sign [g] = vnode_fifo__ordat[g];
+
+      end
+      else begin
+
+        always_ff @(posedge iclk) begin
+          if (iclkena) begin
+            restore__ival        [g] <= vnode_fifo__orval ;
+
+            restore__ivnode_idx  [g] <= ctrl__oread_idx ;
+          end
         end
+
+        assign restore__ivn_min  [g] = sort__osort_rslt[g]; // decision holded for all cycle
+
+        //
+        // add + 1 tick delay to FIFO
+        always_ff @(posedge iclk) begin
+          if (iclkena) begin
+            restore__icnode_ctx  [g] <= vnode_fifo__ordat[cVNODE_FIFO_DAT_W-1 -: cNODE_TAG_W];
+            restore__ivnode_sign [g] <= vnode_fifo__ordat[g];
+          end
+        end
+
       end
 
-      //
-      // srl fifo has 1 tick delay
-      assign restore__icnode_ctx  [g] = vnode_fifo__ordat[cVNODE_FIFO_DAT_W-1 -: cNODE_TAG_W];
-      assign restore__ivnode_sign [g] = vnode_fifo__ordat[g];
     end
   endgenerate
 
@@ -540,6 +616,21 @@ module ldpc_dvb_dec_cnode
   always_ff @(posedge iclk) begin
     if (iclkena) begin
       ocnode_addr <= istart ? '0 : (ocnode_addr + ocnode_val);
+    end
+  end
+
+  //------------------------------------------------------------------------------------------------------
+  // obusy is look ahead signal for control
+  //  there is 4 tick betwen write/read to node ram
+  //  this logic save 2 tick for cBS_DELAY == 3 (!!!) for each iteration
+  //------------------------------------------------------------------------------------------------------
+
+  always_ff @(posedge iclk or posedge ireset) begin
+    if (ireset) begin
+      obusy <= 1'b0;
+    end
+    else if (iclkena) begin
+      obusy <= obs__ival | !vnode_fifo__oempty; // fifo_empty use because there can be holes in oval flow (!!!)
     end
   end
 

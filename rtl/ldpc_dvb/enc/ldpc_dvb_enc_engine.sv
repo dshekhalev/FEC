@@ -4,7 +4,10 @@
 
   parameter int pRADDR_W  = 8 ;
   parameter int pWADDR_W  = 8 ;
+  //
   parameter int pTAG_W    = 4 ;
+  //
+  parameter int pCODEGR   = 1 ;
   parameter bit pFIX_MODE = 1 ;
 
 
@@ -40,7 +43,10 @@
   #(
     .pRADDR_W  ( pRADDR_W  ) ,
     .pWADDR_W  ( pWADDR_W  ) ,
+    //
     .pTAG_W    ( pTAG_W    ) ,
+    //
+    .pCODEGR   ( pCODEGR   ) ,
     .pFIX_MODE ( pFIX_MODE )
   )
   ldpc_dvb_enc_engine
@@ -99,7 +105,8 @@ module ldpc_dvb_enc_engine
   //
   parameter int pTAG_W    = 4 ,
   //
-  parameter bit pFIX_MODE = 1   // use fixed mode encoder or not
+  parameter bit pCODEGR   = 1,  // maximum used graph short(0)/large(1)
+  parameter bit pFIX_MODE = 0   // use fixed mode encoder or not
 )
 (
   iclk        ,
@@ -169,93 +176,102 @@ module ldpc_dvb_enc_engine
   localparam  [cLOG2_ZC_MAX-1 : 0] cBS_PIPE_LINE = 9'b1_0010_0100;   // 3 pipeline stage
   localparam                   int cBS_DELAY     = 3 + cRDAT_DELAY;  // barrel shifter delay
 
+  // parity bit RAM settings
+  localparam int cPRAM_ADDR_W = pCODEGR ? cLOG2_ROW_MAX : cLOG2_ROW_SHORT_MAX;
+  localparam int cPRAM_DAT_W  = cZC_MAX;
+
   //------------------------------------------------------------------------------------------------------
   //
   //------------------------------------------------------------------------------------------------------
 
   //
   // Hs gen
-  code_ctx_t  hs_gen__icode_ctx      ;
+  code_ctx_t                  hs_gen__icode_ctx      ;
   //
-  col_t       hs_gen__oused_col      ;
-  col_t       hs_gen__oused_data_col ;
-  row_t       hs_gen__oused_row      ;
-  cycle_idx_t hs_gen__ocycle_max_num ;
+  col_t                       hs_gen__oused_col      ;
+  col_t                       hs_gen__oused_data_col ;
+  row_t                       hs_gen__oused_row      ;
+  cycle_idx_t                 hs_gen__ocycle_max_num ;
   //
-  logic       hs_gen__icycle_read    ;
-  cycle_idx_t hs_gen__icycle_idx     ;
+  logic                       hs_gen__icycle_read    ;
+  cycle_idx_t                 hs_gen__icycle_idx     ;
   //
-  logic       hs_gen__ocycle_read    ;
-  strb_t      hs_gen__ocycle_strb    ;
-  col_t       hs_gen__ocycle_col_idx ;
-  shift_t     hs_gen__ocycle_shift   ;
+  logic                       hs_gen__ocycle_read    ;
+  strb_t                      hs_gen__ocycle_strb    ;
+  col_t                       hs_gen__ocycle_col_idx ;
+  shift_t                     hs_gen__ocycle_shift   ;
 
   //
   // ctrl
-  logic       ctrl__ibuf_full      ;
-  logic       ctrl__obuf_empty     ;
-  logic       ctrl__iobuf_empty    ;
+  logic                       ctrl__ibuf_full      ;
+  logic                       ctrl__obuf_empty     ;
+  logic                       ctrl__iobuf_empty    ;
   //
-  col_t       ctrl__iused_col      ;
-  col_t       ctrl__iused_data_col ;
-  row_t       ctrl__iused_row      ;
+  col_t                       ctrl__iused_col      ;
+  col_t                       ctrl__iused_data_col ;
+  row_t                       ctrl__iused_row      ;
   //
-  cycle_idx_t ctrl__icycle_max_num ;
+  cycle_idx_t                 ctrl__icycle_max_num ;
   //
-  logic       ctrl__ostart         ;
+  logic                       ctrl__ostart         ;
   //
-  logic       ctrl__ip_busy        ;
-  logic       ctrl__ocycle_read    ;
-  cycle_idx_t ctrl__ocycle_idx     ;
+  logic                       ctrl__ip_busy        ;
+  logic                       ctrl__ocycle_read    ;
+  cycle_idx_t                 ctrl__ocycle_idx     ;
   //
-  logic       ctrl__op_read        ;
-  strb_t      ctrl__op_strb        ;
-  row_t       ctrl__op_row_idx     ;
+  logic                       ctrl__op_read        ;
+  strb_t                      ctrl__op_strb        ;
+  row_t                       ctrl__op_row_idx     ;
 
   //
   // barrel shifter
   //
-  logic       bs__ival    ;
-  zdat_t      bs__idat    ;
-  shift_t     bs__ishift  ;
+  logic                       bs__ival    ;
+  zdat_t                      bs__idat    ;
+  shift_t                     bs__ishift  ;
   //
-  logic       bs__oval    ;
-  zdat_t      bs__odat    ;
+  logic                       bs__oval    ;
+  zdat_t                      bs__odat    ;
 
   //
   // plogic
-  logic       plogic__istart        ;
+  logic                       plogic__istart        ;
   //
-  logic       plogic__ival          ;
-  strb_t      plogic__istrb         ;
-  zdat_t      plogic__idat          ;
+  logic                       plogic__ival          ;
+  strb_t                      plogic__istrb         ;
+  zdat_t                      plogic__idat          ;
   //
-  logic       plogic__oval          ;
-  row_t       plogic__opacc_row_idx ;
-  zdat_t      plogic__opacc_word    ;
-  zdat_t      plogic__opacc         ;
+  logic                       plogic__oval          ;
+  row_t                       plogic__opacc_row_idx ;
+  zdat_t                      plogic__opacc_word    ;
+  zdat_t                      plogic__opacc         ;
 
   //
   // pram
-  logic       pram__iwrite  ;
-  row_t       pram__iwaddr  ;
-  zdat_t      pram__iwdat   ;
+  logic                       pram__iwrite  ;
+  logic [cPRAM_ADDR_W-1 : 0]  pram__iwaddr  ;
+  logic  [cPRAM_DAT_W-1 : 0]  pram__iwdat   ;
 
-  row_t       pram__iraddr  ;
-  zdat_t      pram__ordat   ;
+  logic [cPRAM_ADDR_W-1 : 0]  pram__iraddr  ;
+  logic  [cPRAM_DAT_W-1 : 0]  pram__ordat   ;
 
   //
   // output mux
-  col_t       mux__iused_data_col ;
+  col_t                       mux__iused_data_col ;
   //
-  logic       mux__ival           ;
-  col_t       mux__icol           ;
-  zdat_t      mux__idat           ;
+  logic                       mux__ival           ;
+  col_t                       mux__icol           ;
+  zdat_t                      mux__idat           ;
   //
-  logic       mux__ipval          ;
-  strb_t      mux__ipstrb         ;
-  zdat_t      mux__ipacc          ;
-  zdat_t      mux__ipline         ;
+  logic                       mux__ipval          ;
+  strb_t                      mux__ipstrb         ;
+  zdat_t                      mux__ipacc          ;
+  zdat_t                      mux__ipline         ;
+  //
+  logic                       mux__owfull         ;
+  logic                       mux__owrite         ;
+  col_t                       mux__owaddr         ;
+  zdat_t                      mux__owdat          ;
 
   //------------------------------------------------------------------------------------------------------
   // Hs "generator"
@@ -474,8 +490,8 @@ module ldpc_dvb_enc_engine
 
   codec_mem_block
   #(
-    .pADDR_W ( cLOG2_ROW_MAX ) ,
-    .pDAT_W  ( cZC_MAX       ) ,
+    .pADDR_W ( cPRAM_ADDR_W  ) ,
+    .pDAT_W  ( cPRAM_DAT_W   ) ,
     .pPIPE   ( 1             )
   )
   pram
@@ -492,11 +508,11 @@ module ldpc_dvb_enc_engine
     .ordat   ( pram__ordat   )
   );
 
-  assign pram__iwrite  = plogic__oval          ;
-  assign pram__iwaddr  = plogic__opacc_row_idx ;
-  assign pram__iwdat   = plogic__opacc_word    ;
+  assign pram__iwrite  = plogic__oval;
+  assign pram__iwaddr  = plogic__opacc_row_idx[cPRAM_ADDR_W-1 : 0];
+  assign pram__iwdat   = plogic__opacc_word;
   //
-  assign pram__iraddr  = ctrl__op_row_idx      ;
+  assign pram__iraddr  = ctrl__op_row_idx[cPRAM_ADDR_W-1 : 0];
 
   //------------------------------------------------------------------------------------------------------
   // allign parity block ram delay
@@ -542,10 +558,10 @@ module ldpc_dvb_enc_engine
     .ipacc          ( mux__ipacc          ) ,
     .ipline         ( mux__ipline         ) ,
     //
-    .owfull         ( owfull              ) ,
-    .owrite         ( owrite              ) ,
-    .owaddr         ( owaddr              ) ,
-    .owdat          ( owdat               )
+    .owfull         ( mux__owfull         ) ,
+    .owrite         ( mux__owrite         ) ,
+    .owaddr         ( mux__owaddr         ) ,
+    .owdat          ( mux__owdat          )
   );
 
   always_ff @(posedge iclk) begin
@@ -568,6 +584,11 @@ module ldpc_dvb_enc_engine
   //------------------------------------------------------------------------------------------------------
   // output data mapping
   //------------------------------------------------------------------------------------------------------
+
+  assign owfull = mux__owfull;
+  assign owrite = mux__owrite;
+  assign owaddr = mux__owaddr[pWADDR_W-1 : 0];
+  assign owdat  = mux__owdat;
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin

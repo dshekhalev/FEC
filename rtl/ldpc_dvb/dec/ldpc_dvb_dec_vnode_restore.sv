@@ -127,8 +127,7 @@ module ldpc_dvb_dec_vnode_restore
 
   logic [1 : 0] val;
 
-  node_t        cnode;
-  node_sum_t    vnode_sum;
+  node_sum_t    vnode;
   logic         vnode_hd;
   cycle_idx_t   vnode_addr;
 
@@ -149,13 +148,11 @@ module ldpc_dvb_dec_vnode_restore
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
-      // pipeline to increase timings after RAM
-      cnode      <= icnode;
-      vnode_sum  <= ivnode_sum;
+      vnode      <= ivnode_sum - icnode;
       vnode_hd   <= ivnode_hd;
       vnode_addr <= ivnode_addr;
       //
-      ovnode      <= saturate(vnode_sum - cnode);
+      ovnode      <= saturate(vnode);
       ovnode_hd   <= vnode_hd;
       ovnode_addr <= vnode_addr;
     end

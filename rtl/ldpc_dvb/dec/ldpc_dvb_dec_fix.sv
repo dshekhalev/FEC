@@ -18,6 +18,7 @@
   parameter int pCNORM_FACTOR     =  7 ;
   parameter bit pDO_TRANSPONSE    =  0 ;
   parameter bit pDO_LLR_INVERSION =  1 ;
+  parameter bit pUSE_SRL_FIFO     =  1 ;
   parameter bit pFULL_BITS_OUTPUT =  0 ;
 
 
@@ -72,6 +73,7 @@
     .pCNORM_FACTOR     ( pCNORM_FACTOR     ) ,
     .pDO_TRANSPONSE    ( pDO_TRANSPONSE    ) ,
     .pDO_LLR_INVERSION ( pDO_LLR_INVERSION ) ,
+    .pUSE_SRL_FIFO     ( pUSE_SRL_FIFO     ) ,
     .pFULL_BITS_OUTPUT ( pFULL_BITS_OUTPUT ) ,
     .pUSE_SC_MODE      ( pUSE_SC_MODE      ) ,
   )
@@ -174,6 +176,7 @@ module ldpc_dvb_dec_fix
   //
   parameter bit pDO_TRANSPONSE    =  0 ;  // do input transponse to be like DVB-S standart or not
   parameter bit pDO_LLR_INVERSION =  1 ;  // do metric inversion or not
+  parameter bit pUSE_SRL_FIFO     =  1 ;  // use SRL based internal FIFO
   parameter bit pFULL_BITS_OUTPUT =  0 ;  // send all(1)/data(0) bits to output
   //
   parameter int pERR_W            = 16 ;
@@ -500,9 +503,11 @@ module ldpc_dvb_dec_fix
     //
     .pERR_W            ( pERR_W            ) ,
     //
+    .pCODEGR           ( pCODEGR           ) ,
     .pCNORM_FACTOR     ( pCNORM_FACTOR     ) ,
     //
     .pDO_LLR_INVERSION ( pDO_LLR_INVERSION ) ,
+    .pUSE_SRL_FIFO     ( pUSE_SRL_FIFO     ) ,
     .pUSE_SC_MODE      ( pUSE_SC_MODE      ) ,
     //
     .pFIX_MODE         ( 1                 )

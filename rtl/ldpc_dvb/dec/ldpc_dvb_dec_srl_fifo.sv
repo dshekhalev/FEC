@@ -7,56 +7,56 @@
 
 
 
-  logic                ldpc_dvb_dec_fifo__iclk    ;
-  logic                ldpc_dvb_dec_fifo__ireset  ;
-  logic                ldpc_dvb_dec_fifo__iclkena ;
+  logic                ldpc_dvb_dec_srl_fifo__iclk    ;
+  logic                ldpc_dvb_dec_srl_fifo__ireset  ;
+  logic                ldpc_dvb_dec_srl_fifo__iclkena ;
   //
-  logic                ldpc_dvb_dec_fifo__iclear  ;
+  logic                ldpc_dvb_dec_srl_fifo__iclear  ;
   //
-  logic                ldpc_dvb_dec_fifo__iwrite  ;
-  logic [pDAT_W-1 : 0] ldpc_dvb_dec_fifo__iwdat   ;
+  logic                ldpc_dvb_dec_srl_fifo__iwrite  ;
+  logic [pDAT_W-1 : 0] ldpc_dvb_dec_srl_fifo__iwdat   ;
   //
-  logic                ldpc_dvb_dec_fifo__iread   ;
-  logic                ldpc_dvb_dec_fifo__orval   ;
-  logic [pDAT_W-1 : 0] ldpc_dvb_dec_fifo__ordat   ;
+  logic                ldpc_dvb_dec_srl_fifo__iread   ;
+  logic                ldpc_dvb_dec_srl_fifo__orval   ;
+  logic [pDAT_W-1 : 0] ldpc_dvb_dec_srl_fifo__ordat   ;
   //
-  logic                ldpc_dvb_dec_fifo__oempty  ;
-  logic                ldpc_dvb_dec_fifo__ofull   ;
+  logic                ldpc_dvb_dec_srl_fifo__oempty  ;
+  logic                ldpc_dvb_dec_srl_fifo__ofull   ;
 
 
 
-  ldpc_dvb_dec_fifo
+  ldpc_dvb_dec_srl_fifo
   #(
     .pDEPTH_W ( pDEPTH_W ) ,
     .pDAT_W   ( pDAT_W   )
   )
-  ldpc_dvb_dec_fifo
+  ldpc_dvb_dec_srl_fifo
   (
-    .iclk    ( ldpc_dvb_dec_fifo__iclk    ) ,
-    .ireset  ( ldpc_dvb_dec_fifo__ireset  ) ,
-    .iclkena ( ldpc_dvb_dec_fifo__iclkena ) ,
+    .iclk    ( ldpc_dvb_dec_srl_fifo__iclk    ) ,
+    .ireset  ( ldpc_dvb_dec_srl_fifo__ireset  ) ,
+    .iclkena ( ldpc_dvb_dec_srl_fifo__iclkena ) ,
     //
-    .iclear  ( ldpc_dvb_dec_fifo__iclear  ) ,
+    .iclear  ( ldpc_dvb_dec_srl_fifo__iclear  ) ,
     //
-    .iwrite  ( ldpc_dvb_dec_fifo__iwrite  ) ,
-    .iwdat   ( ldpc_dvb_dec_fifo__iwdat   ) ,
+    .iwrite  ( ldpc_dvb_dec_srl_fifo__iwrite  ) ,
+    .iwdat   ( ldpc_dvb_dec_srl_fifo__iwdat   ) ,
     //
-    .iread   ( ldpc_dvb_dec_fifo__iread   ) ,
-    .orval   ( ldpc_dvb_dec_fifo__orval   ) ,
-    .ordat   ( ldpc_dvb_dec_fifo__ordat   ) ,
+    .iread   ( ldpc_dvb_dec_srl_fifo__iread   ) ,
+    .orval   ( ldpc_dvb_dec_srl_fifo__orval   ) ,
+    .ordat   ( ldpc_dvb_dec_srl_fifo__ordat   ) ,
     //
-    .oempty  ( ldpc_dvb_dec_fifo__oempty  ) ,
-    .ofull   ( ldpc_dvb_dec_fifo__ofull   )
+    .oempty  ( ldpc_dvb_dec_srl_fifo__oempty  ) ,
+    .ofull   ( ldpc_dvb_dec_srl_fifo__ofull   )
   );
 
 
-  assign ldpc_dvb_dec_fifo__iclk    = '0 ;
-  assign ldpc_dvb_dec_fifo__ireset  = '0 ;
-  assign ldpc_dvb_dec_fifo__iclkena = '0 ;
-  assing ldpc_dvb_dec_fifo__iclear  = '0 ;
-  assign ldpc_dvb_dec_fifo__iwrite  = '0 ;
-  assign ldpc_dvb_dec_fifo__iwdat   = '0 ;
-  assign ldpc_dvb_dec_fifo__iread   = '0 ;
+  assign ldpc_dvb_dec_srl_fifo__iclk    = '0 ;
+  assign ldpc_dvb_dec_srl_fifo__ireset  = '0 ;
+  assign ldpc_dvb_dec_srl_fifo__iclkena = '0 ;
+  assing ldpc_dvb_dec_srl_fifo__iclear  = '0 ;
+  assign ldpc_dvb_dec_srl_fifo__iwrite  = '0 ;
+  assign ldpc_dvb_dec_srl_fifo__iwdat   = '0 ;
+  assign ldpc_dvb_dec_srl_fifo__iread   = '0 ;
 
 
 
@@ -65,11 +65,11 @@
 //
 // Project       : ldpc DVB-S2
 // Author        : Shekhalev Denis (des00)
-// Workfile      : ldpc_dvb_dec_fifo.sv
-// Description   : Small RAM based fifo with output delay 1 tick
+// Workfile      : ldpc_dvb_dec_srl_fifo.sv
+// Description   : Small SRL based fifo with synchronous output
 //
 
-module ldpc_dvb_dec_fifo
+module ldpc_dvb_dec_srl_fifo
 #(
   parameter int pDEPTH_W = 8 ,
   parameter int pDAT_W   = 8
@@ -118,9 +118,7 @@ module ldpc_dvb_dec_fifo
 
   bit     [pDAT_W-1 : 0] ram [2**pDEPTH_W];
 
-  logic [pDEPTH_W-1 : 0] waddr;
-  logic [pDEPTH_W-1 : 0] raddr;
-  logic [pDEPTH_W   : 0] cnt; // + 1 bit for overflow check
+  logic [pDEPTH_W   : 0] cnt; // + 1 bit for correct work
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -131,29 +129,14 @@ module ldpc_dvb_dec_fifo
 
   always_ff @(posedge iclk or posedge ireset) begin
     if (ireset) begin
-      waddr <= '0;
-      raddr <= '0;
-      //
-      cnt   <= '0;
+      cnt <= '0;
     end
     else if (iclkena) begin
       if (iclear) begin
-        waddr <= '0;
-        raddr <= '0;
-        //
-        cnt   <= '0;
+        cnt <= '0;
       end
-      else begin
-        if (write) begin
-          waddr <= waddr + 1'b1;
-        end
-        if (read) begin
-          raddr <= raddr + 1'b1;
-        end
-        //
-        if (write ^ read) begin
-          cnt <= write ? (cnt + 1'b1) : (cnt - 1'b1);
-        end
+      else if (write ^ read) begin
+        cnt <= write ? (cnt + 1'b1) : (cnt - 1'b1);
       end
     end
   end
@@ -173,10 +156,13 @@ module ldpc_dvb_dec_fifo
   always_ff @(posedge iclk) begin
     if (iclkena) begin
       if (write) begin
-        ram[waddr] <= iwdat;
+        ram[0] <= iwdat;
+        for (int i = 1; i < 2**pDEPTH_W; i++) begin
+          ram[i] <= ram[i-1];
+        end
       end
       //
-      ordat <= ram[raddr];
+      ordat <= ram[cnt - 1'b1];
     end
   end
 

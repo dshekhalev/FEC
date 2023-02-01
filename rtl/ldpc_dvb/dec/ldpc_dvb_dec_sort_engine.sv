@@ -8,25 +8,28 @@
 
 
 
-  logic         ldpc_dvb_dec_sort_engine__iclk             ;
-  logic         ldpc_dvb_dec_sort_engine__ireset           ;
-  logic         ldpc_dvb_dec_sort_engine__iclkena          ;
+  logic         ldpc_dvb_dec_sort_engine__iclk                ;
+  logic         ldpc_dvb_dec_sort_engine__ireset              ;
+  logic         ldpc_dvb_dec_sort_engine__iclkena             ;
   //
-  logic         ldpc_dvb_dec_sort_engine__istart           ;
+  logic         ldpc_dvb_dec_sort_engine__istart              ;
   //
-  logic         ldpc_dvb_dec_sort_engine__ival             ;
-  strb_t        ldpc_dvb_dec_sort_engine__istrb            ;
-  logic         ldpc_dvb_dec_sort_engine__ivmask           ;
-  node_t        ldpc_dvb_dec_sort_engine__ivnode           ;
+  logic         ldpc_dvb_dec_sort_engine__ival                ;
+  strb_t        ldpc_dvb_dec_sort_engine__istrb               ;
+  logic         ldpc_dvb_dec_sort_engine__ivmask              ;
+  node_t        ldpc_dvb_dec_sort_engine__ivnode              ;
   //
-  logic         ldpc_dvb_dec_sort_engine__osort_val        ;
-  vn_min_t      ldpc_dvb_dec_sort_engine__osort_rslt       ;
-  min_col_idx_t ldpc_dvb_dec_sort_engine__osort_num_m1     ;
+  logic         ldpc_dvb_dec_sort_engine__osort_val           ;
+  vn_min_t      ldpc_dvb_dec_sort_engine__osort_rslt          ;
+  min_col_idx_t ldpc_dvb_dec_sort_engine__osort_num_m1        ;
   //
-  logic         ldpc_dvb_dec_sort_engine__osort_pre_val    ;
-  min_col_idx_t ldpc_dvb_dec_sort_engine__osort_pre_num_m1 ;
+  logic         ldpc_dvb_dec_sort_engine__osort_b1_pre_val    ;
+  min_col_idx_t ldpc_dvb_dec_sort_engine__osort_b1_pre_num_m1 ;
   //
-  logic         ldpc_dvb_dec_sort_engine__odecfail         ;
+  logic         ldpc_dvb_dec_sort_engine__osort_b2_pre_val    ;
+  min_col_idx_t ldpc_dvb_dec_sort_engine__osort_b2_pre_num_m1 ;
+  //
+  logic         ldpc_dvb_dec_sort_engine__odecfail            ;
 
 
 
@@ -38,25 +41,28 @@
   )
   ldpc_dvb_dec_sort_engine
   (
-    .iclk             ( ldpc_dvb_dec_sort_engine__iclk             ) ,
-    .ireset           ( ldpc_dvb_dec_sort_engine__ireset           ) ,
-    .iclkena          ( ldpc_dvb_dec_sort_engine__iclkena          ) ,
+    .iclk                ( ldpc_dvb_dec_sort_engine__iclk                ) ,
+    .ireset              ( ldpc_dvb_dec_sort_engine__ireset              ) ,
+    .iclkena             ( ldpc_dvb_dec_sort_engine__iclkena             ) ,
     //
-    .istart           ( ldpc_dvb_dec_sort_engine__istart           ) ,
+    .istart              ( ldpc_dvb_dec_sort_engine__istart              ) ,
     //
-    .ival             ( ldpc_dvb_dec_sort_engine__ival             ) ,
-    .istrb            ( ldpc_dvb_dec_sort_engine__istrb            ) ,
-    .ivmask           ( ldpc_dvb_dec_sort_engine__ivmask           ) ,
-    .ivnode           ( ldpc_dvb_dec_sort_engine__ivnode           ) ,
+    .ival                ( ldpc_dvb_dec_sort_engine__ival                ) ,
+    .istrb               ( ldpc_dvb_dec_sort_engine__istrb               ) ,
+    .ivmask              ( ldpc_dvb_dec_sort_engine__ivmask              ) ,
+    .ivnode              ( ldpc_dvb_dec_sort_engine__ivnode              ) ,
     //
-    .osort_val        ( ldpc_dvb_dec_sort_engine__osort_val        ) ,
-    .osort_rslt       ( ldpc_dvb_dec_sort_engine__osort_rslt       ) ,
-    .osort_num_m1     ( ldpc_dvb_dec_sort_engine__osort_num_m1     ) ,
+    .osort_val           ( ldpc_dvb_dec_sort_engine__osort_val           ) ,
+    .osort_rslt          ( ldpc_dvb_dec_sort_engine__osort_rslt          ) ,
+    .osort_num_m1        ( ldpc_dvb_dec_sort_engine__osort_num_m1        ) ,
     //
-    .osort_pre_val    ( ldpc_dvb_dec_sort_engine__osort_pre_val    ) ,
-    .osort_pre_num_m1 ( ldpc_dvb_dec_sort_engine__osort_pre_num_m1 ) ,
+    .osort_b1_pre_val    ( ldpc_dvb_dec_sort_engine__osort_b1_pre_val    ) ,
+    .osort_b1_pre_num_m1 ( ldpc_dvb_dec_sort_engine__osort_b1_pre_num_m1 ) ,
     //
-    .odecfail         ( ldpc_dvb_dec_sort_engine__odecfail         )
+    .osort_b2_pre_val    ( ldpc_dvb_dec_sort_engine__osort_b2_pre_val    ) ,
+    .osort_b2_pre_num_m1 ( ldpc_dvb_dec_sort_engine__osort_b2_pre_num_m1 ) ,
+    //
+    .odecfail            ( ldpc_dvb_dec_sort_engine__odecfail            )
   );
 
 
@@ -83,22 +89,25 @@
 module ldpc_dvb_dec_sort_engine
 (
   iclk             ,
-  ireset           ,
-  iclkena          ,
+  ireset              ,
+  iclkena             ,
   //
-  istart           ,
+  istart              ,
   //
-  ival             ,
-  istrb            ,
-  ivmask           ,
-  ivnode           ,
+  ival                ,
+  istrb               ,
+  ivmask              ,
+  ivnode              ,
   //
-  osort_val        ,
-  osort_rslt       ,
-  osort_num_m1     ,
+  osort_val           ,
+  osort_rslt          ,
+  osort_num_m1        ,
   //
-  osort_pre_val    ,
-  osort_pre_num_m1 ,
+  osort_b1_pre_val    ,
+  osort_b1_pre_num_m1 ,
+  //
+  osort_b2_pre_val    ,
+  osort_b2_pre_num_m1 ,
   //
   odecfail
 );
@@ -112,38 +121,42 @@ module ldpc_dvb_dec_sort_engine
   //
   //------------------------------------------------------------------------------------------------------
 
-  input  logic        iclk             ;
-  input  logic        ireset           ;
-  input  logic        iclkena          ;
+  input  logic        iclk                ;
+  input  logic        ireset              ;
+  input  logic        iclkena             ;
   //
-  input  logic        istart           ;
+  input  logic        istart              ;
   //
-  input  logic        ival             ;
-  input  strb_t       istrb            ;
-  input  logic        ivmask           ;
-  input  node_t       ivnode           ;
+  input  logic        ival                ;
+  input  strb_t       istrb               ;
+  input  logic        ivmask              ;
+  input  node_t       ivnode              ;
   //
-  output logic        osort_val        ;
-  output vn_min_t     osort_rslt       ;
-  output vn_min_col_t osort_num_m1     ;
+  output logic        osort_val           ;
+  output vn_min_t     osort_rslt          ;
+  output vn_min_col_t osort_num_m1        ;
   //
-  output logic        osort_pre_val    ;  // look ahead decision (-1 tick)
-  output vn_min_col_t osort_pre_num_m1 ;
+  output logic        osort_b1_pre_val    ;  // look ahead decision (before 1 tick)
+  output vn_min_col_t osort_b1_pre_num_m1 ;
   //
-  output logic        odecfail         ;
+  output logic        osort_b2_pre_val    ;  // look ahead decision (before 2 tick)
+  output vn_min_col_t osort_b2_pre_num_m1 ;
+  //
+  output logic        odecfail            ;
 
   //------------------------------------------------------------------------------------------------------
   //
   //------------------------------------------------------------------------------------------------------
 
-  logic         val     ;
-  strb_t        strb    ;
+  logic         val   ;
+  strb_t        strb  ;
 
-  logic         pmask       ;
+  logic         pmask ;
 
-  vn_min_col_t  vnode_col   ;
-  logic         sign_vnode  ;
-  vnode_t       abs_vnode   ;
+  logic         vnode_done;
+  vn_min_col_t  vnode_col;
+  logic         sign_vnode;
+  vnode_t       abs_vnode;
 
   logic         vn_sort_done;
   logic         vn_sort_pmask;
@@ -156,10 +169,12 @@ module ldpc_dvb_dec_sort_engine
 
   always_ff @(posedge iclk or posedge ireset) begin
     if (ireset) begin
-      val <= 1'b0;
+      val        <= 1'b0;
+      vnode_done <= 1'b0;
     end
     else if (iclkena) begin
-      val <= ival;
+      val        <= ival;
+      vnode_done <= ival & istrb.eop;
     end
   end
 
@@ -191,7 +206,7 @@ module ldpc_dvb_dec_sort_engine
       vn_sort_done  <= 1'b0;
     end
     else if (iclkena) begin
-      vn_sort_done  <= val & strb.eop;
+      vn_sort_done  <= vnode_done;
     end
   end
 
@@ -245,7 +260,7 @@ module ldpc_dvb_dec_sort_engine
         odecfail <= 1'b0;
       end
       else if (vn_sort_done) begin
-        odecfail <= odecfail | vn_sort.prod_sign | !vn_sort_leq1;
+        odecfail <= odecfail | vn_sort.prod_sign | vn_sort_leq1;
       end
       //
       if (vn_sort_done) begin
@@ -257,9 +272,17 @@ module ldpc_dvb_dec_sort_engine
     end
   end
 
-  // look ahead signals to save resources
-  assign osort_pre_val    = vn_sort_done;
-  assign osort_pre_num_m1 = vn_sort_num_m1;
+  //------------------------------------------------------------------------------------------------------
+  // look ahead signals
+  //------------------------------------------------------------------------------------------------------
+
+  // before 2 tick of osort val signal
+  assign osort_b2_pre_val    = vnode_done;
+  assign osort_b2_pre_num_m1 = vnode_col;
+
+  // before 1 tick of osort_val signal
+  assign osort_b1_pre_val    = vn_sort_done;
+  assign osort_b1_pre_num_m1 = vn_sort_num_m1;
 
   //------------------------------------------------------------------------------------------------------
   // used functions

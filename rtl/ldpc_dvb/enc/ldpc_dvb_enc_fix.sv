@@ -418,7 +418,10 @@ module ldpc_dvb_enc_fix
   #(
     .pRADDR_W  ( cIB_RADDR_W ) ,
     .pWADDR_W  ( cOB_ADDR_W  ) ,
+    //
     .pTAG_W    ( pTAG_W      ) ,
+    //
+    .pCODEGR   ( pCODEGR     ) ,
     .pFIX_MODE ( 1           )
   )
   engine

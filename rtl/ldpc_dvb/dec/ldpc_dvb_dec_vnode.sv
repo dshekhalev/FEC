@@ -9,6 +9,7 @@
   //
   parameter int pUSE_SC_MODE      = 1 ;
   parameter bit pDO_LLR_INVERSION = 0 ;
+  parameter bit pUSE_SRL_FIFO     = 0 ;
 
 
   logic         ldpc_dvb_dec_vnode__iclk         ;
@@ -37,6 +38,8 @@
   zdat_t        ldpc_dvb_dec_vnode__obitdat      ;
   zdat_t        ldpc_dvb_dec_vnode__obiterr      ;
   col_t         ldpc_dvb_dec_vnode__obitaddr     ;
+  //
+  logic         ldpc_dvb_dec_vnode__obusy        ;
 
 
 
@@ -48,7 +51,8 @@
     .pNORM_FACTOR      ( pNORM_FACTOR      ) ,
     //
     .pUSE_SC_MODE      ( pUSE_SC_MODE      ) ,
-    .pDO_LLR_INVERSION ( pDO_LLR_INVERSION )
+    .pDO_LLR_INVERSION ( pDO_LLR_INVERSION ) ,
+    .pUSE_SRL_FIFO     ( pUSE_SRL_FIFO     )
   )
   ldpc_dvb_dec_vnode
   (
@@ -133,11 +137,14 @@ module ldpc_dvb_dec_vnode
   obiteop      ,
   obitdat      ,
   obiterr      ,
-  obitaddr
+  obitaddr     ,
+  //
+  obusy
 );
 
   parameter int pNORM_FACTOR      = 0;
   parameter bit pDO_LLR_INVERSION = 0;
+  parameter bit pUSE_SRL_FIFO     = 1;  // use SRL based internal FIFO
 
   `include "../ldpc_dvb_constants.svh"
   `include "ldpc_dvb_dec_types.svh"
@@ -172,6 +179,8 @@ module ldpc_dvb_dec_vnode
   output zdat_t         obitdat      ;
   output zdat_t         obiterr      ;
   output col_t          obitaddr     ;
+  //
+  output logic          obusy        ;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -211,6 +220,7 @@ module ldpc_dvb_dec_vnode
   logic [cCNODE_FIFO_DAT_W-1 : 0] cnode_fifo__iwdat   ;
   //
   logic                           cnode_fifo__iread   ;
+  logic                           cnode_fifo__orval   ;
   logic [cCNODE_FIFO_DAT_W-1 : 0] cnode_fifo__ordat   ;
   //
   logic                           cnode_fifo__oempty  ;
@@ -286,28 +296,58 @@ module ldpc_dvb_dec_vnode
   // cnode dynamic align line (1 tick delay)
   //------------------------------------------------------------------------------------------------------
 
-  ldpc_dvb_dec_fifo
-  #(
-    .pDEPTH_W ( cCNODE_FIFO_DEPTH_W ) ,
-    .pDAT_W   ( cCNODE_FIFO_DAT_W   )
-  )
-  cnode_fifo
-  (
-    .iclk    ( iclk               ) ,
-    .ireset  ( 1'b0               ) , // don'n need because there is iclear used
-    .iclkena ( iclkena            ) ,
-    //
-    .iclear  ( cnode_fifo__iclear ) ,
-    //
-    .iwrite  ( cnode_fifo__iwrite ) ,
-    .iwdat   ( cnode_fifo__iwdat  ) ,
-    //
-    .iread   ( cnode_fifo__iread  ) ,
-    .ordat   ( cnode_fifo__ordat  ) ,
-    //
-    .oempty  ( cnode_fifo__oempty ) ,
-    .ofull   ( cnode_fifo__ofull  )
-  );
+  generate
+    if (pUSE_SRL_FIFO) begin
+      ldpc_dvb_dec_srl_fifo
+      #(
+        .pDEPTH_W ( cCNODE_FIFO_DEPTH_W ) ,
+        .pDAT_W   ( cCNODE_FIFO_DAT_W   )
+      )
+      cnode_fifo
+      (
+        .iclk    ( iclk               ) ,
+        .ireset  ( 1'b0               ) , // don'n need because there is iclear used
+        .iclkena ( iclkena            ) ,
+        //
+        .iclear  ( cnode_fifo__iclear ) ,
+        //
+        .iwrite  ( cnode_fifo__iwrite ) ,
+        .iwdat   ( cnode_fifo__iwdat  ) ,
+        //
+        .iread   ( cnode_fifo__iread  ) ,
+        .orval   ( cnode_fifo__orval  ) ,
+        .ordat   ( cnode_fifo__ordat  ) ,
+        //
+        .oempty  ( cnode_fifo__oempty ) ,
+        .ofull   ( cnode_fifo__ofull  )
+      );
+    end
+    else begin
+      ldpc_dvb_dec_fifo
+      #(
+        .pDEPTH_W ( cCNODE_FIFO_DEPTH_W ) ,
+        .pDAT_W   ( cCNODE_FIFO_DAT_W   )
+      )
+      cnode_fifo
+      (
+        .iclk    ( iclk               ) ,
+        .ireset  ( 1'b0               ) , // don'n need because there is iclear used
+        .iclkena ( iclkena            ) ,
+        //
+        .iclear  ( cnode_fifo__iclear ) ,
+        //
+        .iwrite  ( cnode_fifo__iwrite ) ,
+        .iwdat   ( cnode_fifo__iwdat  ) ,
+        //
+        .iread   ( cnode_fifo__iread  ) ,
+        .orval   ( cnode_fifo__orval  ) ,
+        .ordat   ( cnode_fifo__ordat  ) ,
+        //
+        .oempty  ( cnode_fifo__oempty ) ,
+        .ofull   ( cnode_fifo__ofull  )
+      );
+    end
+  endgenerate
 
   assign cnode_fifo__iclear = istart;
 
@@ -321,7 +361,17 @@ module ldpc_dvb_dec_vnode
     end
   end
 
-  assign cnode_fifo__iread = ctrl__oread;
+  //
+  // only RAMB version use look ahead reading to get 2 cycle read latency
+  //
+  generate
+    if (pUSE_SRL_FIFO) begin
+      assign cnode_fifo__iread = ctrl__oread;
+    end
+    else begin
+      assign cnode_fifo__iread = ctrl__oread | ctrl__irdy; // look ahead reading
+    end
+  endgenerate
 
   //------------------------------------------------------------------------------------------------------
   // vnode restore ctrl
@@ -344,11 +394,22 @@ module ldpc_dvb_dec_vnode
     .oread_idx  (                  )
   );
 
-  assign ctrl__irdy    = sum__ovnode_pre_val    [0];
-  assign ctrl__inum_m1 = sum__ovnode_pre_num_m1 [0];
+  //
+  // only RAMB version use look ahead reading to get 2 cycle read latency
+  //
+  generate
+    if (pUSE_SRL_FIFO) begin
+      assign ctrl__irdy    = sum__ovnode_pre_val    [0];
+      assign ctrl__inum_m1 = sum__ovnode_pre_num_m1 [0];
+    end
+    else begin
+      assign ctrl__irdy    = sum__ovnode_pre_val [0];
+      assign ctrl__inum_m1 = sum__ovnode_num_m1  [0]; //use look ahead reading (-1):: see ldpc_dvb_dec_vnode_sum.ovnode_pre_num_m1 signal generation
+    end
+  endgenerate
 
   //------------------------------------------------------------------------------------------------------
-  // vnode restore unut
+  // vnode restore unit (2 tick delay)
   //------------------------------------------------------------------------------------------------------
 
   generate
@@ -381,23 +442,48 @@ module ldpc_dvb_dec_vnode
         .ovnode_state ( restore__ovnode_state [g] )
       );
 
-      always_ff @(posedge iclk) begin
-        if (iclkena) begin
-          restore__ival       [g] <= ctrl__oread ;
-          // need hold decision for all cycle
-          if (sum__ovnode_val [g]) begin
-            restore__ivnode_sum [g] <= sum__ovnode_sum[g];
-            restore__ivnode_hd  [g] <= sum__ovnode_hd [g];
+      //
+      // only RAMB version use look ahead reading to get 2 cycle read latency
+      //
+      if (pUSE_SRL_FIFO) begin
+
+        assign restore__ival [g] = cnode_fifo__orval ;
+
+        always_ff @(posedge iclk) begin
+          if (iclkena) begin
+            // need hold decision for all cycle
+            if (sum__ovnode_val [0]) begin
+              restore__ivnode_sum [g] <= sum__ovnode_sum[g];
+              restore__ivnode_hd  [g] <= sum__ovnode_hd [g];
+            end
           end
         end
+        //
+        // srl fifo has 1 tick delay
+        assign restore__ivnode_addr   [g] = cnode_fifo__ordat[cCNODE_FIFO_DAT_W-1 -: cNODE_TAG_W];
+        assign restore__ivnode_state  [g] = '0;
+        assign restore__icnode        [g] = cnode_fifo__ordat[g*pNODE_W +: pNODE_W];
+
       end
+      else begin
 
-      //
-      // srl fifo has 1 tick delay
-      assign restore__ivnode_addr   [g] = cnode_fifo__ordat[cCNODE_FIFO_DAT_W-1 -: cNODE_TAG_W];
-      assign restore__ivnode_state  [g] = '0;
-      assign restore__icnode        [g] = cnode_fifo__ordat[g*pNODE_W +: pNODE_W];
+        always_ff @(posedge iclk) begin
+          if (iclkena) begin
+            restore__ival [g] <= cnode_fifo__orval;
+            // need hold decision for all cycle
+            if (sum__ovnode_val [0]) begin
+              restore__ivnode_sum [g] <= sum__ovnode_sum[g];
+              restore__ivnode_hd  [g] <= sum__ovnode_hd [g];
+            end
+            //
+            // add + 1 tick delay to FIFO
+            restore__ivnode_addr  [g] <= cnode_fifo__ordat[cCNODE_FIFO_DAT_W-1 -: cNODE_TAG_W];
+            restore__icnode       [g] <= cnode_fifo__ordat[g*pNODE_W +: pNODE_W];
+          end
+        end
 
+        assign restore__ivnode_state  [g] = '0;
+      end
     end
   endgenerate
 
@@ -410,6 +496,26 @@ module ldpc_dvb_dec_vnode
   assign ovnode       = restore__ovnode;
   assign ovnode_hd    = restore__ovnode_hd;
   assign ovnode_state = restore__ovnode_state;
+
+  //------------------------------------------------------------------------------------------------------
+  // obusy is look ahead signal for control
+  // there is 4 tick betwen write/read to node ram
+  // this logic save 2 tick for each iteration
+  //------------------------------------------------------------------------------------------------------
+
+  always_ff @(posedge iclk or posedge ireset) begin
+    if (ireset) begin
+      obusy <= 1'b0;
+    end
+    else if (iclkena) begin
+      if (pUSE_SRL_FIFO) begin
+        obusy <= ctrl__oread | !cnode_fifo__oempty;
+      end
+      else begin
+        obusy <= cnode_fifo__orval | !cnode_fifo__oempty;  // fifo_empty use because there can be holes in oval flow (!!!)
+      end
+    end
+  end
 
   //------------------------------------------------------------------------------------------------------
   // bit interface output (register must be here)
