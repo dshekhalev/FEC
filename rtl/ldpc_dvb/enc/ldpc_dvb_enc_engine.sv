@@ -219,6 +219,7 @@ module ldpc_dvb_enc_engine
   logic                       ctrl__ocycle_read    ;
   cycle_idx_t                 ctrl__ocycle_idx     ;
   //
+  logic                       ctrl__ip_read_busy   ;
   logic                       ctrl__op_read        ;
   strb_t                      ctrl__op_strb        ;
   row_t                       ctrl__op_row_idx     ;
@@ -403,6 +404,7 @@ module ldpc_dvb_enc_engine
     .ocycle_read    ( ctrl__ocycle_read    ) ,
     .ocycle_idx     ( ctrl__ocycle_idx     ) ,
     //
+    .ip_read_busy   ( ctrl__ip_read_busy   ) ,
     .op_read        ( ctrl__op_read        ) ,
     .op_strb        ( ctrl__op_strb        ) ,
     .op_row_idx     ( ctrl__op_row_idx     )
@@ -420,6 +422,8 @@ module ldpc_dvb_enc_engine
   assign ctrl__icycle_max_num = hs_gen__ocycle_max_num ;
 
   assign ctrl__ip_busy        = rdat_val[cBS_DELAY-3]  ; // 2 tick is pram read latency (can use for codes used_row >= 4)
+
+  assign ctrl__ip_read_busy   = mux__owrite; // wait until write all to buffer
 
   //------------------------------------------------------------------------------------------------------
   // barrel shifter

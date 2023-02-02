@@ -25,6 +25,7 @@
   logic       ldpc_dvb_enc_ctrl__ocycle_read    ;
   cycle_idx_t ldpc_dvb_enc_ctrl__ocycle_idx     ;
   //
+  logic       ldpc_dvb_enc_ctrl__ip_read_busy   ;
   logic       ldpc_dvb_enc_ctrl__op_read        ;
   strb_t      ldpc_dvb_enc_ctrl__op_strb        ;
   row_t       ldpc_dvb_enc_ctrl__op_row_idx     ;
@@ -54,6 +55,7 @@
     .ocycle_read    ( ldpc_dvb_enc_ctrl__ocycle_read    ) ,
     .ocycle_idx     ( ldpc_dvb_enc_ctrl__ocycle_idx     ) ,
     //
+    .ip_read_busy   ( ldpc_dvb_enc_ctrl__ip_read_busy   ) ,
     .op_read        ( ldpc_dvb_enc_ctrl__op_read        ) ,
     .op_strb        ( ldpc_dvb_enc_ctrl__op_strb        ) ,
     .op_row_idx     ( ldpc_dvb_enc_ctrl__op_row_idx     )
@@ -70,6 +72,7 @@
   assign ldpc_dvb_enc_ctrl__iused_row      = '0 ;
   assign ldpc_dvb_enc_ctrl__icycle_max_num = '0 ;
   assign ldpc_dvb_enc_ctrl__ip_busy        = '0 ;
+  assign ldpc_dvb_enc_ctrl__ip_read_busy   = '0 ;
 
 
 
@@ -104,6 +107,7 @@ module ldpc_dvb_enc_ctrl
   ocycle_read    ,
   ocycle_idx     ,
   //
+  ip_read_busy   ,
   op_read        ,
   op_strb        ,
   op_row_idx
@@ -131,11 +135,12 @@ module ldpc_dvb_enc_ctrl
   input  cycle_idx_t icycle_max_num ;
   //
   output logic       ostart         ;
-  //
+  // parity logic interface
   input  logic       ip_busy        ;
   output logic       ocycle_read    ;
   output cycle_idx_t ocycle_idx     ;
-  //
+  // parity ram read interface
+  input  logic       ip_read_busy   ;
   output logic       op_read        ;
   output strb_t      op_strb        ;
   output row_t       op_row_idx     ;
@@ -194,7 +199,7 @@ module ldpc_dvb_enc_ctrl
         cWAIT_DATA_STATE    : state <= !ip_busy                  ? cDO_P_STATE      : cWAIT_DATA_STATE;
         // do IRA coding
         cDO_P_STATE         : state <= row_cnt.done              ? cWAIT_DO_P_STATE : cDO_P_STATE;
-        cWAIT_DO_P_STATE    : state <= cDONE_STATE;
+        cWAIT_DO_P_STATE    : state <= !ip_read_busy             ? cDONE_STATE      : cWAIT_DO_P_STATE;
         //
         cDONE_STATE         : state <= cWAIT_STATE;
       endcase
