@@ -14,10 +14,13 @@
   parameter int pNODE_W         = pLLR_W + 2; // extend internal node bitwidth to increase fixed point part when normaliation used
 
   // parallelization settings
-//parameter int pROW_BY_CYCLE   = 1;      // amount of rows per cycle. only 1 support now
+//parameter int pROW_BY_CYCLE   = 1;  // amount of rows per cycle. only 1 support now
 
   // algoritm settings
-  parameter bit pUSE_SC_MODE    = 0;      // use self corrected mode (with vnode erasure)
+  parameter bit pUSE_SC_MODE    = 1;  // use self corrected mode (with vnode erasure)
+  parameter int pNORM_FACTOR    = 7;  // scale factor = pNORM_FACTOR/8
+  parameter bit pNORM_OFFSET    = 0;  // use offset (1) or scale (0) normalization
+                                      // for pLLR_W == 4 pNORM_OFFSET don't work (!!!)
 
   //------------------------------------------------------------------------------------------------------
   // used data types

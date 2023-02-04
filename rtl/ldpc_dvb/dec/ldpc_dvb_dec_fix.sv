@@ -15,11 +15,13 @@
   //
   parameter int pNODE_W           =  6 ;
   //
-  parameter int pCNORM_FACTOR     =  7 ;
+  parameter int pNORM_FACTOR      =  7 ;
+  parameter bit pNORM_OFFSET      =  0 ;
   parameter bit pDO_TRANSPONSE    =  0 ;
   parameter bit pDO_LLR_INVERSION =  1 ;
   parameter bit pUSE_SRL_FIFO     =  1 ;
   parameter bit pFULL_BITS_OUTPUT =  0 ;
+  parameter bit pUSE_SC_MODE      =  0 ;
 
 
 
@@ -70,7 +72,8 @@
     //
     .pNODE_W           ( pNODE_W           ) ,
     //
-    .pCNORM_FACTOR     ( pCNORM_FACTOR     ) ,
+    .pNORM_FACTOR      ( pNORM_FACTOR      ) ,
+    .pNORM_OFFSET      ( pNORM_OFFSET      ) ,
     .pDO_TRANSPONSE    ( pDO_TRANSPONSE    ) ,
     .pDO_LLR_INVERSION ( pDO_LLR_INVERSION ) ,
     .pUSE_SRL_FIFO     ( pUSE_SRL_FIFO     ) ,
@@ -181,7 +184,6 @@ module ldpc_dvb_dec_fix
   //
   parameter int pERR_W            = 16 ;
   //
-  parameter int pCNORM_FACTOR     =  7 ;
 
   `include "../ldpc_dvb_constants.svh"
   `include "ldpc_dvb_dec_types.svh"
@@ -504,7 +506,8 @@ module ldpc_dvb_dec_fix
     .pERR_W            ( pERR_W            ) ,
     //
     .pCODEGR           ( pCODEGR           ) ,
-    .pCNORM_FACTOR     ( pCNORM_FACTOR     ) ,
+    .pNORM_FACTOR      ( pNORM_FACTOR      ) ,
+    .pNORM_OFFSET      ( pNORM_OFFSET      ) ,
     //
     .pDO_LLR_INVERSION ( pDO_LLR_INVERSION ) ,
     .pUSE_SRL_FIFO     ( pUSE_SRL_FIFO     ) ,
