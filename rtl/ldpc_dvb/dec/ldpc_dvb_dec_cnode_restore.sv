@@ -2,9 +2,8 @@
 
 
 
-  parameter int pLLR_W       = 4 ;
-  parameter int pNODE_W      = 8 ;
-  parameter int pNORM_FACTOR = 6 ;
+  parameter int pLLR_W  = 4 ;
+  parameter int pNODE_W = 8 ;
 
 
 
@@ -29,9 +28,8 @@
 
   ldpc_dvb_dec_cnode_restore
   #(
-    .pLLR_W       ( pLLR_W       ) ,
-    .pNODE_W      ( pNODE_W      ) ,
-    .pNORM_FACTOR ( pNORM_FACTOR )
+    .pLLR_W  ( pLLR_W  ) ,
+    .pNODE_W ( pNODE_W )
   )
   ldpc_dvb_dec_cnode_restore
   (
@@ -95,8 +93,6 @@ module ldpc_dvb_dec_cnode_restore
   ocnode_ctx  ,
   ocnode
 );
-
-  parameter int pNORM_FACTOR = 7;
 
   `include "../ldpc_dvb_constants.svh"
   `include "ldpc_dvb_dec_types.svh"

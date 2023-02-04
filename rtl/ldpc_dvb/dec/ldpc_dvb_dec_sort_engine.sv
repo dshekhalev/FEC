@@ -4,7 +4,8 @@
 
   parameter int pLLR_W       = 4 ;
   parameter int pNODE_W      = 8 ;
-  parameter int pNORM_FACTOR = 6 ;
+  parameter int pNORM_FACTOR = 7 ;
+  parameter int pNORM_OFFSET = 1 ;
 
 
 
@@ -37,7 +38,8 @@
   #(
     .pLLR_W       ( pLLR_W       ) ,
     .pNODE_W      ( pNODE_W      ) ,
-    .pNORM_FACTOR ( pNORM_FACTOR )
+    .pNORM_FACTOR ( pNORM_FACTOR ) ,
+    .pNORM_OFFSET ( pNORM_OFFSET )
   )
   ldpc_dvb_dec_sort_engine
   (
@@ -111,8 +113,6 @@ module ldpc_dvb_dec_sort_engine
   //
   odecfail
 );
-
-  parameter int pNORM_FACTOR = 7;
 
   `include "../ldpc_dvb_constants.svh"
   `include "ldpc_dvb_dec_types.svh"
@@ -266,8 +266,14 @@ module ldpc_dvb_dec_sort_engine
       if (vn_sort_done) begin
         osort_num_m1    <= vn_sort_num_m1;
         osort_rslt      <= vn_sort;
-        osort_rslt.min1 <= normalize(vn_sort.min1);
-        osort_rslt.min2 <= normalize(vn_sort.min2);
+        if (pNORM_OFFSET) begin
+          osort_rslt.min1 <= vn_sort.min1 - (vn_sort.min1 != 0);  // offset value is 1
+          osort_rslt.min2 <= vn_sort.min2 - (vn_sort.min2 != 0);  // it's positive value
+        end
+        else begin
+          osort_rslt.min1 <= normalize(vn_sort.min1);
+          osort_rslt.min2 <= normalize(vn_sort.min2);
+        end
       end
     end
   end

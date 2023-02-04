@@ -4,7 +4,8 @@
 
   parameter int pLLR_W        = 4 ;
   parameter int pNODE_W       = 8 ;
-  parameter int pNORM_FACTOR  = 6 ;
+  parameter int pNORM_FACTOR  = 7 ;
+  parameter int pNORM_OFFSET  = 1 ;
   parameter bit pUSE_SRL_FIFO = 1 ;
 
 
@@ -37,6 +38,7 @@
     .pLLR_W        ( pLLR_W        ) ,
     .pNODE_W       ( pNODE_W       ) ,
     .pNORM_FACTOR  ( pNORM_FACTOR  ) ,
+    .pNORM_OFFSET  ( pNORM_OFFSET  ) ,
     .pUSE_SRL_FIFO ( pUSE_SRL_FIFO )
   )
   ldpc_dvb_dec_cnode
@@ -112,8 +114,7 @@ module ldpc_dvb_dec_cnode
   obusy
 );
 
-  parameter int pNORM_FACTOR  = 7;
-  parameter bit pUSE_SRL_FIFO = 1;  // use SRL based internal FIFO
+  parameter bit pUSE_SRL_FIFO   = 1;  // use SRL based internal FIFO
 
   `include "../ldpc_dvb_constants.svh"
   `include "ldpc_dvb_dec_types.svh"
@@ -315,7 +316,9 @@ module ldpc_dvb_dec_cnode
       #(
         .pLLR_W       ( pLLR_W       ) ,
         .pNODE_W      ( pNODE_W      ) ,
-        .pNORM_FACTOR ( pNORM_FACTOR )
+        //
+        .pNORM_FACTOR ( pNORM_FACTOR ) ,
+        .pNORM_OFFSET ( pNORM_OFFSET )
       )
       sort
       (
@@ -512,9 +515,8 @@ module ldpc_dvb_dec_cnode
     for (g = 0; g < cZC_MAX; g++) begin : restore_inst
       ldpc_dvb_dec_cnode_restore
       #(
-        .pLLR_W        ( pLLR_W        ) ,
-        .pNODE_W       ( pNODE_W       ) ,
-        .pNORM_FACTOR  ( pNORM_FACTOR  )
+        .pLLR_W  ( pLLR_W  ) ,
+        .pNODE_W ( pNODE_W )
       )
       restore
       (
@@ -621,8 +623,7 @@ module ldpc_dvb_dec_cnode
 
   //------------------------------------------------------------------------------------------------------
   // obusy is look ahead signal for control
-  //  there is 4 tick betwen write/read to node ram
-  //  this logic save 2 tick for cBS_DELAY == 3 (!!!) for each iteration
+  // there is 4 tick betwen write/read to node ram this logic + matrix reorder save it for each iteration
   //------------------------------------------------------------------------------------------------------
 
   always_ff @(posedge iclk or posedge ireset) begin
@@ -630,7 +631,7 @@ module ldpc_dvb_dec_cnode
       obusy <= 1'b0;
     end
     else if (iclkena) begin
-      obusy <= obs__ival | !vnode_fifo__oempty; // fifo_empty use because there can be holes in oval flow (!!!)
+      obusy <= !vnode_fifo__oempty; // fifo_empty use because there can be holes in oval flow (!!!)
     end
   end
 
