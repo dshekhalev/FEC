@@ -22,16 +22,18 @@ module bertest;
   //
   parameter int pLLR_NUM      =  cENC_DAT_W ;  // multuply 360
   //
-  parameter int pCNORM_FACTOR =  7 ;
+  parameter int pNORM_FACTOR =  7 ;
+  parameter bit pNORM_OFFSET =  0 ;
+  parameter bit pUSE_SC_MODE =  1 ;
 
   parameter bit pCODEGR       = cCODEGR_LARGE ;  // short(0)/large(1) graph
 //parameter bit pCODEGR       = cCODEGR_SHORT ;  // short(0)/large(1) graph
 
 //parameter int pCODERATE     = cCODERATE_1by4 ; // coderate table see in ldpc_dvb_constants.svh
-  parameter int pCODERATE     = cCODERATE_1by2 ; // coderate table see in ldpc_dvb_constants.svh
-//parameter int pCODERATE     = cCODERATE_2by3 ; // coderate table see in ldpc_dvb_constants.svh
-//parameter int pCODERATE     = cCODERATE_5by6 ; // coderate table see in ldpc_dvb_constants.svh
-//parameter int pCODERATE     = cCODERATE_8by9 ; // coderate table see in ldpc_dvb_constants.svh
+  parameter int pCODERATE     = cCODERATE_1by2 ;
+//parameter int pCODERATE     = cCODERATE_2by3 ;
+//parameter int pCODERATE     = cCODERATE_5by6 ;
+//parameter int pCODERATE     = cCODERATE_8by9 ;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -262,7 +264,11 @@ module bertest;
     .pNODE_W      ( pNODE_W      ) ,
     //
     .pCODEGR      ( pCODEGR      ) ,
-    .pCODERATE    ( pCODERATE    )
+    .pCODERATE    ( pCODERATE    ) ,
+    //
+    .pNORM_FACTOR ( pNORM_FACTOR ) ,
+    .pNORM_OFFSET ( pNORM_OFFSET ) ,
+    .pUSE_SC_MODE ( pUSE_SC_MODE )
   )
   uut
   (
@@ -330,7 +336,7 @@ module bertest;
 
   int Npkt;
 
-//real EbNo [] = '{1.0};
+//real EbNo [] = '{4.0};
 //real EbNo [] = '{3.5, 3.75, 4.0, 4.25, 4.5, 4.75, 5.0};
 //real EbNo [] = '{2.5, 3.0, 3.5, 4.0, 4.5, 4.75};
 //real EbNo [] = '{4.25, 4.5, 4.75};
