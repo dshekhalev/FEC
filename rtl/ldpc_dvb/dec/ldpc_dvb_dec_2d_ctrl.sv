@@ -302,11 +302,9 @@ module ldpc_dvb_dec_2d_ctrl
       if (state == cWAIT_STATE) begin
         oload_mode  <= 1'b1;
       end
-      else if (state == cWAIT_HDONE_STATE & !icnode_busy) begin
+      else if (state == cWAIT_VDONE_STATE & !ivnode_busy) begin
         oload_mode  <= 1'b0;
       end
-      //
-      oc_nv_mode  <= (state == cHSTEP_STATE) | (state == cWAIT_HDONE_STATE);
       //
       olast_iter  <= ((state == cVSTEP_STATE) | (state == cWAIT_VDONE_STATE)) & do_last;
     end
@@ -316,6 +314,7 @@ module ldpc_dvb_dec_2d_ctrl
 
   assign ocycle_start    = ((state == cVSTEP_STATE) | (state == cHSTEP_STATE)) & cycle_cnt.zero;
   assign ocycle_read     =  (state == cVSTEP_STATE) | (state == cHSTEP_STATE);
+  assign oc_nv_mode      =  (state == cHSTEP_STATE) | (state == cWAIT_HDONE_STATE);
 
   assign ocycle_strb.sof = cycle_cnt.zero;
   assign ocycle_strb.sop = '0;

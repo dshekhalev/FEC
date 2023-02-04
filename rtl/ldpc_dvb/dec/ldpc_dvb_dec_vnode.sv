@@ -5,8 +5,6 @@
   parameter int pLLR_W            = 4 ;
   parameter int pNODE_W           = 8 ;
   //
-  parameter int pNORM_FACTOR      = 6 ;
-  //
   parameter int pUSE_SC_MODE      = 1 ;
   parameter bit pDO_LLR_INVERSION = 0 ;
   parameter bit pUSE_SRL_FIFO     = 0 ;
@@ -47,8 +45,6 @@
   #(
     .pLLR_W            ( pLLR_W            ) ,
     .pNODE_W           ( pNODE_W           ) ,
-    //
-    .pNORM_FACTOR      ( pNORM_FACTOR      ) ,
     //
     .pUSE_SC_MODE      ( pUSE_SC_MODE      ) ,
     .pDO_LLR_INVERSION ( pDO_LLR_INVERSION ) ,
@@ -142,7 +138,6 @@ module ldpc_dvb_dec_vnode
   obusy
 );
 
-  parameter int pNORM_FACTOR      = 0;
   parameter bit pDO_LLR_INVERSION = 0;
   parameter bit pUSE_SRL_FIFO     = 1;  // use SRL based internal FIFO
 
@@ -189,7 +184,7 @@ module ldpc_dvb_dec_vnode
   localparam int cNODE_TAG_W          = $bits(cycle_idx_t);
 
   localparam int cCNODE_FIFO_DEPTH_W  = cNODE_PER_COL_NUM_W ;
-  localparam int cCNODE_FIFO_DAT_W    = pNODE_W * cZC_MAX + cNODE_TAG_W;
+  localparam int cCNODE_FIFO_DAT_W    = pNODE_W * cZC_MAX + cNODE_TAG_W + (pUSE_SC_MODE ? cNODE_STATE_W*cZC_MAX : 0);
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -233,6 +228,7 @@ module ldpc_dvb_dec_vnode
   logic                           ctrl__orslt_read ;
   //
   // vnode restore
+  logic                           restore__istate_init          ;
   zdat_t                          restore__ival                 ;
   cycle_idx_t                     restore__ivnode_addr [cZC_MAX];
   znode_state_t                   restore__ivnode_state         ;
@@ -359,6 +355,12 @@ module ldpc_dvb_dec_vnode
     for (int i = 0; i < cZC_MAX; i++) begin
       cnode_fifo__iwdat[i*pNODE_W +: pNODE_W] = icnode[i];
     end
+    //
+    if (pUSE_SC_MODE) begin
+      for (int i = 0; i < cZC_MAX; i++) begin
+        cnode_fifo__iwdat[cZC_MAX*pNODE_W + i*cNODE_STATE_W +: cNODE_STATE_W] = ivnode_state[i];
+      end
+    end
   end
 
   //
@@ -418,7 +420,6 @@ module ldpc_dvb_dec_vnode
       #(
         .pLLR_W       ( pLLR_W       ) ,
         .pNODE_W      ( pNODE_W      ) ,
-        .pNORM_FACTOR ( pNORM_FACTOR ) ,
         .pUSE_SC_MODE ( pUSE_SC_MODE )
       )
       restore
@@ -426,6 +427,8 @@ module ldpc_dvb_dec_vnode
         .iclk         ( iclk                      ) ,
         .ireset       ( ireset                    ) ,
         .iclkena      ( iclkena                   ) ,
+        //
+        .istate_init  ( restore__istate_init      ) ,
         //
         .ival         ( restore__ival         [g] ) ,
         .ivnode_addr  ( restore__ivnode_addr  [g] ) ,
@@ -461,8 +464,14 @@ module ldpc_dvb_dec_vnode
         //
         // srl fifo has 1 tick delay
         assign restore__ivnode_addr   [g] = cnode_fifo__ordat[cCNODE_FIFO_DAT_W-1 -: cNODE_TAG_W];
-        assign restore__ivnode_state  [g] = '0;
         assign restore__icnode        [g] = cnode_fifo__ordat[g*pNODE_W +: pNODE_W];
+
+        if (pUSE_SC_MODE) begin
+          assign restore__ivnode_state  [g] = cnode_fifo__ordat[cZC_MAX*pNODE_W + g*cNODE_STATE_W +: cNODE_STATE_W];
+        end
+        else begin
+          assign restore__ivnode_state  [g] = '0;
+        end
 
       end
       else begin
@@ -477,15 +486,31 @@ module ldpc_dvb_dec_vnode
             end
             //
             // add + 1 tick delay to FIFO
-            restore__ivnode_addr  [g] <= cnode_fifo__ordat[cCNODE_FIFO_DAT_W-1 -: cNODE_TAG_W];
-            restore__icnode       [g] <= cnode_fifo__ordat[g*pNODE_W +: pNODE_W];
+            restore__ivnode_addr    [g] <= cnode_fifo__ordat[cCNODE_FIFO_DAT_W-1 -: cNODE_TAG_W];
+            restore__icnode         [g] <= cnode_fifo__ordat[g*pNODE_W +: pNODE_W];
+            if (pUSE_SC_MODE) begin
+              restore__ivnode_state [g] <= cnode_fifo__ordat[cZC_MAX*pNODE_W + g*cNODE_STATE_W +: cNODE_STATE_W];
+            end
+            else begin
+              restore__ivnode_state [g] <= '0;
+            end
           end
         end
-
-        assign restore__ivnode_state  [g] = '0;
       end
     end
   endgenerate
+
+  //------------------------------------------------------------------------------------------------------
+  // init sc state at first iteration. Hold it in register
+  //------------------------------------------------------------------------------------------------------
+
+  always_ff @(posedge iclk) begin
+    if (iclkena) begin
+      if (istart) begin
+        restore__istate_init <= iload_iter;
+      end
+    end
+  end
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -499,8 +524,7 @@ module ldpc_dvb_dec_vnode
 
   //------------------------------------------------------------------------------------------------------
   // obusy is look ahead signal for control
-  // there is 4 tick betwen write/read to node ram
-  // this logic save 2 tick for each iteration
+  // there is 4 tick betwen write/read to node ram this logic + matrix reorder save it for each iteration
   //------------------------------------------------------------------------------------------------------
 
   always_ff @(posedge iclk or posedge ireset) begin
@@ -508,12 +532,7 @@ module ldpc_dvb_dec_vnode
       obusy <= 1'b0;
     end
     else if (iclkena) begin
-      if (pUSE_SRL_FIFO) begin
-        obusy <= ctrl__oread | !cnode_fifo__oempty;
-      end
-      else begin
-        obusy <= cnode_fifo__orval | !cnode_fifo__oempty;  // fifo_empty use because there can be holes in oval flow (!!!)
-      end
+      obusy <= !cnode_fifo__oempty; // fifo_empty use because there can be holes in oval flow (!!!)
     end
   end
 

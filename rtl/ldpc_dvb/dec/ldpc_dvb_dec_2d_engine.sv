@@ -14,7 +14,8 @@
   //
   parameter bit pCODEGR           =  1 ;
   //
-  parameter int pCNORM_FACTOR     =  6 ;
+  parameter int pNORM_FACTOR      =  7 ;
+  parameter int pNORM_OFFSET      =  1 ;
   //
   parameter bit pDO_LLR_INVERSION =  1 ;
   parameter bit pUSE_SRL_FIFO     =  1 ;
@@ -68,7 +69,8 @@
     .pERR_W            ( pERR_W            ) ,
     //
     .pCODEGR           ( pCODEGR           ) ,
-    .pCNORM_FACTOR     ( pCNORM_FACTOR     ) ,
+    .pNORM_FACTOR      ( pNORM_FACTOR      ) ,
+    .pNORM_OFFSET      ( pNORM_OFFSET      ) ,
     //
     .pDO_LLR_INVERSION ( pDO_LLR_INVERSION ) ,
     .pUSE_SRL_FIFO     ( pUSE_SRL_FIFO     ) ,
@@ -172,8 +174,6 @@ module ldpc_dvb_dec_2d_engine
   //
   parameter int pERR_W            = 16 ;
   //
-  parameter int pCNORM_FACTOR     =  7 ;  // horizontal step normalization factor
-
   parameter bit pDO_LLR_INVERSION =  1 ;  // do metric inversion inside decoder
 
   parameter bit pUSE_SRL_FIFO     =  1 ;  // use SRL based internal FIFO
@@ -226,7 +226,7 @@ module ldpc_dvb_dec_2d_engine
   localparam int cNODE_RAM_DAT_W    = pNODE_W * cZC_MAX;
 
   localparam int cSTATE_RAM_ADDR_W  = cNODE_RAM_ADDR_W ;
-  localparam int cSTATE_RAM_DAT_W   = (1 + (pUSE_SC_MODE ? $bits(node_state_t) : 0)) * cZC_MAX; // +1 for syndrome decision
+  localparam int cSTATE_RAM_DAT_W   = (1 + (pUSE_SC_MODE ? cNODE_STATE_W : 0)) * cZC_MAX; // +1 for syndrome decision
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -624,8 +624,8 @@ module ldpc_dvb_dec_2d_engine
       if (pUSE_SC_MODE) begin
         state_ram__iwdat[cSTATE_RAM_DAT_W-1 -: cZC_MAX] <= vnode__ovnode_hd;
         //
-        for (int z = 0; z < cZC_MAX; z++) begin
-          state_ram__iwdat[z*cNODE_STATE_W +: cNODE_STATE_W] <= vnode__ovnode_state[z];
+        for (int i = 0; i < cZC_MAX; i++) begin
+          state_ram__iwdat[i*cNODE_STATE_W +: cNODE_STATE_W] <= vnode__ovnode_state[i];
         end
       end
       else begin
@@ -638,8 +638,8 @@ module ldpc_dvb_dec_2d_engine
     if (pUSE_SC_MODE) begin
       state_ram_rdat_hd = state_ram__ordat[cSTATE_RAM_DAT_W-1 -: cZC_MAX];
       //
-      for (int z = 0; z < cZC_MAX; z++) begin
-        state_ram_rdat_node_state[z] = state_ram__ordat[z*cNODE_STATE_W +: cNODE_STATE_W];
+      for (int i = 0; i < cZC_MAX; i++) begin
+        state_ram_rdat_node_state[i] = state_ram__ordat[i*cNODE_STATE_W +: cNODE_STATE_W];
       end
     end
     else begin
@@ -657,7 +657,8 @@ module ldpc_dvb_dec_2d_engine
     .pLLR_W        ( pLLR_W        ) ,
     .pNODE_W       ( pNODE_W       ) ,
     //
-    .pNORM_FACTOR  ( pCNORM_FACTOR ) ,
+    .pNORM_FACTOR  ( pNORM_FACTOR  ) ,
+    .pNORM_OFFSET  ( pNORM_OFFSET  ) ,
     //
     .pUSE_SRL_FIFO ( pUSE_SRL_FIFO )
   )
@@ -685,7 +686,7 @@ module ldpc_dvb_dec_2d_engine
     .obusy       ( cnode__obusy       )
   );
 
-  assign cnode__istart     = ctrl__ocycle_start;// & ctrl__oc_nv_mode;
+  assign cnode__istart     = ctrl__ocycle_start & ctrl__oc_nv_mode;
   assign cnode__iload_iter = ctrl__oload_mode;
 
   assign cnode__ival       = rdat_val       [cRDAT_DELAY-1] & ctrl__oc_nv_mode;
@@ -742,7 +743,7 @@ module ldpc_dvb_dec_2d_engine
     .obusy        ( vnode__obusy        )
   );
 
-  assign vnode__istart       = ctrl__ocycle_start;// & !ctrl__oc_nv_mode;
+  assign vnode__istart       = ctrl__ocycle_start & !ctrl__oc_nv_mode;
   assign vnode__iload_iter   = ctrl__oload_mode;
 
   assign vnode__ival         = rdat_val       [cRDAT_DELAY-1] & !ctrl__oc_nv_mode;

@@ -4,13 +4,15 @@
 
   parameter int pLLR_W       = 4 ;
   parameter int pNODE_W      = 8 ;
-  parameter int pNORM_FACTOR = 6 ;
+  parameter bit pUSE_SC_MODE = 6 ;
 
 
 
   logic        ldpc_dvb_dec_vnode_restore__iclk         ;
   logic        ldpc_dvb_dec_vnode_restore__ireset       ;
   logic        ldpc_dvb_dec_vnode_restore__iclkena      ;
+  //
+  logic        ldpc_dvb_dec_vnode_restore__istate_init  ;
   //
   logic        ldpc_dvb_dec_vnode_restore__ival         ;
   cycle_idx_t  ldpc_dvb_dec_vnode_restore__ivnode_addr  ;
@@ -31,13 +33,15 @@
   #(
     .pLLR_W       ( pLLR_W       ) ,
     .pNODE_W      ( pNODE_W      ) ,
-    .pNORM_FACTOR ( pNORM_FACTOR )
+    .pUSE_SC_MODE ( pUSE_SC_MODE )
   )
   ldpc_dvb_dec_vnode_restore
   (
     .iclk         ( ldpc_dvb_dec_vnode_restore__iclk         ) ,
     .ireset       ( ldpc_dvb_dec_vnode_restore__ireset       ) ,
     .iclkena      ( ldpc_dvb_dec_vnode_restore__iclkena      ) ,
+    //
+    .istate_init  ( ldpc_dvb_dec_vnode_restore__istate_init  ) ,
     //
     .ival         ( ldpc_dvb_dec_vnode_restore__ival         ) ,
     .ivnode_addr  ( ldpc_dvb_dec_vnode_restore__ivnode_addr  ) ,
@@ -57,6 +61,7 @@
   assign ldpc_dvb_dec_vnode_restore__iclk         = '0 ;
   assign ldpc_dvb_dec_vnode_restore__ireset       = '0 ;
   assign ldpc_dvb_dec_vnode_restore__iclkena      = '0 ;
+  assign ldpc_dvb_dec_vnode_restore__istate_init  = '0 ;
   assign ldpc_dvb_dec_vnode_restore__ival         = '0 ;
   assign ldpc_dvb_dec_vnode_restore__ivnode_addr  = '0 ;
   assign ldpc_dvb_dec_vnode_restore__ivnode_sum   = '0 ;
@@ -81,6 +86,8 @@ module ldpc_dvb_dec_vnode_restore
   ireset       ,
   iclkena      ,
   //
+  istate_init  ,
+  //
   ival         ,
   ivnode_addr  ,
   ivnode_state ,
@@ -95,8 +102,6 @@ module ldpc_dvb_dec_vnode_restore
   ovnode_state
 );
 
-  parameter int pNORM_FACTOR = 0;
-
   `include "../ldpc_dvb_constants.svh"
   `include "ldpc_dvb_dec_types.svh"
 
@@ -107,6 +112,8 @@ module ldpc_dvb_dec_vnode_restore
   input  logic        iclk         ;
   input  logic        ireset       ;
   input  logic        iclkena      ;
+  //
+  input  logic        istate_init  ;
   //
   input  logic        ival         ;
   input  cycle_idx_t  ivnode_addr  ;
@@ -130,6 +137,7 @@ module ldpc_dvb_dec_vnode_restore
   node_sum_t    vnode;
   logic         vnode_hd;
   cycle_idx_t   vnode_addr;
+  node_state_t  vnode_state;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -148,15 +156,57 @@ module ldpc_dvb_dec_vnode_restore
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
-      vnode      <= ivnode_sum - icnode;
-      vnode_hd   <= ivnode_hd;
-      vnode_addr <= ivnode_addr;
+      vnode       <= ivnode_sum - icnode;
+      vnode_hd    <= ivnode_hd;
+      vnode_addr  <= ivnode_addr;
       //
-      ovnode      <= saturate(vnode);
       ovnode_hd   <= vnode_hd;
       ovnode_addr <= vnode_addr;
     end
   end
+
+  wire vnode_sign = vnode[$high(vnode)];
+
+  generate
+    if (pUSE_SC_MODE) begin
+
+      always_ff @(posedge iclk) begin
+        if (iclkena) begin
+          vnode_state <= ivnode_state;
+          //
+          ovnode      <= saturate(vnode);
+          //
+          if (istate_init) begin
+            ovnode_state.pre_sign <= 1'b0;
+            ovnode_state.pre_zero <= 1'b1;
+          end
+          else begin
+            ovnode_state.pre_sign <= vnode_sign;
+            ovnode_state.pre_zero <= 1'b0;
+            if (!vnode_state.pre_zero) begin // if was not zero
+              if (vnode_state.pre_sign ^ vnode_sign) begin // sign change -> clear vnode
+                ovnode_state.pre_sign <= 1'b0;
+                ovnode_state.pre_zero <= 1'b1;
+                ovnode                <= '0;
+              end
+            end
+          end // istate init
+        end // iclkena
+      end // iclk
+
+    end
+    else begin
+
+      always_ff @(posedge iclk) begin
+        if (iclkena) begin
+          ovnode <= saturate(vnode);
+        end
+      end
+
+      assign ovnode_state = '0;
+
+    end
+  endgenerate
 
   //------------------------------------------------------------------------------------------------------
   // usefull function
