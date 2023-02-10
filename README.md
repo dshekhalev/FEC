@@ -18,5 +18,6 @@ The library contain:
 12. 4D-8PSK TCM code 
 13. Hamming code 
 14. QAM LLR demappers 
+15. DVB-S2 PLS code 
 
 All FEC IP Cores has static configuration and constrained performance. Call me if you need any IP core extension 
