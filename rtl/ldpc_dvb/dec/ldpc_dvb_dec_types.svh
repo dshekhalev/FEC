@@ -116,17 +116,8 @@
   // function to get maximum buffer ram address. Decoder use same address for output and input
   //
   function automatic int get_buff_max_addr (input int gr);
-    code_ctx_t ctx;
   begin
-    // can use any coderare
-    if (gr == cCODEGR_LARGE) begin
-      ctx = '{gr : cCODEGR_LARGE, coderate : cCODERATE_1by4};
-    end
-    else begin
-      ctx = '{gr : cCODEGR_SHORT, coderate : cCODERATE_1by4};
-    end
-    //
-    get_buff_max_addr = get_used_col(ctx);
+    get_buff_max_addr = cGET_USED_COL_TAB[gr];
   end
   endfunction
 

@@ -13,7 +13,7 @@ The library contain:
 7. 3GPP LDPC code 
 8. 3GPP Polar code 
 9. Soft decision Golay code 
-10. DVB-S2 LDPC code
+10. DVB-S2/S2X LDPC code
 11. CCSDS Turbo code 
 12. 4D-8PSK TCM code 
 13. Hamming code 

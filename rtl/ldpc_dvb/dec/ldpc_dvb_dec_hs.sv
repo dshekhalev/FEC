@@ -206,7 +206,7 @@ module ldpc_dvb_dec_hs
   always_ff @(posedge iclk) begin
     if (iclkena) begin
       cycle_ctx_strb[0] <= icycle_strb;
-      cycle_ctx_rdat[0] <= {cSHORT_HS_V_TAB_8BY9_PACKED[icycle_idx], cSHORT_HS_TAB_8BY9_PACKED_SIZE[icycle_idx]};
+      cycle_ctx_rdat[0] <= {cSHORT_HS_V_TAB_8BY9_PACKED[icycle_idx], cSHORT_HS_TAB_8BY9_PACKED[icycle_idx]};
       case (icode_ctx.gr)
         cCODEGR_SHORT : begin
           case (icode_ctx.coderate)

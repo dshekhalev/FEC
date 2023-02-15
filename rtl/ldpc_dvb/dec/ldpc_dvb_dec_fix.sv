@@ -4,6 +4,7 @@
 
   parameter int pCODEGR           =  1 ;
   parameter int pCODERATE         =  3 ;
+  parameter bit pXMODE            =  0 ;
   //
   parameter int pLLR_W            =  4 ;
   parameter int pLLR_NUM          =  1 ;
@@ -61,6 +62,7 @@
   #(
     .pCODEGR           ( pCODEGR           ) ,
     .pCODERATE         ( pCODERATE         ) ,
+    .pXMODE            ( pXMODE            ) ,
     //
     .pLLR_W            ( pLLR_W            ) ,
     .pLLR_NUM          ( pLLR_NUM          ) ,
@@ -78,7 +80,7 @@
     .pDO_LLR_INVERSION ( pDO_LLR_INVERSION ) ,
     .pUSE_SRL_FIFO     ( pUSE_SRL_FIFO     ) ,
     .pFULL_BITS_OUTPUT ( pFULL_BITS_OUTPUT ) ,
-    .pUSE_SC_MODE      ( pUSE_SC_MODE      ) ,
+    .pUSE_SC_MODE      ( pUSE_SC_MODE      )
   )
   ldpc_dvb_dec_fix
   (
@@ -189,7 +191,8 @@ module ldpc_dvb_dec_fix
   `include "ldpc_dvb_dec_types.svh"
 
   parameter bit pCODEGR           = cCODEGR_LARGE  ;  // maximum used graph short(0)/large(1)
-  parameter int pCODERATE         = cCODERATE_1by2 ;  // n.u.
+  parameter int pCODERATE         = cCODERATE_1by2 ;  // coderate table see in ldpc_dvb_constants.svh
+  parameter bit pXMODE            = 0              ;  // DVB-S2X code tables using
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -506,6 +509,7 @@ module ldpc_dvb_dec_fix
     .pERR_W            ( pERR_W            ) ,
     //
     .pCODEGR           ( pCODEGR           ) ,
+    .pXMODE            ( pXMODE            ) ,
     .pNORM_FACTOR      ( pNORM_FACTOR      ) ,
     .pNORM_OFFSET      ( pNORM_OFFSET      ) ,
     //

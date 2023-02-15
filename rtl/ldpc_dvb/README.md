@@ -1,4 +1,4 @@
-Static configuration DVB-S2 LDPC code ETSI EN 302 307 V1.2.1 (2009-08) 
+Static configuration DVB-S2 LDPC code ETSI EN 302 307 V1.2.1 (2009-08) and DVB-S2X LDPC code DVB BlueBook A083-2 (Feb 2020) 
 
 Support all coderates and codewords.
 
@@ -12,11 +12,11 @@ Codec input/core/output work in different clock domains.
 
 vivado 2019.1 Kintex 7 - 2 (artix worked but has timings routing problem)
 
-Encoder settings : coderate = 5/6, block length = 64800 bits, interface 8 bits per tick
+Encoder settings : DVB-S2 coderate = 5/6, block length = 64800 bits, interface 8 bits per tick
 
 Encoder 	: LUT/REG/RAMB 	3.7k/3.5k/15 	iface >250MHz(1.65Gbps -> 2Gbps), core >250MHz (~25.5Gbps at output) 
 
-Decoder settings : coderate = 1/2, block length = 64800 bits, 8 LLR/bits per tick, pLLR_W = 4 bits, pNORM_OFFSET = 0, pUSE_SC_MODE = 1, 25 iterations
+Decoder settings : DVB-S2 coderate = 1/2, block length = 64800 bits, 8 LLR/bits per tick, pLLR_W = 4 bits, pNORM_OFFSET = 0, pUSE_SC_MODE = 1, 25 iterations
 
 pNODE_W = 6 bits (optimal codegain for 4 bit LLR)
 

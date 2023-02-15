@@ -8,6 +8,7 @@
 
   parameter bit pCODEGR        = 0 ;
   parameter int pCODERATE      = 9 ;
+  parameter bit pXMODE         = 0 ;
 
 
   logic                ldpc_dvb_enc__iclk      ;
@@ -42,7 +43,8 @@
     .pTAG_W         ( pTAG_W         ) ,
     .pDO_TRANSPONSE ( pDO_TRANSPONSE ) ,
     .pCODEGR        ( pCODEGR        ) ,
-    .pCODERATE      ( pCODERATE      )
+    .pCODERATE      ( pCODERATE      ) ,
+    .pXMODE         ( pXMODE         )
   )
   ldpc_dvb_enc_fix
   (
@@ -132,8 +134,9 @@ module ldpc_dvb_enc_fix
   `include "../ldpc_dvb_constants.svh"
   `include "ldpc_dvb_enc_types.svh"
 
-  parameter bit pCODEGR        = cCODEGR_LARGE ;  // short(0)/large(1) graph
+  parameter bit pCODEGR        = cCODEGR_LARGE  ; // short(0)/large(1) graph
   parameter int pCODERATE      = cCODERATE_5by6 ; // coderate table see in ldpc_dvb_constants.svh
+  parameter bit pXMODE         = 0              ; // DVB-S2X code tables using
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -171,7 +174,7 @@ module ldpc_dvb_enc_fix
   localparam int cZC            = get_buffer_dat_w(pDAT_W);
 
   // input DWC buffer
-  localparam int cIB_ADDR       = get_ibuff_addr(pCODEGR, pCODERATE);
+  localparam int cIB_ADDR       = get_ibuff_addr(pCODEGR, pCODERATE, pXMODE);
 
   localparam int cIB_WADDR_W    = $clog2(cIB_ADDR);
   localparam int cIB_WDAT_W     = cZC;
@@ -422,6 +425,7 @@ module ldpc_dvb_enc_fix
     .pTAG_W    ( pTAG_W      ) ,
     //
     .pCODEGR   ( pCODEGR     ) ,
+    .pXMODE    ( pXMODE      ) ,
     .pFIX_MODE ( 1           )
   )
   engine

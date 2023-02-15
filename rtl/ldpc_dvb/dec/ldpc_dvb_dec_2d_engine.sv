@@ -13,6 +13,7 @@
   parameter int pERR_W            = 16 ;
   //
   parameter bit pCODEGR           =  1 ;
+  parameter bit pXMODE            =  0 ;
   //
   parameter int pNORM_FACTOR      =  7 ;
   parameter int pNORM_OFFSET      =  1 ;
@@ -69,6 +70,7 @@
     .pERR_W            ( pERR_W            ) ,
     //
     .pCODEGR           ( pCODEGR           ) ,
+    .pXMODE            ( pXMODE            ) ,
     .pNORM_FACTOR      ( pNORM_FACTOR      ) ,
     .pNORM_OFFSET      ( pNORM_OFFSET      ) ,
     //
@@ -184,6 +186,7 @@ module ldpc_dvb_dec_2d_engine
   `include "ldpc_dvb_dec_types.svh"
 
   parameter bit pCODEGR           = cCODEGR_LARGE ;  // maximum used graph short(0)/large(1)
+  parameter bit pXMODE            = 0 ;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -356,74 +359,148 @@ module ldpc_dvb_dec_2d_engine
 
   generate
     if (pFIX_MODE) begin
-      ldpc_dvb_dec_hs
-      #(
-        .pPIPE ( 1 ) // 2 tick latency
-      )
-      hs
-      (
-        .iclk              ( iclk                      ) ,
-        .ireset            ( ireset                    ) ,
-        .iclkena           ( iclkena                   ) ,
-        //
-        .icode_ctx         ( hs_gen__icode_ctx         ) ,
-        //
-        .oused_col         ( hs_gen__oused_col         ) ,
-        .oused_data_col    ( hs_gen__oused_data_col    ) ,
-        .oused_row         ( hs_gen__oused_row         ) ,
-        .ocycle_max_num    ( hs_gen__ocycle_max_num    ) ,
-        //
-        .icycle_start      ( hs_gen__icycle_start      ) ,
-        .ic_nv_mode        ( hs_gen__ic_nv_mode        ) ,
-        .icycle_read       ( hs_gen__icycle_read       ) ,
-        .icycle_strb       ( hs_gen__icycle_strb       ) ,
-        .icycle_idx        ( hs_gen__icycle_idx        ) ,
-        //
-        .ocycle_read       ( hs_gen__ocycle_read       ) ,
-        .ocycle_LLR_raddr  ( hs_gen__ocycle_LLR_raddr  ) ,
-        .ocycle_node_raddr ( hs_gen__ocycle_node_raddr ) ,
-        //
-        .ocnode_strb       ( hs_gen__ocnode_strb       ) ,
-        .ocnode_ctx        ( hs_gen__ocnode_ctx        ) ,
-        //
-        .ovnode_strb       ( hs_gen__ovnode_strb       ) ,
-        .ovnode_ctx        ( hs_gen__ovnode_ctx        )
-      );
+      if (pXMODE) begin
+        ldpc_dvb_x_dec_hs
+        #(
+          .pPIPE ( 1 ) // 2 tick latency
+        )
+        hs
+        (
+          .iclk              ( iclk                      ) ,
+          .ireset            ( ireset                    ) ,
+          .iclkena           ( iclkena                   ) ,
+          //
+          .icode_ctx         ( hs_gen__icode_ctx         ) ,
+          //
+          .oused_col         ( hs_gen__oused_col         ) ,
+          .oused_data_col    ( hs_gen__oused_data_col    ) ,
+          .oused_row         ( hs_gen__oused_row         ) ,
+          .ocycle_max_num    ( hs_gen__ocycle_max_num    ) ,
+          //
+          .icycle_start      ( hs_gen__icycle_start      ) ,
+          .ic_nv_mode        ( hs_gen__ic_nv_mode        ) ,
+          .icycle_read       ( hs_gen__icycle_read       ) ,
+          .icycle_strb       ( hs_gen__icycle_strb       ) ,
+          .icycle_idx        ( hs_gen__icycle_idx        ) ,
+          //
+          .ocycle_read       ( hs_gen__ocycle_read       ) ,
+          .ocycle_LLR_raddr  ( hs_gen__ocycle_LLR_raddr  ) ,
+          .ocycle_node_raddr ( hs_gen__ocycle_node_raddr ) ,
+          //
+          .ocnode_strb       ( hs_gen__ocnode_strb       ) ,
+          .ocnode_ctx        ( hs_gen__ocnode_ctx        ) ,
+          //
+          .ovnode_strb       ( hs_gen__ovnode_strb       ) ,
+          .ovnode_ctx        ( hs_gen__ovnode_ctx        )
+        );
+      end
+      else begin
+        ldpc_dvb_dec_hs
+        #(
+          .pPIPE ( 1 ) // 2 tick latency
+        )
+        hs
+        (
+          .iclk              ( iclk                      ) ,
+          .ireset            ( ireset                    ) ,
+          .iclkena           ( iclkena                   ) ,
+          //
+          .icode_ctx         ( hs_gen__icode_ctx         ) ,
+          //
+          .oused_col         ( hs_gen__oused_col         ) ,
+          .oused_data_col    ( hs_gen__oused_data_col    ) ,
+          .oused_row         ( hs_gen__oused_row         ) ,
+          .ocycle_max_num    ( hs_gen__ocycle_max_num    ) ,
+          //
+          .icycle_start      ( hs_gen__icycle_start      ) ,
+          .ic_nv_mode        ( hs_gen__ic_nv_mode        ) ,
+          .icycle_read       ( hs_gen__icycle_read       ) ,
+          .icycle_strb       ( hs_gen__icycle_strb       ) ,
+          .icycle_idx        ( hs_gen__icycle_idx        ) ,
+          //
+          .ocycle_read       ( hs_gen__ocycle_read       ) ,
+          .ocycle_LLR_raddr  ( hs_gen__ocycle_LLR_raddr  ) ,
+          .ocycle_node_raddr ( hs_gen__ocycle_node_raddr ) ,
+          //
+          .ocnode_strb       ( hs_gen__ocnode_strb       ) ,
+          .ocnode_ctx        ( hs_gen__ocnode_ctx        ) ,
+          //
+          .ovnode_strb       ( hs_gen__ovnode_strb       ) ,
+          .ovnode_ctx        ( hs_gen__ovnode_ctx        )
+        );
+      end
     end
     else begin
-      ldpc_dvb_dec_hs_gen // 2 tick latency
-      #(
-        .pPIPE ( 1 )
-      )
-      hs_gen
-      (
-        .iclk              ( iclk                      ) ,
-        .ireset            ( ireset                    ) ,
-        .iclkena           ( iclkena                   ) ,
-        //
-        .icode_ctx         ( hs_gen__icode_ctx         ) ,
-        //
-        .oused_col         ( hs_gen__oused_col         ) ,
-        .oused_data_col    ( hs_gen__oused_data_col    ) ,
-        .oused_row         ( hs_gen__oused_row         ) ,
-        .ocycle_max_num    ( hs_gen__ocycle_max_num    ) ,
-        //
-        .icycle_start      ( hs_gen__icycle_start      ) ,
-        .ic_nv_mode        ( hs_gen__ic_nv_mode        ) ,
-        .icycle_read       ( hs_gen__icycle_read       ) ,
-        .icycle_strb       ( hs_gen__icycle_strb       ) ,
-        .icycle_idx        ( hs_gen__icycle_idx        ) ,
-        //
-        .ocycle_read       ( hs_gen__ocycle_read       ) ,
-        .ocycle_LLR_raddr  ( hs_gen__ocycle_LLR_raddr  ) ,
-        .ocycle_node_raddr ( hs_gen__ocycle_node_raddr ) ,
-        //
-        .ocnode_strb       ( hs_gen__ocnode_strb       ) ,
-        .ocnode_ctx        ( hs_gen__ocnode_ctx        ) ,
-        //
-        .ovnode_strb       ( hs_gen__ovnode_strb       ) ,
-        .ovnode_ctx        ( hs_gen__ovnode_ctx        )
-      );
+      if (pXMODE) begin
+        ldpc_dvb_x_dec_hs_gen // 2 tick latency
+        #(
+          .pPIPE ( 1 )
+        )
+        hs_gen
+        (
+          .iclk              ( iclk                      ) ,
+          .ireset            ( ireset                    ) ,
+          .iclkena           ( iclkena                   ) ,
+          //
+          .icode_ctx         ( hs_gen__icode_ctx         ) ,
+          //
+          .oused_col         ( hs_gen__oused_col         ) ,
+          .oused_data_col    ( hs_gen__oused_data_col    ) ,
+          .oused_row         ( hs_gen__oused_row         ) ,
+          .ocycle_max_num    ( hs_gen__ocycle_max_num    ) ,
+          //
+          .icycle_start      ( hs_gen__icycle_start      ) ,
+          .ic_nv_mode        ( hs_gen__ic_nv_mode        ) ,
+          .icycle_read       ( hs_gen__icycle_read       ) ,
+          .icycle_strb       ( hs_gen__icycle_strb       ) ,
+          .icycle_idx        ( hs_gen__icycle_idx        ) ,
+          //
+          .ocycle_read       ( hs_gen__ocycle_read       ) ,
+          .ocycle_LLR_raddr  ( hs_gen__ocycle_LLR_raddr  ) ,
+          .ocycle_node_raddr ( hs_gen__ocycle_node_raddr ) ,
+          //
+          .ocnode_strb       ( hs_gen__ocnode_strb       ) ,
+          .ocnode_ctx        ( hs_gen__ocnode_ctx        ) ,
+          //
+          .ovnode_strb       ( hs_gen__ovnode_strb       ) ,
+          .ovnode_ctx        ( hs_gen__ovnode_ctx        )
+        );
+      end
+      else begin
+        ldpc_dvb_dec_hs_gen // 2 tick latency
+        #(
+          .pPIPE ( 1 )
+        )
+        hs_gen
+        (
+          .iclk              ( iclk                      ) ,
+          .ireset            ( ireset                    ) ,
+          .iclkena           ( iclkena                   ) ,
+          //
+          .icode_ctx         ( hs_gen__icode_ctx         ) ,
+          //
+          .oused_col         ( hs_gen__oused_col         ) ,
+          .oused_data_col    ( hs_gen__oused_data_col    ) ,
+          .oused_row         ( hs_gen__oused_row         ) ,
+          .ocycle_max_num    ( hs_gen__ocycle_max_num    ) ,
+          //
+          .icycle_start      ( hs_gen__icycle_start      ) ,
+          .ic_nv_mode        ( hs_gen__ic_nv_mode        ) ,
+          .icycle_read       ( hs_gen__icycle_read       ) ,
+          .icycle_strb       ( hs_gen__icycle_strb       ) ,
+          .icycle_idx        ( hs_gen__icycle_idx        ) ,
+          //
+          .ocycle_read       ( hs_gen__ocycle_read       ) ,
+          .ocycle_LLR_raddr  ( hs_gen__ocycle_LLR_raddr  ) ,
+          .ocycle_node_raddr ( hs_gen__ocycle_node_raddr ) ,
+          //
+          .ocnode_strb       ( hs_gen__ocnode_strb       ) ,
+          .ocnode_ctx        ( hs_gen__ocnode_ctx        ) ,
+          //
+          .ovnode_strb       ( hs_gen__ovnode_strb       ) ,
+          .ovnode_ctx        ( hs_gen__ovnode_ctx        )
+        );
+      end
     end
   endgenerate
 

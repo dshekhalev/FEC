@@ -40,17 +40,30 @@
   //
   // function to get maximum input buffer ram address
   //
-  function automatic int get_ibuff_max_addr (input int gr);
+  function automatic int get_ibuff_max_addr (input int gr, bit xmode = 0);
     code_ctx_t ctx;
   begin
-    if (gr == cCODEGR_LARGE) begin
-      ctx = '{gr : cCODEGR_LARGE, coderate : cCODERATE_9by10};
+    if (xmode) begin
+      if (gr == cCODEGR_LARGE) begin
+        ctx = '{gr : cCODEGR_LARGE, coderate : cXCODERATE_L_154by180};
+      end
+      else if (gr == cCODEGR_SHORT) begin
+        ctx = '{gr : cCODEGR_SHORT, coderate : cXCODERATE_S_32by45};
+      end
+      else begin
+        ctx = '{gr : cCODEGR_MEDIUM, coderate : cXCODERATE_M_1by3};
+      end
     end
     else begin
-      ctx = '{gr : cCODEGR_SHORT, coderate : cCODERATE_8by9};
+      if (gr == cCODEGR_LARGE) begin
+        ctx = '{gr : cCODEGR_LARGE, coderate : cCODERATE_9by10};
+      end
+      else begin
+        ctx = '{gr : cCODEGR_SHORT, coderate : cCODERATE_8by9};
+      end
     end
     //
-    get_ibuff_max_addr = get_used_data_col(ctx);
+    get_ibuff_max_addr = get_used_data_col(ctx, xmode);
   end
   endfunction
 
@@ -58,24 +71,20 @@
   // function to get maximum output buffer ram address
   //
   function automatic int get_obuff_max_addr (input int gr);
-    code_ctx_t ctx;
   begin
-    // can use any coderare
-    ctx = '{gr : gr, coderate : cCODERATE_1by4};
-    //
-    get_obuff_max_addr = get_used_col(ctx);
+    get_obuff_max_addr = cGET_USED_COL_TAB[gr];
   end
   endfunction
 
   //
   // function to get input buffer ram address
   //
-  function automatic int get_ibuff_addr (input int gr, coderate);
+  function automatic int get_ibuff_addr (input int gr, coderate, bit xmode = 0);
     code_ctx_t ctx;
   begin
     // can use any coderate
     ctx = '{gr : gr, coderate : coderate};
     //
-    get_ibuff_addr = get_used_data_col(ctx);
+    get_ibuff_addr = get_used_data_col(ctx, xmode);
   end
   endfunction
