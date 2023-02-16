@@ -27,7 +27,7 @@ module bertest_x;
   parameter bit pUSE_SC_MODE =  1 ;
 
   parameter bit pCODEGR       = cCODEGR_LARGE  ;  // short(0)/large(1)/middle(2) graph
-//parameter bit pCODEGR       = cCODEGR_MIDDLE ;
+//parameter bit pCODEGR       = cCODEGR_MEDIUM ;
 //parameter bit pCODEGR       = cCODEGR_SHORT  ;
 
   parameter int pCODERATE     = cXCODERATE_L_90by180 ; // coderate table see in ldpc_dvb_constants.svh
