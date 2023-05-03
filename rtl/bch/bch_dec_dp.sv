@@ -12,17 +12,20 @@
 
 
   logic           bch_dec_dp__iclk      ;
-  logic           bch_dec_dp__iclkena   ;
   logic           bch_dec_dp__ireset    ;
+  logic           bch_dec_dp__iclkena   ;
+  //
   logic           bch_dec_dp__isop      ;
   logic           bch_dec_dp__ival      ;
   logic           bch_dec_dp__ieop      ;
   logic           bch_dec_dp__idat      ;
+  //
   logic           bch_dec_dp__osop      ;
   logic           bch_dec_dp__oval      ;
   logic           bch_dec_dp__oeop      ;
   logic           bch_dec_dp__oeof      ;
   logic           bch_dec_dp__odat      ;
+  //
   logic           bch_dec_dp__odecfail  ;
   logic [m-1 : 0] bch_dec_dp__obiterr   ;
 
@@ -41,25 +44,28 @@
   bch_dec_dp
   (
     .iclk     ( bch_dec_dp__iclk     ) ,
-    .iclkena  ( bch_dec_dp__iclkena  ) ,
     .ireset   ( bch_dec_dp__ireset   ) ,
+    .iclkena  ( bch_dec_dp__iclkena  ) ,
+    //
     .isop     ( bch_dec_dp__isop     ) ,
     .ival     ( bch_dec_dp__ival     ) ,
     .ieop     ( bch_dec_dp__ieop     ) ,
     .idat     ( bch_dec_dp__idat     ) ,
+    //
     .osop     ( bch_dec_dp__osop     ) ,
     .oval     ( bch_dec_dp__oval     ) ,
     .oeop     ( bch_dec_dp__oeop     ) ,
     .oeof     ( bch_dec_dp__oeof     ) ,
     .odat     ( bch_dec_dp__odat     ) ,
+    //
     .odecfail ( bch_dec_dp__odecfail ) ,
     .obiterr  ( bch_dec_dp__obiterr  )
   );
 
 
   assign bch_dec_dp__iclk    = '0 ;
-  assign bch_dec_dp__iclkena = '0 ;
   assign bch_dec_dp__ireset  = '0 ;
+  assign bch_dec_dp__iclkena = '0 ;
   assign bch_dec_dp__isop    = '0 ;
   assign bch_dec_dp__ival    = '0 ;
   assign bch_dec_dp__ieop    = '0 ;
@@ -80,17 +86,20 @@
 module bch_dec_dp
 (
   iclk     ,
-  iclkena  ,
   ireset   ,
+  iclkena  ,
+  //
   isop     ,
   ival     ,
   ieop     ,
   idat     ,
+  //
   osop     ,
   oval     ,
   oeop     ,
   oeof     ,
   odat     ,
+  //
   odecfail ,
   obiterr
 );
@@ -112,17 +121,20 @@ module bch_dec_dp
   //------------------------------------------------------------------------------------------------------
 
   input  logic           iclk      ;
-  input  logic           iclkena   ;
   input  logic           ireset    ;
+  input  logic           iclkena   ;
+  //
   input  logic           isop      ;
   input  logic           ival      ;
   input  logic           ieop      ;
   input  logic           idat      ;
+  //
   output logic           osop      ;
   output logic           oval      ;
   output logic           oeop      ;
   output logic           oeof      ;
   output logic           odat      ;
+  //
   output logic           odecfail  ;
   output logic [m-1 : 0] obiterr   ;
 

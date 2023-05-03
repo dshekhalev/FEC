@@ -9,12 +9,14 @@
 
 
   logic  bch_enc__iclk    ;
-  logic  bch_enc__iclkena ;
   logic  bch_enc__ireset  ;
+  logic  bch_enc__iclkena ;
+  //
   logic  bch_enc__isop    ;
   logic  bch_enc__ieop    ;
   logic  bch_enc__ieof    ;
   logic  bch_enc__ival    ;
+  //
   logic  bch_enc__idat    ;
   logic  bch_enc__osop    ;
   logic  bch_enc__oval    ;
@@ -34,13 +36,15 @@
   bch_enc
   (
     .iclk    ( bch_enc__iclk    ) ,
-    .iclkena ( bch_enc__iclkena ) ,
     .ireset  ( bch_enc__ireset  ) ,
+    .iclkena ( bch_enc__iclkena ) ,
+    //
     .isop    ( bch_enc__isop    ) ,
     .ieop    ( bch_enc__ieop    ) ,
     .ieof    ( bch_enc__ieof    ) ,
     .ival    ( bch_enc__ival    ) ,
     .idat    ( bch_enc__idat    ) ,
+    //
     .osop    ( bch_enc__osop    ) ,
     .oval    ( bch_enc__oval    ) ,
     .oeop    ( bch_enc__oeop    ) ,
@@ -49,8 +53,8 @@
 
 
   assign bch_enc__iclk    = '0 ;
-  assign bch_enc__iclkena = '0 ;
   assign bch_enc__ireset  = '0 ;
+  assign bch_enc__iclkena = '0 ;
   assign bch_enc__isop    = '0 ;
   assign bch_enc__ieop    = '0 ;
   assign bch_enc__ieof    = '0 ;
@@ -72,13 +76,15 @@
 module bch_enc
 (
   iclk   ,
-  iclkena,
   ireset ,
+  iclkena,
+  //
   isop   ,
   ieop   ,
   ieof   ,
   ival   ,
   idat   ,
+  //
   osop   ,
   oeop   ,
   oval   ,
@@ -90,8 +96,8 @@ module bch_enc
   //------------------------------------------------------------------------------------------------------
 
   input  logic  iclk    ;
-  input  logic  iclkena ;
   input  logic  ireset  ;
+  input  logic  iclkena ;
   //
   input  logic  isop    ; // start of payload/frame
   input  logic  ieop    ; // end of payload
