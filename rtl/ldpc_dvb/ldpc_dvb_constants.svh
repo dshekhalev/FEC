@@ -75,6 +75,7 @@
   } code_gr_t;
 
   typedef struct packed {
+    logic         xmode;
     logic [1 : 0] gr;
     logic [4 : 0] coderate; // up to 32 codes for one codegraph
   } code_ctx_t;
@@ -124,7 +125,7 @@
 
   localparam int cLOG2_ROW_MEDIUM_MAX         = cLOG2_COL_MEDIUM_MAX; //~can make so, its near the same
 
-  localparam int cHS_MEDIUM_NON_ZERO_MAX      = 512; // maximimum non zero coe in short Hs matrix
+  localparam int cHS_MEDIUM_NON_ZERO_MAX      = 512; // maximimum non zero coe in medium Hs matrix
   localparam int cHS_MEDIUM_CYCLE_W           = $clog2(cHS_MEDIUM_NON_ZERO_MAX);
 
   //------------------------------------------------------------------------------------------------------
@@ -142,10 +143,13 @@
   typedef int                         Hs_t [cROW_MAX][cCOL_MAX][2];
 
   //------------------------------------------------------------------------------------------------------
-  // usefull functions
+  // usefull functions and constants tables
   //------------------------------------------------------------------------------------------------------
 
   localparam int cGET_USED_COL_TAB [3] = '{45, 180, 90};
+  localparam int cGET_CYCLE_W      [3] = '{ cHS_SHORT_CYCLE_W,
+                                            cHS_CYCLE_W,
+                                            cHS_MEDIUM_CYCLE_W};
 
   function automatic int get_used_col (input code_ctx_t code_ctx);
   begin

@@ -190,7 +190,7 @@ module ldpc_dvb_dec_fix
   `include "../ldpc_dvb_constants.svh"
   `include "ldpc_dvb_dec_types.svh"
 
-  parameter bit pCODEGR           = cCODEGR_LARGE  ;  // maximum used graph short(0)/large(1)
+  parameter int pCODEGR           = cCODEGR_LARGE  ;  // maximum used graph short(0)/large(1)/medium(2)
   parameter int pCODERATE         = cCODERATE_1by2 ;  // coderate table see in ldpc_dvb_constants.svh
   parameter bit pXMODE            = 0              ;  // DVB-S2X code tables using
 
@@ -553,7 +553,7 @@ module ldpc_dvb_dec_fix
 
   assign engine__irbuf_full   = ibuffer__orfull;
 
-  assign engine__icode_ctx    = '{gr : pCODEGR, coderate : pCODERATE};
+  assign engine__icode_ctx    = '{xmode : pXMODE, gr : pCODEGR, coderate : pCODERATE};
 
   assign {engine__ifmode,
           engine__iNiter,

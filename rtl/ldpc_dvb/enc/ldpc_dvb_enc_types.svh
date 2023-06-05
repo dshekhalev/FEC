@@ -45,21 +45,21 @@
   begin
     if (xmode) begin
       if (gr == cCODEGR_LARGE) begin
-        ctx = '{gr : cCODEGR_LARGE, coderate : cXCODERATE_L_154by180};
+        ctx = '{xmode : 1, gr : cCODEGR_LARGE, coderate : cXCODERATE_L_154by180};
       end
       else if (gr == cCODEGR_SHORT) begin
-        ctx = '{gr : cCODEGR_SHORT, coderate : cXCODERATE_S_32by45};
+        ctx = '{xmode : 1, gr : cCODEGR_SHORT, coderate : cXCODERATE_S_32by45};
       end
       else begin
-        ctx = '{gr : cCODEGR_MEDIUM, coderate : cXCODERATE_M_1by3};
+        ctx = '{xmode : 1, gr : cCODEGR_MEDIUM, coderate : cXCODERATE_M_1by3};
       end
     end
     else begin
       if (gr == cCODEGR_LARGE) begin
-        ctx = '{gr : cCODEGR_LARGE, coderate : cCODERATE_9by10};
+        ctx = '{xmode : 0, gr : cCODEGR_LARGE, coderate : cCODERATE_9by10};
       end
       else begin
-        ctx = '{gr : cCODEGR_SHORT, coderate : cCODERATE_8by9};
+        ctx = '{xmode : 0, gr : cCODEGR_SHORT, coderate : cCODERATE_8by9};
       end
     end
     //
@@ -83,7 +83,7 @@
     code_ctx_t ctx;
   begin
     // can use any coderate
-    ctx = '{gr : gr, coderate : coderate};
+    ctx = '{xmode : xmode, gr : gr, coderate : coderate};
     //
     get_ibuff_addr = get_used_data_col(ctx, xmode);
   end
