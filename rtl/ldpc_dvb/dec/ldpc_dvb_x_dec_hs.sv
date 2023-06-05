@@ -87,7 +87,7 @@
 // Project       : ldpc DVB-S2
 // Author        : Shekhalev Denis (des00)
 // Workfile      : ldpc_dvb_x_dec_hs.sv
-// Description   : Hs coe code context based table
+// Description   : DVB-S2X Hs coe code context based table
 //
 
 module ldpc_dvb_x_dec_hs

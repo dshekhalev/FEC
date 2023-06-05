@@ -94,7 +94,7 @@
 //
 // Project       : ldpc 3gpp TS 38.212 v15.7.0
 // Author        : Shekhalev Denis (des00)
-// Workfile      : ldpc_dvb_dec_2d_engine.sv
+// Workfile      : ldpc_dvb_dec_2d_ctrl.sv
 // Description   : 2D min-sum main controller
 //
 
@@ -282,7 +282,7 @@ module ldpc_dvb_dec_2d_ctrl
         cWAIT_VDONE_STATE : begin
           if (!ivnode_busy) begin
             iter.cnt  <= iter.cnt - 1'b1;
-            iter.last <= (iter.cnt == 1);
+            iter.last <= (iter.cnt <= 2);
           end
         end
       endcase

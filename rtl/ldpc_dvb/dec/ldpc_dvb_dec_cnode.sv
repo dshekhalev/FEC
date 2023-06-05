@@ -85,7 +85,7 @@
 //
 // Project       : ldpc DVB-S2
 // Author        : Shekhalev Denis (des00)
-// Workfile      : ldpc_dvb_dec_vnode.sv
+// Workfile      : ldpc_dvb_dec_cnode.sv
 // Description   : Min-sum horizontal step top-module
 //
 
@@ -515,8 +515,9 @@ module ldpc_dvb_dec_cnode
     for (g = 0; g < cZC_MAX; g++) begin : restore_inst
       ldpc_dvb_dec_cnode_restore
       #(
-        .pLLR_W  ( pLLR_W  ) ,
-        .pNODE_W ( pNODE_W )
+        .pLLR_W  ( pLLR_W             ) ,
+        .pNODE_W ( pNODE_W            ) ,
+        .pCTX_W  ( $bits(cnode_ctx_t) )
       )
       restore
       (
@@ -538,7 +539,7 @@ module ldpc_dvb_dec_cnode
         .ocnode      ( restore__ocnode      [g] )
       );
 
-      assign restore__ivnode_mask [g] = (g == 0); // mask_0_bit is inside restore unit
+      assign restore__ivnode_mask [g] = (g == 0) & restore__icnode_ctx[g].mask_0_bit;
 
       if (pUSE_SRL_FIFO) begin
 

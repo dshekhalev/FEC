@@ -132,7 +132,7 @@
 // Project       : ldpc 3gpp TS 38.212 v15.7.0
 // Author        : Shekhalev Denis (des00)
 // Workfile      : ldpc_dvb_dec_2d_engine.sv
-// Description   : LDPC decoder engine with variable parameters based upon 2D normalized min-sum decoding
+// Description   : LDPC decoder engine with variable parameters based upon 2D normalized/offset min-sum decoding
 //
 
 `include "define.vh"
@@ -185,7 +185,7 @@ module ldpc_dvb_dec_2d_engine
   `include "../ldpc_dvb_constants.svh"
   `include "ldpc_dvb_dec_types.svh"
 
-  parameter bit pCODEGR           = cCODEGR_LARGE ;  // maximum used graph short(0)/large(1)
+  parameter int pCODEGR           = cCODEGR_LARGE ;  // maximum used graph short(0)/large(1)/medium(2)
   parameter bit pXMODE            = 0 ;
 
   //------------------------------------------------------------------------------------------------------
@@ -225,7 +225,7 @@ module ldpc_dvb_dec_2d_engine
   //
   //------------------------------------------------------------------------------------------------------
 
-  localparam int cNODE_RAM_ADDR_W   = pCODEGR ? cHS_CYCLE_W : cHS_SHORT_CYCLE_W;
+  localparam int cNODE_RAM_ADDR_W   = cGET_CYCLE_W[pCODEGR];
   localparam int cNODE_RAM_DAT_W    = pNODE_W * cZC_MAX;
 
   localparam int cSTATE_RAM_ADDR_W  = cNODE_RAM_ADDR_W ;

@@ -111,7 +111,7 @@
 // Project       : coding library
 // Author        : Shekhalev Denis (des00)
 // Workfile      : ldpc_dvb_dec_ibuffer.sv
-// Description   : asynchronus xD ram buffer with 2D tag interface with DWC options. Ram read latency is 1/2 tick
+// Description   : asynchronus xD ram buffer with xD tag interface with DWC options. Ram read latency is 1/2 tick
 //
 
 module ldpc_dvb_dec_ibuffer

@@ -4,32 +4,34 @@
 
   parameter int pLLR_W  = 4 ;
   parameter int pNODE_W = 8 ;
+  parameter int pCTX_W  = 8 ;
 
 
 
-  logic         ldpc_dvb_dec_cnode_restore__iclk        ;
-  logic         ldpc_dvb_dec_cnode_restore__ireset      ;
-  logic         ldpc_dvb_dec_cnode_restore__iclkena     ;
+  logic                        ldpc_dvb_dec_cnode_restore__iclk        ;
+  logic                        ldpc_dvb_dec_cnode_restore__ireset      ;
+  logic                        ldpc_dvb_dec_cnode_restore__iclkena     ;
   //
-  logic         ldpc_dvb_dec_cnode_restore__istart      ;
+  logic                        ldpc_dvb_dec_cnode_restore__istart      ;
   //
-  logic         ldpc_dvb_dec_cnode_restore__ival        ;
-  min_col_idx_t ldpc_dvb_dec_cnode_restore__ivnode_idx  ;
-  logic         ldpc_dvb_dec_cnode_restore__ivnode_sign ;
-  logic         ldpc_dvb_dec_cnode_restore__ivnode_mask ;
-  vn_min_t      ldpc_dvb_dec_cnode_restore__ivn_min     ;
-  cnode_ctx_t   ldpc_dvb_dec_cnode_restore__icnode_ctx  ;
+  logic                        ldpc_dvb_dec_cnode_restore__ival        ;
+  min_col_idx_t                ldpc_dvb_dec_cnode_restore__ivnode_idx  ;
+  logic                        ldpc_dvb_dec_cnode_restore__ivnode_sign ;
+  logic                        ldpc_dvb_dec_cnode_restore__ivnode_mask ;
+  vn_min_t                     ldpc_dvb_dec_cnode_restore__ivn_min     ;
+  logic         [pCTX_W-1 : 0] ldpc_dvb_dec_cnode_restore__icnode_ctx  ;
   //
-  logic         ldpc_dvb_dec_cnode_restore__ocnode_val  ;
-  cnode_ctx_t   ldpc_dvb_dec_cnode_restore__ocnode_ctx  ;
-  node_t        ldpc_dvb_dec_cnode_restore__ocnode      ;
+  logic                        ldpc_dvb_dec_cnode_restore__ocnode_val  ;
+  logic         [pCTX_W-1 : 0] ldpc_dvb_dec_cnode_restore__ocnode_ctx  ;
+  node_t                       ldpc_dvb_dec_cnode_restore__ocnode      ;
 
 
 
   ldpc_dvb_dec_cnode_restore
   #(
     .pLLR_W  ( pLLR_W  ) ,
-    .pNODE_W ( pNODE_W )
+    .pNODE_W ( pNODE_W ) ,
+    .pCTX_W  ( pCTX_W  )
   )
   ldpc_dvb_dec_cnode_restore
   (
@@ -94,6 +96,8 @@ module ldpc_dvb_dec_cnode_restore
   ocnode
 );
 
+  parameter int pCTX_W = 8;
+
   `include "../ldpc_dvb_constants.svh"
   `include "ldpc_dvb_dec_types.svh"
 
@@ -101,27 +105,22 @@ module ldpc_dvb_dec_cnode_restore
   //
   //------------------------------------------------------------------------------------------------------
 
-  input  logic         iclk        ;
-  input  logic         ireset      ;
-  input  logic         iclkena     ;
+  input  logic                       iclk        ;
+  input  logic                       ireset      ;
+  input  logic                       iclkena     ;
   //
-  input  logic         istart      ;
+  input  logic                       istart      ;
   //
-  input  logic         ival        ;
-  input  vn_min_col_t  ivnode_idx  ;
-  input  logic         ivnode_sign ;
-  input  logic         ivnode_mask ;
-  input  vn_min_t      ivn_min     ;
-  input  cnode_ctx_t   icnode_ctx  ;
+  input  logic                       ival        ;
+  input  vn_min_col_t                ivnode_idx  ;
+  input  logic                       ivnode_sign ;
+  input  logic                       ivnode_mask ;
+  input  vn_min_t                    ivn_min     ;
+  input  logic        [pCTX_W-1 : 0] icnode_ctx  ;
   //
-  output logic         ocnode_val  ;
-  output cnode_ctx_t   ocnode_ctx  ;
-  output node_t        ocnode      ;
-
-  //------------------------------------------------------------------------------------------------------
-  //
-  //------------------------------------------------------------------------------------------------------
-
+  output logic                       ocnode_val  ;
+  output logic        [pCTX_W-1 : 0] ocnode_ctx  ;
+  output node_t                      ocnode      ;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -138,10 +137,9 @@ module ldpc_dvb_dec_cnode_restore
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
+      ocnode_ctx <= icnode_ctx; // simple bypass data
       //
-      ocnode_ctx <= icnode_ctx;
-      //
-      if (ivnode_mask & icnode_ctx.mask_0_bit) begin
+      if (ivnode_mask) begin  // do mask external
         ocnode <= '0;
       end
       else begin
