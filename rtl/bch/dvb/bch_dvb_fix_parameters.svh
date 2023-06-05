@@ -98,7 +98,7 @@
   //------------------------------------------------------------------------------------------------------
 
   //
-  // function to get amount of check bits % encoder width
+  // function to get amount of check bits
   //
   function automatic int get_t_num (input int codegr, coderate, bit xmode);
   begin
@@ -168,50 +168,50 @@
       case (codegr)
         cCODEGR_SHORT : begin
           case (coderate)
-             cXCODERATE_S_11by45 : bits_num =  3960;
-             cXCODERATE_S_4by15  : bits_num =  4320;
-             cXCODERATE_S_14by45 : bits_num =  5040;
-             cXCODERATE_S_7by15  : bits_num =  7560;
-             cXCODERATE_S_8by15  : bits_num =  8640;
-             cXCODERATE_S_26by45 : bits_num =  9360;
-             cXCODERATE_S_32by45 : bits_num = 11520;
+             cXCODERATE_S_11by45 : bits_num =  3792;
+             cXCODERATE_S_4by15  : bits_num =  4152;
+             cXCODERATE_S_14by45 : bits_num =  4872;
+             cXCODERATE_S_7by15  : bits_num =  7392;
+             cXCODERATE_S_8by15  : bits_num =  8472;
+             cXCODERATE_S_26by45 : bits_num =  9192;
+             cXCODERATE_S_32by45 : bits_num = 11352;
           endcase
         end
         //
         cCODEGR_MEDIUM : begin
           case (coderate)
-            cXCODERATE_M_1by5   : bits_num =  5840;
-            cXCODERATE_M_11by45 : bits_num =  7920;
-            cXCODERATE_M_1by3   : bits_num = 10800;
+            cXCODERATE_M_1by5   : bits_num =  5660; // remember about LDPC shortening (+640 bits)
+            cXCODERATE_M_11by45 : bits_num =  7740;
+            cXCODERATE_M_1by3   : bits_num = 10620;
           endcase
         end
         //
         cCODEGR_LARGE : begin
           case (coderate)
-            cXCODERATE_L_2by9     : bits_num = 14400;
-            cXCODERATE_L_13by45   : bits_num = 18720;
-            cXCODERATE_L_9by20    : bits_num = 29160;
-            cXCODERATE_L_90by180  : bits_num = 32400;
-            cXCODERATE_L_96by180  : bits_num = 34560;
-            cXCODERATE_L_11by20   : bits_num = 35640;
-            cXCODERATE_L_100by180 : bits_num = 36000;
-            cXCODERATE_L_26by45   : bits_num = 37440;
-            cXCODERATE_L_104by180 : bits_num = 37440;
-            cXCODERATE_L_18by30   : bits_num = 38880;
-            cXCODERATE_L_28by45   : bits_num = 40320;
-            cXCODERATE_L_23by36   : bits_num = 41400;
-            cXCODERATE_L_116by180 : bits_num = 41760;
-            cXCODERATE_L_20by30   : bits_num = 43200;
-            cXCODERATE_L_124by180 : bits_num = 44640;
-            cXCODERATE_L_25by36   : bits_num = 45000;
-            cXCODERATE_L_128by180 : bits_num = 46080;
-            cXCODERATE_L_13by18   : bits_num = 46800;
-            cXCODERATE_L_132by180 : bits_num = 47520;
-            cXCODERATE_L_22by30   : bits_num = 47520;
-            cXCODERATE_L_135by180 : bits_num = 48600;
-            cXCODERATE_L_140by180 : bits_num = 50400;
-            cXCODERATE_L_7by9     : bits_num = 50400;
-            cXCODERATE_L_154by180 : bits_num = 55440;
+            cXCODERATE_L_2by9     : bits_num = 14208;
+            cXCODERATE_L_13by45   : bits_num = 18528;
+            cXCODERATE_L_9by20    : bits_num = 28968;
+            cXCODERATE_L_90by180  : bits_num = 32208;
+            cXCODERATE_L_96by180  : bits_num = 34368;
+            cXCODERATE_L_11by20   : bits_num = 35448;
+            cXCODERATE_L_100by180 : bits_num = 35808;
+            cXCODERATE_L_26by45   : bits_num = 37248;
+            cXCODERATE_L_104by180 : bits_num = 37248;
+            cXCODERATE_L_18by30   : bits_num = 38688;
+            cXCODERATE_L_28by45   : bits_num = 40128;
+            cXCODERATE_L_23by36   : bits_num = 41208;
+            cXCODERATE_L_116by180 : bits_num = 41568;
+            cXCODERATE_L_20by30   : bits_num = 43008;
+            cXCODERATE_L_124by180 : bits_num = 44448;
+            cXCODERATE_L_25by36   : bits_num = 44808;
+            cXCODERATE_L_128by180 : bits_num = 45888;
+            cXCODERATE_L_13by18   : bits_num = 46608;
+            cXCODERATE_L_132by180 : bits_num = 47328;
+            cXCODERATE_L_22by30   : bits_num = 47328;
+            cXCODERATE_L_135by180 : bits_num = 48408;
+            cXCODERATE_L_140by180 : bits_num = 50208;
+            cXCODERATE_L_7by9     : bits_num = 50208;
+            cXCODERATE_L_154by180 : bits_num = 55248;
           endcase
         end
       endcase
