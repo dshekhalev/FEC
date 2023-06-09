@@ -90,7 +90,7 @@
   // used functions
   //------------------------------------------------------------------------------------------------------
 
-  localparam int cGF_IRRPOL [4] = '{16427, 65581, 32771, 65581};  // see code_gr_t definition. extend for defaults
+  localparam int cGF_IRRPOL [4] = '{16427, 65581, 32813, 65581};  // see code_gr_t definition. extend for defaults
   localparam int cGF_M      [4] = '{   14,    16,    15,    16};
 
   //------------------------------------------------------------------------------------------------------
