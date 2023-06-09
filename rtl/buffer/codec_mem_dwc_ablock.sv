@@ -78,8 +78,6 @@
 //                 Write data width >= read data width
 //
 
-`include "define.vh"
-
 module codec_mem_dwc_ablock
 #(
   parameter int pWADDR_W  = 8 ,
@@ -127,7 +125,7 @@ module codec_mem_dwc_ablock
   //------------------------------------------------------------------------------------------------------
 
   localparam int cDWC_FACTOR      = (pWDAT_W >= pRDAT_W) ? pWDAT_W/pRDAT_W : pRDAT_W/pWDAT_W;
-  localparam int cLOG_DWC_FACTOR  = clogb2(cDWC_FACTOR);
+  localparam int cLOG_DWC_FACTOR  = $clog2(cDWC_FACTOR);
 
   localparam int cRAM_DAT_W       = (pWDAT_W >= pRDAT_W) ? pRDAT_W  : pWDAT_W;
   localparam int cRAM_ADDR_W      = (pWDAT_W >= pRDAT_W) ? pRADDR_W : pWADDR_W;

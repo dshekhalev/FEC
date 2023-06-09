@@ -141,26 +141,14 @@ module codec_buffer_nD_alogic
 
   localparam int cBNUM = 2**pBNUM_W;
 
-  logic   [cBNUM-1 : 0] b_w_is_busy   ; // bank busy at write side
-  logic [pBNUM_W-1 : 0] b_wused       ; // bank used for write
-  logic   [cBNUM-1 : 0] rempty_at_wclk;
+  logic   [cBNUM-1 : 0] b_w_is_busy    ; // bank busy at write side
+  logic [pBNUM_W-1 : 0] b_wused        ; // bank used for write
+  logic   [cBNUM-1 : 0] rempty_at_wclk ;
 
-  logic   [cBNUM-1 : 0] b_r_is_busy   ; // bank busy at read side
-  logic [pBNUM_W-1 : 0] b_rused       ; // bank used for read
-  logic   [cBNUM-1 : 0] wfull_at_rclk ;
+  logic   [cBNUM-1 : 0] b_r_is_busy    ; // bank busy at read side
+  logic [pBNUM_W-1 : 0] b_rused        ; // bank used for read
+  logic   [cBNUM-1 : 0] wfull_at_rclk  ;
 
-  //------------------------------------------------------------------------------------------------------
-  //
-  //------------------------------------------------------------------------------------------------------
-  // synthesis translate_off
-  initial begin : ini
-    b_w_is_busy = '0;
-    b_wused     = '0;
-    //
-    b_r_is_busy = '0;
-    b_rused     = '0;
-  end
-  // synthesis translate_on
   //------------------------------------------------------------------------------------------------------
   // write side
   //------------------------------------------------------------------------------------------------------
