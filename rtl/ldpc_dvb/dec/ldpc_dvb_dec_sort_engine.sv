@@ -31,6 +31,7 @@
   min_col_idx_t ldpc_dvb_dec_sort_engine__osort_b2_pre_num_m1 ;
   //
   logic         ldpc_dvb_dec_sort_engine__odecfail            ;
+  logic         ldpc_dvb_dec_sort_engine__ominfail            ;
 
 
 
@@ -64,7 +65,8 @@
     .osort_b2_pre_val    ( ldpc_dvb_dec_sort_engine__osort_b2_pre_val    ) ,
     .osort_b2_pre_num_m1 ( ldpc_dvb_dec_sort_engine__osort_b2_pre_num_m1 ) ,
     //
-    .odecfail            ( ldpc_dvb_dec_sort_engine__odecfail            )
+    .odecfail            ( ldpc_dvb_dec_sort_engine__odecfail            ) ,
+    .ominfail            ( ldpc_dvb_dec_sort_engine__ominfail            )
   );
 
 
@@ -111,7 +113,8 @@ module ldpc_dvb_dec_sort_engine
   osort_b2_pre_val    ,
   osort_b2_pre_num_m1 ,
   //
-  odecfail
+  odecfail            ,
+  ominfail
 );
 
   `include "../ldpc_dvb_constants.svh"
@@ -143,6 +146,7 @@ module ldpc_dvb_dec_sort_engine
   output vn_min_col_t osort_b2_pre_num_m1 ;
   //
   output logic        odecfail            ;
+  output logic        ominfail            ;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -256,12 +260,8 @@ module ldpc_dvb_dec_sort_engine
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
-      if (istart) begin
-        odecfail <= 1'b0;
-      end
-      else if (vn_sort_done) begin
-        odecfail <= odecfail | vn_sort.prod_sign | vn_sort_leq1;
-      end
+      odecfail <= vn_sort.prod_sign;
+      ominfail <= vn_sort_leq1;
       //
       if (vn_sort_done) begin
         osort_num_m1    <= vn_sort_num_m1;

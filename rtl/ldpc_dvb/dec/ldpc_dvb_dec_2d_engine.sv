@@ -54,6 +54,9 @@
   //
   logic                            ldpc_dvb_dec_2d_engine__owdecfail    ;
   logic             [pERR_W-1 : 0] ldpc_dvb_dec_2d_engine__owerr        ;
+  //
+  logic                            ldpc_dvb_dec_2d_engine__ouNiter_val  ;
+  logic                    [7 : 0] ldpc_dvb_dec_2d_engine__ouNiter      ;
 
 
 
@@ -109,7 +112,10 @@
     .owtag       ( ldpc_dvb_dec_2d_engine__owtag       ) ,
     //
     .owdecfail   ( ldpc_dvb_dec_2d_engine__owdecfail   ) ,
-    .owerr       ( ldpc_dvb_dec_2d_engine__owerr       )
+    .owerr       ( ldpc_dvb_dec_2d_engine__owerr       ) ,
+    //
+    .ouNiter_val ( ldpc_dvb_dec_2d_engine__ouNiter_val ) ,
+    .ouNiter     ( ldpc_dvb_dec_2d_engine__ouNiter     )
   );
 
 
@@ -166,7 +172,10 @@ module ldpc_dvb_dec_2d_engine
   //
   owtag       ,
   owdecfail   ,
-  owerr
+  owerr       ,
+  //
+  ouNiter_val ,
+  ouNiter
 );
 
   parameter int pRADDR_W          =  8 ;
@@ -220,6 +229,9 @@ module ldpc_dvb_dec_2d_engine
   //
   output logic                       owdecfail   ;
   output logic        [pERR_W-1 : 0] owerr       ;
+  // interface for statistic in fast mode
+  output logic                       ouNiter_val ;
+  output logic               [7 : 0] ouNiter     ;  // used Niter
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -229,7 +241,7 @@ module ldpc_dvb_dec_2d_engine
   localparam int cNODE_RAM_DAT_W    = pNODE_W * cZC_MAX;
 
   localparam int cSTATE_RAM_ADDR_W  = cNODE_RAM_ADDR_W ;
-  localparam int cSTATE_RAM_DAT_W   = (1 + (pUSE_SC_MODE ? cNODE_STATE_W : 0)) * cZC_MAX; // +1 for syndrome decision
+  localparam int cSTATE_RAM_DAT_W   = cNODE_STATE_W * cZC_MAX;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -317,7 +329,6 @@ module ldpc_dvb_dec_2d_engine
   cnode_ctx_t                     cnode__icnode_ctx  ;
   zllr_t                          cnode__iLLR        ;
   znode_t                         cnode__ivnode      ;
-  zdat_t                          cnode__ivnode_hd   ;
   //
   logic                           cnode__ocnode_val  ;
   cycle_idx_t                     cnode__ocnode_addr ;
@@ -614,6 +625,19 @@ module ldpc_dvb_dec_2d_engine
   assign ctrl__icnode_decfail = cnode__odecfail;
 
   //------------------------------------------------------------------------------------------------------
+  // iteration counter
+  //------------------------------------------------------------------------------------------------------
+
+  always_ff @(posedge iclk) begin
+    if (iclkena) begin
+      ouNiter_val <= vnode__obitval & vnode__obitsop & ctrl__olast_iter;
+      if (ctrl__ocycle_start & ctrl__oc_nv_mode) begin
+        ouNiter <= ctrl__oload_mode ? 1'b1 : (ouNiter + 1'b1);
+      end
+    end
+  end
+
+  //------------------------------------------------------------------------------------------------------
   // node ram with dynamic addressing
   //------------------------------------------------------------------------------------------------------
 
@@ -669,61 +693,54 @@ module ldpc_dvb_dec_2d_engine
   // state ram with dynamic addressing
   //------------------------------------------------------------------------------------------------------
 
-  zdat_t        state_ram_rdat_hd;
   znode_state_t state_ram_rdat_node_state;
 
-  codec_mem_block
-  #(
-    .pADDR_W ( cSTATE_RAM_ADDR_W ) ,
-    .pDAT_W  ( cSTATE_RAM_DAT_W  ) ,
-    .pPIPE   ( 1                 )
-  )
-  state_ram
-  (
-    .iclk    ( iclk              ) ,
-    .ireset  ( ireset            ) ,
-    .iclkena ( iclkena           ) ,
-    //
-    .iwrite  ( state_ram__iwrite ) ,
-    .iwaddr  ( state_ram__iwaddr ) ,
-    .iwdat   ( state_ram__iwdat  ) ,
-    //
-    .iraddr  ( state_ram__iraddr ) ,
-    .ordat   ( state_ram__ordat  )
-  );
-
-  assign state_ram__iraddr = hs_gen__ocycle_node_raddr[cSTATE_RAM_ADDR_W-1 : 0];
-
-  always_ff @(posedge iclk) begin
-    if (iclkena) begin
-      state_ram__iwrite <= vnode__ovnode_val;
-      state_ram__iwaddr <= vnode__ovnode_addr[cSTATE_RAM_ADDR_W-1 : 0];
-      if (pUSE_SC_MODE) begin
-        state_ram__iwdat[cSTATE_RAM_DAT_W-1 -: cZC_MAX] <= vnode__ovnode_hd;
+  generate
+    if (pUSE_SC_MODE) begin
+      codec_mem_block
+      #(
+        .pADDR_W ( cSTATE_RAM_ADDR_W ) ,
+        .pDAT_W  ( cSTATE_RAM_DAT_W  ) ,
+        .pPIPE   ( 1                 )
+      )
+      state_ram
+      (
+        .iclk    ( iclk              ) ,
+        .ireset  ( ireset            ) ,
+        .iclkena ( iclkena           ) ,
         //
-        for (int i = 0; i < cZC_MAX; i++) begin
-          state_ram__iwdat[i*cNODE_STATE_W +: cNODE_STATE_W] <= vnode__ovnode_state[i];
+        .iwrite  ( state_ram__iwrite ) ,
+        .iwaddr  ( state_ram__iwaddr ) ,
+        .iwdat   ( state_ram__iwdat  ) ,
+        //
+        .iraddr  ( state_ram__iraddr ) ,
+        .ordat   ( state_ram__ordat  )
+      );
+
+      assign state_ram__iraddr = hs_gen__ocycle_node_raddr[cSTATE_RAM_ADDR_W-1 : 0];
+
+      always_ff @(posedge iclk) begin
+        if (iclkena) begin
+          state_ram__iwrite <= vnode__ovnode_val;
+          state_ram__iwaddr <= vnode__ovnode_addr[cSTATE_RAM_ADDR_W-1 : 0];
+          //
+          for (int i = 0; i < cZC_MAX; i++) begin
+            state_ram__iwdat[i*cNODE_STATE_W +: cNODE_STATE_W] <= vnode__ovnode_state[i];
+          end
         end
       end
-      else begin
-        state_ram__iwdat <= vnode__ovnode_hd;
-      end
-    end
-  end
 
-  always_comb begin
-    if (pUSE_SC_MODE) begin
-      state_ram_rdat_hd = state_ram__ordat[cSTATE_RAM_DAT_W-1 -: cZC_MAX];
-      //
-      for (int i = 0; i < cZC_MAX; i++) begin
-        state_ram_rdat_node_state[i] = state_ram__ordat[i*cNODE_STATE_W +: cNODE_STATE_W];
+      always_comb begin
+        for (int i = 0; i < cZC_MAX; i++) begin
+          state_ram_rdat_node_state[i] = state_ram__ordat[i*cNODE_STATE_W +: cNODE_STATE_W];
+        end
       end
+
     end
     else begin
-      state_ram_rdat_hd         = state_ram__ordat;
-      state_ram_rdat_node_state = '{default : '0};
+      assign state_ram_rdat_node_state = '{default : '0};
     end
-  end
+  endgenerate
 
   //------------------------------------------------------------------------------------------------------
   // cnode logic
@@ -753,7 +770,6 @@ module ldpc_dvb_dec_2d_engine
     .icnode_ctx  ( cnode__icnode_ctx  ) ,
     .iLLR        ( cnode__iLLR        ) ,
     .ivnode      ( cnode__ivnode      ) ,
-    .ivnode_hd   ( cnode__ivnode_hd   ) ,
     //
     .ocnode_val  ( cnode__ocnode_val  ) ,
     .ocnode_addr ( cnode__ocnode_addr ) ,
@@ -772,7 +788,6 @@ module ldpc_dvb_dec_2d_engine
   //
   assign cnode__iLLR       = irLLR ;
   assign cnode__ivnode     = node_ram_rdat ;
-  assign cnode__ivnode_hd  = state_ram_rdat_hd;
 
   //------------------------------------------------------------------------------------------------------
   // vnode logic

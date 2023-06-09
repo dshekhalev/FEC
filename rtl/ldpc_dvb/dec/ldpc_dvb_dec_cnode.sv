@@ -22,7 +22,6 @@
   cnode_ctx_t ldpc_dvb_dec_cnode__icnode_ctx  ;
   zllr_t      ldpc_dvb_dec_cnode__iLLR        ;
   znode_t     ldpc_dvb_dec_cnode__ivnode      ;
-  zdat_t      ldpc_dvb_dec_cnode__ivnode_hd   ;
   //
   logic       ldpc_dvb_dec_cnode__ocnode_val  ;
   cycle_idx_t ldpc_dvb_dec_cnode__ocnode_addr ;
@@ -55,7 +54,6 @@
     .icnode_ctx  ( ldpc_dvb_dec_cnode__icnode_ctx  ) ,
     .iLLR        ( ldpc_dvb_dec_cnode__iLLR        ) ,
     .ivnode      ( ldpc_dvb_dec_cnode__ivnode      ) ,
-    .ivnode_hd   ( ldpc_dvb_dec_cnode__ivnode_hd   ) ,
     //
     .ocnode_val  ( ldpc_dvb_dec_cnode__ocnode_val  ) ,
     .ocnode_addr ( ldpc_dvb_dec_cnode__ocnode_addr ) ,
@@ -76,7 +74,6 @@
   assign ldpc_dvb_dec_cnode__icnode_ctx = '0 ;
   assign ldpc_dvb_dec_cnode__iLLR       = '0 ;
   assign ldpc_dvb_dec_cnode__ivnode     = '0 ;
-  assign ldpc_dvb_dec_cnode__ivnode_hd  = '0 ;
 
 
 
@@ -104,7 +101,6 @@ module ldpc_dvb_dec_cnode
   icnode_ctx  ,
   iLLR        ,
   ivnode      ,
-  ivnode_hd   ,
   //
   ocnode_val  ,
   ocnode_addr ,
@@ -135,7 +131,6 @@ module ldpc_dvb_dec_cnode
   input  cnode_ctx_t icnode_ctx  ;
   input  zllr_t      iLLR        ;
   input  znode_t     ivnode      ;
-  input  zdat_t      ivnode_hd   ;
   //
   output logic       ocnode_val  ;
   output cycle_idx_t ocnode_addr ;
@@ -151,8 +146,6 @@ module ldpc_dvb_dec_cnode
   localparam  [cLOG2_ZC_MAX-1 : 0] cBS_PIPE_LINE = 9'b1_0010_0100;   // 3 pipeline stage
   localparam                   int cBS_DELAY     = 3;                // barrel shifter delay
 
-  localparam                   int cIBS_NODE_W   = pNODE_W + 1;     // + 1 for syndrome hd
-
   localparam int cNODE_TAG_W         = $bits(cnode_ctx_t);
 
   localparam int cVNODE_FIFO_DEPTH_W = cNODE_PER_ROW_NUM_W + 1; // +1 bit to compensate at high coderates
@@ -164,12 +157,12 @@ module ldpc_dvb_dec_cnode
 
   //
   // input barrel shifter
-  logic                            ibs__ival            ;
-  logic signed [cIBS_NODE_W-1 : 0] ibs__idat   [cZC_MAX];
-  shift_t                          ibs__ishift          ;
+  logic                           ibs__ival   ;
+  znode_t                         ibs__idat   ;
+  shift_t                         ibs__ishift ;
   //
-  logic                            ibs__oval            ;
-  logic signed [cIBS_NODE_W-1 : 0] ibs__odat   [cZC_MAX];
+  logic                           ibs__oval   ;
+  znode_t                         ibs__odat   ;
   //
   // sort unit
   zdat_t                          sort__istart                       ;
@@ -190,6 +183,7 @@ module ldpc_dvb_dec_cnode
   vn_min_col_t                    sort__osort_b2_pre_num_m1 [cZC_MAX];
   //
   zdat_t                          sort__odecfail                     ;
+  zdat_t                          sort__ominfail                     ;
   //
   // syndrome counter
   logic                           syndrome__istart    ;
@@ -249,7 +243,7 @@ module ldpc_dvb_dec_cnode
 
   ldpc_dvb_dec_barrel_shifter
   #(
-    .pNODE_W    ( cIBS_NODE_W   ) ,
+    .pNODE_W    ( pNODE_W       ) ,
     .pR_SHIFT   ( 0             ) ,
     .pPIPE_LINE ( cBS_PIPE_LINE )
   )
@@ -272,12 +266,7 @@ module ldpc_dvb_dec_cnode
       ibs__ival   <= ival;
       ibs__ishift <= icnode_ctx.shift;
       for (int i = 0; i < cZC_MAX; i++) begin
-        if (iload_iter) begin
-          ibs__idat[i] <= iLLR[i]; // hd is signed extensions
-        end
-        else begin
-          ibs__idat[i] <= {ivnode_hd[i], ivnode[i]};
-        end
+        ibs__idat[i] <= iload_iter ? iLLR[i] : ivnode[i];
       end
     end
   end
@@ -343,7 +332,8 @@ module ldpc_dvb_dec_cnode
         .osort_b2_pre_val    ( sort__osort_b2_pre_val    [g] ) ,
         .osort_b2_pre_num_m1 ( sort__osort_b2_pre_num_m1 [g] ) ,
         //
-        .odecfail            ( sort__odecfail            [g] )
+        .odecfail            ( sort__odecfail            [g] ) ,
+        .ominfail            ( sort__ominfail            [g] )
       );
 
       assign sort__istart [g] = istart;
@@ -360,43 +350,29 @@ module ldpc_dvb_dec_cnode
   endgenerate
 
   //------------------------------------------------------------------------------------------------------
-  // syndrome check == decfail detection logic
+  // failed checks counter
   //------------------------------------------------------------------------------------------------------
 
-  ldpc_dvb_dec_syndrome_count
-  syndrome
+  ldpc_dvb_dec_decfail_cnt
+  #(
+    .pERR_W ( 16 )  // 65535 is max
+  )
+  decfail_cnt
   (
-    .iclk      ( iclk                ) ,
-    .ireset    ( ireset              ) ,
-    .iclkena   ( iclkena             ) ,
+    .iclk         ( iclk                ) ,
+    .ireset       ( ireset              ) ,
+    .iclkena      ( iclkena             ) ,
     //
-    .istart    ( syndrome__istart    ) ,
+    .istart       ( istart              ) ,
+    .iload_iter   ( iload_iter          ) ,
     //
-    .ival      ( syndrome__ival      ) ,
-    .istrb     ( syndrome__istrb     ) ,
-    .ivnode_hd ( syndrome__ivnode_hd ) ,
+    .ival         ( sort__osort_val[0]  ) ,
+    .irow_decfail ( sort__odecfail      ) ,
+    .irow_minfail ( sort__ominfail      ) ,
     //
-    .oval      ( syndrome__oval      ) ,
-    .odat      ( syndrome__odat      )
+    .oval         (                     ) ,
+    .odecfail     ( odecfail            )
   );
-
-  assign odecfail         = syndrome__odat;
-
-  assign syndrome__istart = istart ;
-
-  assign syndrome__ival   = ibs__oval ;
-  assign syndrome__istrb  = used_ibs_strb ;
-
-  always_comb begin
-    for (int i = 0; i < cZC_MAX; i++) begin
-      if (i == 0) begin
-        syndrome__ivnode_hd[i] = used_ibs_ctx.mask_0_bit ? 1'b0 : ibs__odat[i][pNODE_W];
-      end
-      else begin
-        syndrome__ivnode_hd[i] = ibs__odat[i][pNODE_W];
-      end
-    end
-  end
 
   //------------------------------------------------------------------------------------------------------
   // vnode dynamic align line : save vnode sign and vnode context (1 tick delay)
