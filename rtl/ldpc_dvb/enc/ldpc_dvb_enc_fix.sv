@@ -457,7 +457,7 @@ module ldpc_dvb_enc_fix
 
   assign engine__irbuf_full   = ibuffer__orfull;
 
-  assign engine__icode_ctx    = '{gr : pCODEGR, coderate : pCODERATE};
+  assign engine__icode_ctx    = '{xmode : pXMODE, gr : pCODEGR, coderate : pCODERATE};
   assign engine__irtag        = ibuffer__ortag;
 
   assign engine__irdat        = ibuffer__ordat;

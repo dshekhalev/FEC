@@ -66,9 +66,6 @@
 //
 
 module ldpc_dvb_dec_decfail_cnt
-#(
-  parameter int pERR_W = 16
-)
 (
   iclk         ,
   ireset       ,
@@ -84,6 +81,8 @@ module ldpc_dvb_dec_decfail_cnt
   oval         ,
   odecfail
 );
+
+  parameter int pERR_W = 16;
 
   `include "../ldpc_dvb_constants.svh"
   `include "ldpc_dvb_dec_types.svh"
