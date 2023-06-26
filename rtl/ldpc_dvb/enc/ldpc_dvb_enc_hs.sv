@@ -2,7 +2,8 @@
 
 
 
-  parameter int pPIPE = 1 ;
+  parameter bit pXMODE  = 0 ;
+  parameter bit pPIPE   = 1 ;
 
 
 
@@ -29,7 +30,8 @@
 
   ldpc_dvb_enc_hs
   #(
-    .pPIPE ( pPIPE )
+    .pXMODE ( pXMODE ) ,
+    .pPIPE  ( pPIPE  )
   )
   ldpc_dvb_enc_hs
   (
@@ -69,13 +71,14 @@
 // Project       : ldpc DVB-S2
 // Author        : Shekhalev Denis (des00)
 // Workfile      : ldpc_dvb_enc_hs.sv
-// Description   : Hs coe code context based fixed table
+// Description   : DVB-S2/S2X Hs coe code context based fixed table
 //
 
 
 module ldpc_dvb_enc_hs
 #(
-  parameter int pPIPE = 1
+  parameter bit pXMODE  = 0 , // DVB-S2X code tables using
+  parameter bit pPIPE   = 1
 )
 (
   iclk           ,
@@ -130,6 +133,9 @@ module ldpc_dvb_enc_hs
 
   `include "ldpc_dvb_enc_hs_large_packed.svh"
   `include "ldpc_dvb_enc_hs_short_packed.svh"
+  `include "ldpc_dvb_x_enc_hs_large_packed.svh"
+  `include "ldpc_dvb_x_enc_hs_short_packed.svh"
+  `include "ldpc_dvb_x_enc_hs_medium_packed.svh"
 
   typedef struct packed {
     logic   eop;
@@ -137,15 +143,26 @@ module ldpc_dvb_enc_hs
     shift_t shift;
   } cycle_ctx_t;
 
+  code_ctx_t  used_code_ctx;
+
+  //------------------------------------------------------------------------------------------------------
+  // mask if need
+  //------------------------------------------------------------------------------------------------------
+
+  always_comb begin
+    used_code_ctx       = icode_ctx;
+    used_code_ctx.xmode = pXMODE;
+  end
+
   //------------------------------------------------------------------------------------------------------
   // cycle constanst
   //------------------------------------------------------------------------------------------------------
 
-  assign oused_col      = get_used_col       (icode_ctx);
-  assign oused_data_col = get_used_data_col  (icode_ctx);
-  assign oused_row      = get_used_row       (icode_ctx);
+  assign oused_col      = get_used_col       (used_code_ctx);
+  assign oused_data_col = get_used_data_col  (used_code_ctx);
+  assign oused_row      = get_used_row       (used_code_ctx);
 
-  assign ocycle_max_num = get_used_cycle_num (icode_ctx);
+  assign ocycle_max_num = get_used_cycle_num (used_code_ctx);
 
   //------------------------------------------------------------------------------------------------------
   // cycle context rom reading
@@ -166,38 +183,92 @@ module ldpc_dvb_enc_hs
   always_ff @(posedge iclk) begin
     if (iclkena) begin
       cycle_ctx_rdat[0] <= cSHORT_HS_TAB_8BY9_PACKED_SIZE[icycle_idx];
-      case (icode_ctx.gr)
-        cCODEGR_SHORT : begin
-          case (icode_ctx.coderate)
-            cCODERATE_1by4  : cycle_ctx_rdat[0] <= cSHORT_HS_TAB_1BY4_PACKED[icycle_idx];
-            cCODERATE_1by3  : cycle_ctx_rdat[0] <= cSHORT_HS_TAB_1BY3_PACKED[icycle_idx];
-            cCODERATE_2by5  : cycle_ctx_rdat[0] <= cSHORT_HS_TAB_2BY5_PACKED[icycle_idx];
-            cCODERATE_1by2  : cycle_ctx_rdat[0] <= cSHORT_HS_TAB_1BY2_PACKED[icycle_idx];
-            cCODERATE_3by5  : cycle_ctx_rdat[0] <= cSHORT_HS_TAB_3BY5_PACKED[icycle_idx];
-            cCODERATE_2by3  : cycle_ctx_rdat[0] <= cSHORT_HS_TAB_2BY3_PACKED[icycle_idx];
-            cCODERATE_3by4  : cycle_ctx_rdat[0] <= cSHORT_HS_TAB_3BY4_PACKED[icycle_idx];
-            cCODERATE_4by5  : cycle_ctx_rdat[0] <= cSHORT_HS_TAB_4BY5_PACKED[icycle_idx];
-            cCODERATE_5by6  : cycle_ctx_rdat[0] <= cSHORT_HS_TAB_5BY6_PACKED[icycle_idx];
-            cCODERATE_8by9  : cycle_ctx_rdat[0] <= cSHORT_HS_TAB_8BY9_PACKED[icycle_idx];
-          endcase
-        end
-        //
-        cCODEGR_LARGE : begin
-          case (icode_ctx.coderate)
-            cCODERATE_1by4  : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_1BY4_PACKED [icycle_idx];
-            cCODERATE_1by3  : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_1BY3_PACKED [icycle_idx];
-            cCODERATE_2by5  : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_2BY5_PACKED [icycle_idx];
-            cCODERATE_1by2  : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_1BY2_PACKED [icycle_idx];
-            cCODERATE_3by5  : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_3BY5_PACKED [icycle_idx];
-            cCODERATE_2by3  : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_2BY3_PACKED [icycle_idx];
-            cCODERATE_3by4  : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_3BY4_PACKED [icycle_idx];
-            cCODERATE_4by5  : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_4BY5_PACKED [icycle_idx];
-            cCODERATE_5by6  : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_5BY6_PACKED [icycle_idx];
-            cCODERATE_8by9  : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_8BY9_PACKED [icycle_idx];
-            cCODERATE_9by10 : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_9BY10_PACKED[icycle_idx];
-          endcase
-        end
-      endcase
+      if (used_code_ctx.xmode) begin
+        case (used_code_ctx.gr)
+          cCODEGR_SHORT : begin
+            case (used_code_ctx.coderate)
+              cXCODERATE_S_11by45  : cycle_ctx_rdat[0] <= cSHORT_HS_TAB_11BY45_PACKED[icycle_idx];
+              cXCODERATE_S_4by15   : cycle_ctx_rdat[0] <= cSHORT_HS_TAB_4BY15_PACKED [icycle_idx];
+              cXCODERATE_S_14by45  : cycle_ctx_rdat[0] <= cSHORT_HS_TAB_14BY45_PACKED[icycle_idx];
+              cXCODERATE_S_7by15   : cycle_ctx_rdat[0] <= cSHORT_HS_TAB_7BY15_PACKED [icycle_idx];
+              cXCODERATE_S_8by15   : cycle_ctx_rdat[0] <= cSHORT_HS_TAB_8BY15_PACKED [icycle_idx];
+              cXCODERATE_S_26by45  : cycle_ctx_rdat[0] <= cSHORT_HS_TAB_26BY45_PACKED[icycle_idx];
+              cXCODERATE_S_32by45  : cycle_ctx_rdat[0] <= cSHORT_HS_TAB_32BY45_PACKED[icycle_idx];
+            endcase
+          end
+          //
+          cCODEGR_MEDIUM : begin
+            case (used_code_ctx.coderate)
+              cXCODERATE_M_1by5    : cycle_ctx_rdat[0] <= cMEDIUM_HS_TAB_1BY5_PACKED  [icycle_idx];
+              cXCODERATE_M_11by45  : cycle_ctx_rdat[0] <= cMEDIUM_HS_TAB_11BY45_PACKED[icycle_idx];
+              cXCODERATE_M_1by3    : cycle_ctx_rdat[0] <= cMEDIUM_HS_TAB_1BY3_PACKED  [icycle_idx];
+            endcase
+          end
+          //
+          cCODEGR_LARGE : begin
+            case (used_code_ctx.coderate)
+              cXCODERATE_L_2by9     : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_2BY9_PACKED    [icycle_idx];
+              cXCODERATE_L_13by45   : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_13BY45_PACKED  [icycle_idx];
+              cXCODERATE_L_9by20    : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_9BY20_PACKED   [icycle_idx];
+              cXCODERATE_L_90by180  : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_90BY180_PACKED [icycle_idx];
+              cXCODERATE_L_96by180  : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_96BY180_PACKED [icycle_idx];
+              cXCODERATE_L_11by20   : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_11BY20_PACKED  [icycle_idx];
+              cXCODERATE_L_100by180 : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_100BY180_PACKED[icycle_idx];
+              cXCODERATE_L_26by45   : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_26BY45_PACKED  [icycle_idx];
+              cXCODERATE_L_104by180 : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_104BY180_PACKED[icycle_idx];
+              cXCODERATE_L_18by30   : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_18BY30_PACKED  [icycle_idx];
+              cXCODERATE_L_28by45   : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_28BY45_PACKED  [icycle_idx];
+              cXCODERATE_L_23by36   : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_23BY36_PACKED  [icycle_idx];
+              cXCODERATE_L_116by180 : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_116BY180_PACKED[icycle_idx];
+              cXCODERATE_L_20by30   : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_20BY30_PACKED  [icycle_idx];
+              cXCODERATE_L_124by180 : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_124BY180_PACKED[icycle_idx];
+              cXCODERATE_L_25by36   : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_25BY36_PACKED  [icycle_idx];
+              cXCODERATE_L_128by180 : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_128BY180_PACKED[icycle_idx];
+              cXCODERATE_L_13by18   : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_13BY18_PACKED  [icycle_idx];
+              cXCODERATE_L_132by180 : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_132BY180_PACKED[icycle_idx];
+              cXCODERATE_L_22by30   : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_22BY30_PACKED  [icycle_idx];
+              cXCODERATE_L_135by180 : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_135BY180_PACKED[icycle_idx];
+              cXCODERATE_L_140by180 : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_140BY180_PACKED[icycle_idx];
+              cXCODERATE_L_7by9     : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_7BY9_PACKED    [icycle_idx];
+              cXCODERATE_L_154by180 : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_154BY180_PACKED[icycle_idx];
+            endcase
+          end
+        endcase
+      end
+      else begin
+        case (used_code_ctx.gr)
+          cCODEGR_SHORT : begin
+            case (used_code_ctx.coderate)
+              cCODERATE_1by4  : cycle_ctx_rdat[0] <= cSHORT_HS_TAB_1BY4_PACKED[icycle_idx];
+              cCODERATE_1by3  : cycle_ctx_rdat[0] <= cSHORT_HS_TAB_1BY3_PACKED[icycle_idx];
+              cCODERATE_2by5  : cycle_ctx_rdat[0] <= cSHORT_HS_TAB_2BY5_PACKED[icycle_idx];
+              cCODERATE_1by2  : cycle_ctx_rdat[0] <= cSHORT_HS_TAB_1BY2_PACKED[icycle_idx];
+              cCODERATE_3by5  : cycle_ctx_rdat[0] <= cSHORT_HS_TAB_3BY5_PACKED[icycle_idx];
+              cCODERATE_2by3  : cycle_ctx_rdat[0] <= cSHORT_HS_TAB_2BY3_PACKED[icycle_idx];
+              cCODERATE_3by4  : cycle_ctx_rdat[0] <= cSHORT_HS_TAB_3BY4_PACKED[icycle_idx];
+              cCODERATE_4by5  : cycle_ctx_rdat[0] <= cSHORT_HS_TAB_4BY5_PACKED[icycle_idx];
+              cCODERATE_5by6  : cycle_ctx_rdat[0] <= cSHORT_HS_TAB_5BY6_PACKED[icycle_idx];
+              cCODERATE_8by9  : cycle_ctx_rdat[0] <= cSHORT_HS_TAB_8BY9_PACKED[icycle_idx];
+            endcase
+          end
+          //
+          cCODEGR_LARGE : begin
+            case (used_code_ctx.coderate)
+              cCODERATE_1by4  : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_1BY4_PACKED [icycle_idx];
+              cCODERATE_1by3  : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_1BY3_PACKED [icycle_idx];
+              cCODERATE_2by5  : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_2BY5_PACKED [icycle_idx];
+              cCODERATE_1by2  : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_1BY2_PACKED [icycle_idx];
+              cCODERATE_3by5  : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_3BY5_PACKED [icycle_idx];
+              cCODERATE_2by3  : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_2BY3_PACKED [icycle_idx];
+              cCODERATE_3by4  : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_3BY4_PACKED [icycle_idx];
+              cCODERATE_4by5  : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_4BY5_PACKED [icycle_idx];
+              cCODERATE_5by6  : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_5BY6_PACKED [icycle_idx];
+              cCODERATE_8by9  : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_8BY9_PACKED [icycle_idx];
+              cCODERATE_9by10 : cycle_ctx_rdat[0] <= cLARGE_HS_TAB_9BY10_PACKED[icycle_idx];
+            endcase
+          end
+        endcase
+      end
       //
       cycle_ctx_rdat[1] <= cycle_ctx_rdat[0];
     end
@@ -224,38 +295,92 @@ module ldpc_dvb_enc_hs
   function automatic int get_used_cycle_num (code_ctx_t code_ctx);
   begin
     get_used_cycle_num = cSHORT_HS_TAB_8BY9_PACKED_SIZE;
-    case (code_ctx.gr)
-      cCODEGR_SHORT : begin
-        case (code_ctx.coderate)
-          cCODERATE_1by4  : get_used_cycle_num = cSHORT_HS_TAB_1BY4_PACKED_SIZE;
-          cCODERATE_1by3  : get_used_cycle_num = cSHORT_HS_TAB_1BY3_PACKED_SIZE;
-          cCODERATE_2by5  : get_used_cycle_num = cSHORT_HS_TAB_2BY5_PACKED_SIZE;
-          cCODERATE_1by2  : get_used_cycle_num = cSHORT_HS_TAB_1BY2_PACKED_SIZE;
-          cCODERATE_3by5  : get_used_cycle_num = cSHORT_HS_TAB_3BY5_PACKED_SIZE;
-          cCODERATE_2by3  : get_used_cycle_num = cSHORT_HS_TAB_2BY3_PACKED_SIZE;
-          cCODERATE_3by4  : get_used_cycle_num = cSHORT_HS_TAB_3BY4_PACKED_SIZE;
-          cCODERATE_4by5  : get_used_cycle_num = cSHORT_HS_TAB_4BY5_PACKED_SIZE;
-          cCODERATE_5by6  : get_used_cycle_num = cSHORT_HS_TAB_5BY6_PACKED_SIZE;
-          cCODERATE_8by9  : get_used_cycle_num = cSHORT_HS_TAB_8BY9_PACKED_SIZE;
-        endcase
-      end
-      //
-      cCODEGR_LARGE : begin
-        case (code_ctx.coderate)
-          cCODERATE_1by4  : get_used_cycle_num = cLARGE_HS_TAB_1BY4_PACKED_SIZE;
-          cCODERATE_1by3  : get_used_cycle_num = cLARGE_HS_TAB_1BY3_PACKED_SIZE;
-          cCODERATE_2by5  : get_used_cycle_num = cLARGE_HS_TAB_2BY5_PACKED_SIZE;
-          cCODERATE_1by2  : get_used_cycle_num = cLARGE_HS_TAB_1BY2_PACKED_SIZE;
-          cCODERATE_3by5  : get_used_cycle_num = cLARGE_HS_TAB_3BY5_PACKED_SIZE;
-          cCODERATE_2by3  : get_used_cycle_num = cLARGE_HS_TAB_2BY3_PACKED_SIZE;
-          cCODERATE_3by4  : get_used_cycle_num = cLARGE_HS_TAB_3BY4_PACKED_SIZE;
-          cCODERATE_4by5  : get_used_cycle_num = cLARGE_HS_TAB_4BY5_PACKED_SIZE;
-          cCODERATE_5by6  : get_used_cycle_num = cLARGE_HS_TAB_5BY6_PACKED_SIZE;
-          cCODERATE_8by9  : get_used_cycle_num = cLARGE_HS_TAB_8BY9_PACKED_SIZE;
-          cCODERATE_9by10 : get_used_cycle_num = cLARGE_HS_TAB_9BY10_PACKED_SIZE;
-        endcase
-      end
-    endcase
+    if (code_ctx.xmode) begin
+      case (code_ctx.gr)
+        cCODEGR_SHORT : begin
+          case (code_ctx.coderate)
+            cXCODERATE_S_11by45  : get_used_cycle_num = cSHORT_HS_TAB_11BY45_PACKED_SIZE;
+            cXCODERATE_S_4by15   : get_used_cycle_num = cSHORT_HS_TAB_4BY15_PACKED_SIZE;
+            cXCODERATE_S_14by45  : get_used_cycle_num = cSHORT_HS_TAB_14BY45_PACKED_SIZE;
+            cXCODERATE_S_7by15   : get_used_cycle_num = cSHORT_HS_TAB_7BY15_PACKED_SIZE;
+            cXCODERATE_S_8by15   : get_used_cycle_num = cSHORT_HS_TAB_8BY15_PACKED_SIZE;
+            cXCODERATE_S_26by45  : get_used_cycle_num = cSHORT_HS_TAB_26BY45_PACKED_SIZE;
+            cXCODERATE_S_32by45  : get_used_cycle_num = cSHORT_HS_TAB_32BY45_PACKED_SIZE;
+          endcase
+        end
+        //
+        cCODEGR_MEDIUM : begin
+          case (code_ctx.coderate)
+            cXCODERATE_M_1by5    : get_used_cycle_num = cMEDIUM_HS_TAB_1BY5_PACKED_SIZE;
+            cXCODERATE_M_11by45  : get_used_cycle_num = cMEDIUM_HS_TAB_11BY45_PACKED_SIZE;
+            cXCODERATE_M_1by3    : get_used_cycle_num = cMEDIUM_HS_TAB_1BY3_PACKED_SIZE;
+          endcase
+        end
+        //
+        cCODEGR_LARGE : begin
+          case (code_ctx.coderate)
+            cXCODERATE_L_2by9     : get_used_cycle_num = cLARGE_HS_TAB_2BY9_PACKED_SIZE;
+            cXCODERATE_L_13by45   : get_used_cycle_num = cLARGE_HS_TAB_13BY45_PACKED_SIZE;
+            cXCODERATE_L_9by20    : get_used_cycle_num = cLARGE_HS_TAB_9BY20_PACKED_SIZE;
+            cXCODERATE_L_90by180  : get_used_cycle_num = cLARGE_HS_TAB_90BY180_PACKED_SIZE;
+            cXCODERATE_L_96by180  : get_used_cycle_num = cLARGE_HS_TAB_96BY180_PACKED_SIZE;
+            cXCODERATE_L_11by20   : get_used_cycle_num = cLARGE_HS_TAB_11BY20_PACKED_SIZE;
+            cXCODERATE_L_100by180 : get_used_cycle_num = cLARGE_HS_TAB_100BY180_PACKED_SIZE;
+            cXCODERATE_L_26by45   : get_used_cycle_num = cLARGE_HS_TAB_26BY45_PACKED_SIZE;
+            cXCODERATE_L_104by180 : get_used_cycle_num = cLARGE_HS_TAB_104BY180_PACKED_SIZE;
+            cXCODERATE_L_18by30   : get_used_cycle_num = cLARGE_HS_TAB_18BY30_PACKED_SIZE;
+            cXCODERATE_L_28by45   : get_used_cycle_num = cLARGE_HS_TAB_28BY45_PACKED_SIZE;
+            cXCODERATE_L_23by36   : get_used_cycle_num = cLARGE_HS_TAB_23BY36_PACKED_SIZE;
+            cXCODERATE_L_116by180 : get_used_cycle_num = cLARGE_HS_TAB_116BY180_PACKED_SIZE;
+            cXCODERATE_L_20by30   : get_used_cycle_num = cLARGE_HS_TAB_20BY30_PACKED_SIZE;
+            cXCODERATE_L_124by180 : get_used_cycle_num = cLARGE_HS_TAB_124BY180_PACKED_SIZE;
+            cXCODERATE_L_25by36   : get_used_cycle_num = cLARGE_HS_TAB_25BY36_PACKED_SIZE;
+            cXCODERATE_L_128by180 : get_used_cycle_num = cLARGE_HS_TAB_128BY180_PACKED_SIZE;
+            cXCODERATE_L_13by18   : get_used_cycle_num = cLARGE_HS_TAB_13BY18_PACKED_SIZE;
+            cXCODERATE_L_132by180 : get_used_cycle_num = cLARGE_HS_TAB_132BY180_PACKED_SIZE;
+            cXCODERATE_L_22by30   : get_used_cycle_num = cLARGE_HS_TAB_22BY30_PACKED_SIZE;
+            cXCODERATE_L_135by180 : get_used_cycle_num = cLARGE_HS_TAB_135BY180_PACKED_SIZE;
+            cXCODERATE_L_140by180 : get_used_cycle_num = cLARGE_HS_TAB_140BY180_PACKED_SIZE;
+            cXCODERATE_L_7by9     : get_used_cycle_num = cLARGE_HS_TAB_7BY9_PACKED_SIZE;
+            cXCODERATE_L_154by180 : get_used_cycle_num = cLARGE_HS_TAB_154BY180_PACKED_SIZE;
+          endcase
+        end
+      endcase
+    end
+    else begin
+      case (code_ctx.gr)
+        cCODEGR_SHORT : begin
+          case (code_ctx.coderate)
+            cCODERATE_1by4  : get_used_cycle_num = cSHORT_HS_TAB_1BY4_PACKED_SIZE;
+            cCODERATE_1by3  : get_used_cycle_num = cSHORT_HS_TAB_1BY3_PACKED_SIZE;
+            cCODERATE_2by5  : get_used_cycle_num = cSHORT_HS_TAB_2BY5_PACKED_SIZE;
+            cCODERATE_1by2  : get_used_cycle_num = cSHORT_HS_TAB_1BY2_PACKED_SIZE;
+            cCODERATE_3by5  : get_used_cycle_num = cSHORT_HS_TAB_3BY5_PACKED_SIZE;
+            cCODERATE_2by3  : get_used_cycle_num = cSHORT_HS_TAB_2BY3_PACKED_SIZE;
+            cCODERATE_3by4  : get_used_cycle_num = cSHORT_HS_TAB_3BY4_PACKED_SIZE;
+            cCODERATE_4by5  : get_used_cycle_num = cSHORT_HS_TAB_4BY5_PACKED_SIZE;
+            cCODERATE_5by6  : get_used_cycle_num = cSHORT_HS_TAB_5BY6_PACKED_SIZE;
+            cCODERATE_8by9  : get_used_cycle_num = cSHORT_HS_TAB_8BY9_PACKED_SIZE;
+          endcase
+        end
+        //
+        cCODEGR_LARGE : begin
+          case (code_ctx.coderate)
+            cCODERATE_1by4  : get_used_cycle_num = cLARGE_HS_TAB_1BY4_PACKED_SIZE;
+            cCODERATE_1by3  : get_used_cycle_num = cLARGE_HS_TAB_1BY3_PACKED_SIZE;
+            cCODERATE_2by5  : get_used_cycle_num = cLARGE_HS_TAB_2BY5_PACKED_SIZE;
+            cCODERATE_1by2  : get_used_cycle_num = cLARGE_HS_TAB_1BY2_PACKED_SIZE;
+            cCODERATE_3by5  : get_used_cycle_num = cLARGE_HS_TAB_3BY5_PACKED_SIZE;
+            cCODERATE_2by3  : get_used_cycle_num = cLARGE_HS_TAB_2BY3_PACKED_SIZE;
+            cCODERATE_3by4  : get_used_cycle_num = cLARGE_HS_TAB_3BY4_PACKED_SIZE;
+            cCODERATE_4by5  : get_used_cycle_num = cLARGE_HS_TAB_4BY5_PACKED_SIZE;
+            cCODERATE_5by6  : get_used_cycle_num = cLARGE_HS_TAB_5BY6_PACKED_SIZE;
+            cCODERATE_8by9  : get_used_cycle_num = cLARGE_HS_TAB_8BY9_PACKED_SIZE;
+            cCODERATE_9by10 : get_used_cycle_num = cLARGE_HS_TAB_9BY10_PACKED_SIZE;
+          endcase
+        end
+      endcase
+    end
   end
   endfunction
 

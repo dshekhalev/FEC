@@ -283,116 +283,60 @@ module ldpc_dvb_enc_engine
 
   generate
     if (pFIX_MODE) begin : hs_inst_gen
-      if (pXMODE) begin
-        ldpc_dvb_x_enc_hs
-        #(
-          .pPIPE ( 1 ) // 2 tick latency
-        )
-        hs
-        (
-          .iclk           ( iclk                   ) ,
-          .ireset         ( ireset                 ) ,
-          .iclkena        ( iclkena                ) ,
-          //
-          .icode_ctx      ( hs_gen__icode_ctx      ) ,
-          //
-          .oused_col      ( hs_gen__oused_col      ) ,
-          .oused_data_col ( hs_gen__oused_data_col ) ,
-          .oused_row      ( hs_gen__oused_row      ) ,
-          .ocycle_max_num ( hs_gen__ocycle_max_num ) ,
-          //
-          .icycle_read    ( hs_gen__icycle_read    ) ,
-          .icycle_idx     ( hs_gen__icycle_idx     ) ,
-          //
-          .ocycle_read    ( hs_gen__ocycle_read    ) ,
-          .ocycle_strb    ( hs_gen__ocycle_strb    ) ,
-          .ocycle_col_idx ( hs_gen__ocycle_col_idx ) ,
-          .ocycle_shift   ( hs_gen__ocycle_shift   )
-        );
-      end
-      else begin
-        ldpc_dvb_enc_hs
-        #(
-          .pPIPE ( 1 ) // 2 tick latency
-        )
-        hs
-        (
-          .iclk           ( iclk                   ) ,
-          .ireset         ( ireset                 ) ,
-          .iclkena        ( iclkena                ) ,
-          //
-          .icode_ctx      ( hs_gen__icode_ctx      ) ,
-          //
-          .oused_col      ( hs_gen__oused_col      ) ,
-          .oused_data_col ( hs_gen__oused_data_col ) ,
-          .oused_row      ( hs_gen__oused_row      ) ,
-          .ocycle_max_num ( hs_gen__ocycle_max_num ) ,
-          //
-          .icycle_read    ( hs_gen__icycle_read    ) ,
-          .icycle_idx     ( hs_gen__icycle_idx     ) ,
-          //
-          .ocycle_read    ( hs_gen__ocycle_read    ) ,
-          .ocycle_strb    ( hs_gen__ocycle_strb    ) ,
-          .ocycle_col_idx ( hs_gen__ocycle_col_idx ) ,
-          .ocycle_shift   ( hs_gen__ocycle_shift   )
-        );
-      end
+      ldpc_dvb_enc_hs
+      #(
+      .pXMODE ( pXMODE ) ,
+      .pPIPE  ( 1      )  // 2 tick latency
+      )
+      hs
+      (
+        .iclk           ( iclk                   ) ,
+        .ireset         ( ireset                 ) ,
+        .iclkena        ( iclkena                ) ,
+        //
+        .icode_ctx      ( hs_gen__icode_ctx      ) ,
+        //
+        .oused_col      ( hs_gen__oused_col      ) ,
+        .oused_data_col ( hs_gen__oused_data_col ) ,
+        .oused_row      ( hs_gen__oused_row      ) ,
+        .ocycle_max_num ( hs_gen__ocycle_max_num ) ,
+        //
+        .icycle_read    ( hs_gen__icycle_read    ) ,
+        .icycle_idx     ( hs_gen__icycle_idx     ) ,
+        //
+        .ocycle_read    ( hs_gen__ocycle_read    ) ,
+        .ocycle_strb    ( hs_gen__ocycle_strb    ) ,
+        .ocycle_col_idx ( hs_gen__ocycle_col_idx ) ,
+        .ocycle_shift   ( hs_gen__ocycle_shift   )
+      );
     end
     else begin
-      if (pXMODE) begin
-        ldpc_dvb_x_enc_hs_gen
-        #(
-          .pPIPE ( 1 )  // 2 tick latency
-        )
-        hs_gen
-        (
-          .iclk           ( iclk                   ) ,
-          .ireset         ( ireset                 ) ,
-          .iclkena        ( iclkena                ) ,
-          //
-          .icode_ctx      ( hs_gen__icode_ctx      ) ,
-          //
-          .oused_col      ( hs_gen__oused_col      ) ,
-          .oused_data_col ( hs_gen__oused_data_col ) ,
-          .oused_row      ( hs_gen__oused_row      ) ,
-          .ocycle_max_num ( hs_gen__ocycle_max_num ) ,
-          //
-          .icycle_read    ( hs_gen__icycle_read    ) ,
-          .icycle_idx     ( hs_gen__icycle_idx     ) ,
-          //
-          .ocycle_read    ( hs_gen__ocycle_read    ) ,
-          .ocycle_strb    ( hs_gen__ocycle_strb    ) ,
-          .ocycle_col_idx ( hs_gen__ocycle_col_idx ) ,
-          .ocycle_shift   ( hs_gen__ocycle_shift   )
-        );
-      end
-      else begin
-        ldpc_dvb_enc_hs_gen
-        #(
-          .pPIPE ( 1 )  // 2 tick latency
-        )
-        hs_gen
-        (
-          .iclk           ( iclk                   ) ,
-          .ireset         ( ireset                 ) ,
-          .iclkena        ( iclkena                ) ,
-          //
-          .icode_ctx      ( hs_gen__icode_ctx      ) ,
-          //
-          .oused_col      ( hs_gen__oused_col      ) ,
-          .oused_data_col ( hs_gen__oused_data_col ) ,
-          .oused_row      ( hs_gen__oused_row      ) ,
-          .ocycle_max_num ( hs_gen__ocycle_max_num ) ,
-          //
-          .icycle_read    ( hs_gen__icycle_read    ) ,
-          .icycle_idx     ( hs_gen__icycle_idx     ) ,
-          //
-          .ocycle_read    ( hs_gen__ocycle_read    ) ,
-          .ocycle_strb    ( hs_gen__ocycle_strb    ) ,
-          .ocycle_col_idx ( hs_gen__ocycle_col_idx ) ,
-          .ocycle_shift   ( hs_gen__ocycle_shift   )
-        );
-      end
+      ldpc_dvb_enc_hs_gen
+      #(
+        .pXMODE ( pXMODE ) ,
+        .pPIPE  ( 1      )  // 2 tick latency
+      )
+      hs_gen
+      (
+        .iclk           ( iclk                   ) ,
+        .ireset         ( ireset                 ) ,
+        .iclkena        ( iclkena                ) ,
+        //
+        .icode_ctx      ( hs_gen__icode_ctx      ) ,
+        //
+        .oused_col      ( hs_gen__oused_col      ) ,
+        .oused_data_col ( hs_gen__oused_data_col ) ,
+        .oused_row      ( hs_gen__oused_row      ) ,
+        .ocycle_max_num ( hs_gen__ocycle_max_num ) ,
+        //
+        .icycle_read    ( hs_gen__icycle_read    ) ,
+        .icycle_idx     ( hs_gen__icycle_idx     ) ,
+        //
+        .ocycle_read    ( hs_gen__ocycle_read    ) ,
+        .ocycle_strb    ( hs_gen__ocycle_strb    ) ,
+        .ocycle_col_idx ( hs_gen__ocycle_col_idx ) ,
+        .ocycle_shift   ( hs_gen__ocycle_shift   )
+      );
     end
   endgenerate
 

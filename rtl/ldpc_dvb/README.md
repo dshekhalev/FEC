@@ -20,14 +20,14 @@ Decoder settings : DVB-S2 coderate = 1/2, block length = 64800 bits, 8 LLR/bits 
 
 pNODE_W = 6 bits (optimal codegain for 4 bit LLR)
 
-Decoder 	: LUT/REG/RAMB 	59k/63k/117.5 	iface >250MHz, core >250MHz (480Mbps -> 240Mbps)
+Decoder 	: LUT/REG/RAMB 	57k/63k/107.5 	iface >250MHz, core >250MHz (480Mbps -> 240Mbps)
 
 pNODE_W = 5 bits (good codegain for 4 bit LLR)
 
-Decoder 	: LUT/REG/RAMB 	49k/55k/107.5 	iface >250MHz, core >250MHz (480Mbps -> 240Mbps)
+Decoder 	: LUT/REG/RAMB 	49k/56k/97.5 	iface >250MHz, core >250MHz (480Mbps -> 240Mbps)
 
 pNODE_W = 4 bits (worst codegain for 4 bit LLR)
 
-Decoder 	: LUT/REG/RAMB 	43k/48k/97.5 	iface >250MHz, core >250MHz (480Mbps -> 240Mbps)
+Decoder 	: LUT/REG/RAMB 	41k/49k/87.5 	iface >250MHz, core >250MHz (480Mbps -> 240Mbps)
 
 Attention: The coder and decoder correspond each other but can have different bit order with standard codes. Strongly speaking it's not DVB-S2 codec, because there is no parity bits reorder inside. It should be done external of codec during bit interleaving procedure !!! 

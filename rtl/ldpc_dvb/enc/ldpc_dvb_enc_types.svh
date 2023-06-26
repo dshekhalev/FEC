@@ -63,7 +63,7 @@
       end
     end
     //
-    get_ibuff_max_addr = get_used_data_col(ctx, xmode);
+    get_ibuff_max_addr = get_used_data_col(ctx);
   end
   endfunction
 
@@ -85,6 +85,6 @@
     // can use any coderate
     ctx = '{xmode : xmode, gr : gr, coderate : coderate};
     //
-    get_ibuff_addr = get_used_data_col(ctx, xmode);
+    get_ibuff_addr = get_used_data_col(ctx);
   end
   endfunction
