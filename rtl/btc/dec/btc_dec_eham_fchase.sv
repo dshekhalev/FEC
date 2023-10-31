@@ -213,7 +213,12 @@ module btc_dec_eham_fchase
 
   logic         decfail2out;
 
+  logic [1 : 0] next_eras_pos_idx;
+  logic         next_eras_pos_plus;
+  bit_idx_t     next_eras_pos;
   metric_t      wacc;
+
+  extr_t        absLapri;
 
   logic         code_weigth_val;
   logic         code_weigth_sop;
@@ -319,64 +324,65 @@ module btc_dec_eham_fchase
   logic     teven     ;
   bit_idx_t terr_idx  ;
   logic     tdecfail  ;
-  metric_t  twacc;
+  metric_t  twacc     ;
 
   //
   // fast chase logic
+
+//assign next_eras_pos_idx  = cEHAM_NEXT_ERAS_POS_IDX [cnt.value];
+//assign next_eras_pos_plus = cEHAM_NEXT_ERAS_POS_PLUS[cnt.value];
+//assign next_eras_pos      = Lpp_idx[next_eras_pos_idx];
+  assign no_error           = (syndrome == 0) & (even == 0);
+
   always_comb begin
-    bit_idx_t next_eras_pos;
-    // condition decoding
-    no_error               = (syndrome == 0) & (even == 0);
     //
+    // condition decoding
     error_not_in_lpp_list  = (err_idx != Lpp_idx[0]);
     error_not_in_lpp_list &= (err_idx != Lpp_idx[1]);
     error_not_in_lpp_list &= (err_idx != Lpp_idx[2]);
     if (imode.size != cBSIZE_8) begin
       error_not_in_lpp_list &= (err_idx != Lpp_idx[3]);
     end
-    // fast chase step
-    teven         = !even;
-    next_eras_pos = Lpp_idx[cEHAM_NEXT_ERAS_POS_IDX[cnt.value]];
     //
-    tsyndrome     = syndrome;
-    terr_idx      = '0;
+    // fast chase step
+    teven = !even;
+    //
     case (imode.size)
       cBSIZE_8  : begin
-        if (next_eras_pos != 7) begin
-          tsyndrome ^= cH_7_TAB [next_eras_pos[2 : 0]];
-        end
-        terr_idx = cH_7_ERR_IDX_TAB [tsyndrome[2 : 0]];
+        tsyndrome = syndrome[2 : 0] ^ cH_7_TAB [next_eras_pos[2 : 0]];
+        terr_idx  = cH_7_ERR_IDX_TAB [tsyndrome[2 : 0]];
       end
       //
       cBSIZE_16 : begin
-        if (next_eras_pos != 15) begin
-          tsyndrome ^= cH_15_TAB [next_eras_pos[3 : 0]];
-        end
-        terr_idx = cH_15_ERR_IDX_TAB[tsyndrome[3 : 0]];
+        tsyndrome = syndrome[3 : 0] ^ cH_15_TAB [next_eras_pos[3 : 0]];
+        terr_idx  = cH_15_ERR_IDX_TAB[tsyndrome[3 : 0]];
       end
       //
       cBSIZE_32 : begin
-        if (next_eras_pos != 31) begin
-          tsyndrome ^= cH_31_TAB [next_eras_pos[4 : 0]];
-        end
-        terr_idx = cH_31_ERR_IDX_TAB[tsyndrome[4 : 0]];
+        tsyndrome = syndrome[4 : 0] ^ cH_31_TAB [next_eras_pos[4 : 0]];
+        terr_idx  = cH_31_ERR_IDX_TAB[tsyndrome[4 : 0]];
       end
       //
       cBSIZE_64 : begin
-        if (next_eras_pos != 63) begin
-          tsyndrome ^= cH_63_TAB [next_eras_pos[5 : 0]];
-        end
-        terr_idx = cH_63_ERR_IDX_TAB[tsyndrome[5 : 0]];
+        tsyndrome = syndrome[5 : 0] ^ cH_63_TAB [next_eras_pos[5 : 0]];
+        terr_idx  = cH_63_ERR_IDX_TAB[tsyndrome[5 : 0]];
+      end
+      //
+      default : begin
+        tsyndrome = syndrome;
+        terr_idx  = '0;
       end
     endcase
     //
     tdecfail = (tsyndrome != 0) & (teven == 0);
     //
-    twacc    = cEHAM_NEXT_ERAS_POS_PLUS[cnt.value] ? (wacc + Lpp_value[cEHAM_NEXT_ERAS_POS_IDX[cnt.value]]) :
-                                                     (wacc - Lpp_value[cEHAM_NEXT_ERAS_POS_IDX[cnt.value]]);
+    twacc    = next_eras_pos_plus ? (wacc + Lpp_value[next_eras_pos_idx]) :
+                                    (wacc - Lpp_value[next_eras_pos_idx]);
   end
 
   assign oLapri_raddr = err_idx;
+
+  assign absLapri     = {1'b0, iLapri[$high(iLapri)-1 : 0]}; // Lapri in {sign, abs} format (!!!)
 
   //
   // fast chase registers
@@ -399,61 +405,66 @@ module btc_dec_eham_fchase
         cRESET_STATE : begin
           if (ival) begin // init chase
             // hold chase context
-            Lpp_idx     <= iLpp_idx;
-            Lpp_value   <= iLpp_value;
+            Lpp_idx             <= iLpp_idx;
+            Lpp_value           <= iLpp_value;
             // init chase
-            syndrome    <= isyndrome;
-            even        <= ieven;
-            err_idx     <= ierr_idx;
-            decfail     <= idecfail;
-            wacc        <= '0;
+            syndrome            <= isyndrome;
+            even                <= ieven;
+            err_idx             <= ierr_idx;
+            decfail             <= idecfail;
+            wacc                <= '0;
             // latch initial for fast decision
-            decfail2out <= idecfail;
+            decfail2out         <= idecfail;
+            // look ahead decision
+            next_eras_pos_idx   <=          cEHAM_NEXT_ERAS_POS_IDX [0];
+            next_eras_pos_plus  <=          cEHAM_NEXT_ERAS_POS_PLUS[0];
+            next_eras_pos       <= iLpp_idx[cEHAM_NEXT_ERAS_POS_IDX [0]];
           end
         end
         //
         cDO_STATE : begin
-          code_weigth_sop <= cnt.zero;
-          //
-          if (ival) begin // init fast chase
+          if (ival) begin // init chase
             // hold chase context
-            Lpp_idx     <= iLpp_idx;
-            Lpp_value   <= iLpp_value;
+            Lpp_idx             <= iLpp_idx;
+            Lpp_value           <= iLpp_value;
             // init chase
-            syndrome    <= isyndrome;
-            even        <= ieven;
-            err_idx     <= ierr_idx;
-            decfail     <= idecfail;
-            wacc        <= '0;
+            syndrome            <= isyndrome;
+            even                <= ieven;
+            err_idx             <= ierr_idx;
+            decfail             <= idecfail;
+            wacc                <= '0;
             // latch initial for fast decision
-            decfail2out <= idecfail;
+            decfail2out         <= idecfail;
+            // look ahead decision
+            next_eras_pos_idx   <=          cEHAM_NEXT_ERAS_POS_IDX [0];
+            next_eras_pos_plus  <=          cEHAM_NEXT_ERAS_POS_PLUS[0];
+            next_eras_pos       <= iLpp_idx[cEHAM_NEXT_ERAS_POS_IDX [0]];
           end
-          else begin // fast chase
-            // chase step
-            syndrome  <= tsyndrome;
-            even      <= teven;
-            err_idx   <= terr_idx;
-            decfail   <= tdecfail;
-            wacc      <= twacc;
+          else begin // chase step
+            syndrome            <= tsyndrome;
+            even                <= teven;
+            err_idx             <= terr_idx;
+            decfail             <= tdecfail;
+            wacc                <= twacc;
+            // look ahead decision
+            next_eras_pos_idx   <=         cEHAM_NEXT_ERAS_POS_IDX [cnt.value + 1'b1];
+            next_eras_pos_plus  <=         cEHAM_NEXT_ERAS_POS_PLUS[cnt.value + 1'b1];
+            next_eras_pos       <= Lpp_idx[cEHAM_NEXT_ERAS_POS_IDX [cnt.value + 1'b1]];
           end
           //
           // chase decode
-          if (!decfail) begin
-            if (no_error) begin
-              code_weigth_val       <= 1'b1;
-              code_weigth           <= wacc;
-              code_weigth_eras_idx  <= cnt.value;
-              code_weigth_err_idx   <= '0;
-              code_weigth_err_mask  <= 1'b0; // no error
-            end
-            else if (error_not_in_lpp_list) begin
-              code_weigth_val       <= 1'b1;
-//            code_weigth           <= wacc + ((iLapri >= 0) ? iLapri : -iLapri);
-              code_weigth           <= wacc + $signed({1'b0, iLapri[$high(iLapri)-1 : 0]}); // Lapri in {sign, abs} format (!!!)
-              code_weigth_eras_idx  <= cnt.value;
-              code_weigth_err_idx   <= err_idx;
-              code_weigth_err_mask  <= 1'b1; // is error at err idx
-            end
+          code_weigth_sop         <= cnt.zero;
+          code_weigth_val         <= !decfail & (no_error | error_not_in_lpp_list);
+          code_weigth_eras_idx    <= cnt.value;
+          if (no_error) begin
+            code_weigth           <= wacc;
+            code_weigth_err_idx   <= '0;
+            code_weigth_err_mask  <= 1'b0; // no error
+          end
+          else /*if (error_not_in_lpp_list)*/ begin
+            code_weigth           <= wacc + absLapri;
+            code_weigth_err_idx   <= err_idx;
+            code_weigth_err_mask  <= 1'b1; // is error at err idx
           end
           //
           // hold chase context
