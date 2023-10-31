@@ -230,6 +230,8 @@ module btc_dec_comp_code_engine
   logic                           spc_dec__oLapri_rptr  ;
   bit_idx_t                       spc_dec__oLapri_raddr ;
   //
+  logic                           spc_dec__opre_val     ;
+  //
   logic                           spc_dec__oval         ;
   strb_t                          spc_dec__ostrb        ;
   extr_t                          spc_dec__oLextr       ;
@@ -276,6 +278,8 @@ module btc_dec_comp_code_engine
   //
   logic                           eham_decision__ihd               ;
   logic                           eham_decision__ohd_read          ;
+  //
+  logic                           eham_decision__opre_val          ;
   //
   logic                           eham_decision__oval              ;
   strb_t                          eham_decision__ostrb             ;
@@ -342,7 +346,7 @@ module btc_dec_comp_code_engine
   #(
     .pDEPTH_W ( cHD_FIFO_DEPTH_W ) ,
     .pDAT_W   ( cHD_FIFO_DAT_W   ) ,
-    .pNO_REG  ( 1                )
+    .pNO_REG  ( 0                )
   )
   hd_fifo
   (
@@ -374,7 +378,7 @@ module btc_dec_comp_code_engine
   #(
     .pDEPTH_W ( cHD_FIFO_DEPTH_W ) ,
     .pDAT_W   ( cHD_FIFO_DAT_W   ) ,
-    .pNO_REG  ( 1                )
+    .pNO_REG  ( 0                )
   )
   Lapri_hd_fifo
   (
@@ -405,7 +409,8 @@ module btc_dec_comp_code_engine
   btc_dec_mem
   #(
     .pADDR_W ( cLAPRI_MEM_ADDR_W ) ,
-    .pDAT_W  ( cLAPRI_MEM_DAT_W  )
+    .pDAT_W  ( cLAPRI_MEM_DAT_W  ) ,
+    .pNO_REG ( 1                 )
   )
   Lapri_mem
   (
@@ -457,6 +462,8 @@ module btc_dec_comp_code_engine
     .oLapri_read  ( spc_dec__oLapri_read  ) ,
     .oLapri_rptr  ( spc_dec__oLapri_rptr  ) ,
     .oLapri_raddr ( spc_dec__oLapri_raddr ) ,
+    //
+    .opre_val     ( spc_dec__opre_val     ) ,
     //
     .oval         ( spc_dec__oval         ) ,
     .ostrb        ( spc_dec__ostrb        ) ,
@@ -562,6 +569,8 @@ module btc_dec_comp_code_engine
     .ihd           ( eham_decision__ihd           ) ,
     .ohd_read      ( eham_decision__ohd_read      ) ,
     //
+    .opre_val      ( eham_decision__opre_val      ) ,
+    //
     .oval          ( eham_decision__oval          ) ,
     .ostrb         ( eham_decision__ostrb         ) ,
     .oLextr        ( eham_decision__oLextr        ) ,
@@ -580,10 +589,10 @@ module btc_dec_comp_code_engine
 
   assign eham_decision__ihd           = Lapri_hd_fifo__ordat;
 
-  assign Lapri_hd_fifo__iread        = eham_decision__ohd_read;
+  assign Lapri_hd_fifo__iread         = eham_decision__ohd_read;
 
   //------------------------------------------------------------------------------------------------------
-  // output mapping
+  // output mapping. hd FIFO read latency is 1 tick (!!!)
   //------------------------------------------------------------------------------------------------------
 
   always_ff @(posedge iclk or posedge ireset) begin
@@ -595,7 +604,7 @@ module btc_dec_comp_code_engine
     end
   end
 
-  assign hd_fifo__iread = (imode.code_type == cSPC_CODE) ? spc_dec__oval : eham_decision__oval;
+  assign hd_fifo__iread = (imode.code_type == cSPC_CODE) ? spc_dec__opre_val : eham_decision__opre_val;
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin

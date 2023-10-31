@@ -26,6 +26,8 @@
   logic           btc_dec_spc_decode__oLapri_rptr  ;
   bit_idx_t       btc_dec_spc_decode__oLapri_raddr ;
   //
+  logic           btc_dec_spc_decode__opre_val     ;
+  //
   logic           btc_dec_spc_decode__oval         ;
   strb_t          btc_dec_spc_decode__ostrb        ;
   extr_t          btc_dec_spc_decode__oLextr       ;
@@ -60,6 +62,8 @@
     .oLapri_read  ( btc_dec_spc_decode__oLapri_read  ) ,
     .oLapri_rptr  ( btc_dec_spc_decode__oLapri_rptr  ) ,
     .oLapri_raddr ( btc_dec_spc_decode__oLapri_raddr ) ,
+    //
+    .opre_val     ( btc_dec_spc_decode__opre_val     ) ,
     //
     .oval         ( btc_dec_spc_decode__oval         ) ,
     .ostrb        ( btc_dec_spc_decode__ostrb        ) ,
@@ -115,6 +119,8 @@ module btc_dec_spc_decode
   oLapri_rptr  ,
   oLapri_raddr ,
   //
+  opre_val     ,
+  //
   oval         ,
   ostrb        ,
   oLextr       ,
@@ -135,7 +141,7 @@ module btc_dec_spc_decode
   input  logic           iclkena      ;
   //
   input  btc_code_mode_t imode        ;
-  // insort ready interface
+  // sort init interface
   input  logic           ival         ;
   input  strb_t          istrb        ;
   input  logic           iLapri_ptr   ;
@@ -148,6 +154,8 @@ module btc_dec_spc_decode
   output logic           oLapri_read  ;
   output logic           oLapri_rptr  ;
   output bit_idx_t       oLapri_raddr ;
+  // look ahead oval
+  output logic           opre_val     ;
   // output interface
   output logic           oval         ;
   output strb_t          ostrb        ;
@@ -182,10 +190,15 @@ module btc_dec_spc_decode
   bit_idx_t min0_idx  ;
   extr_t    min1      ;
 
+  extr_t    absLapri   ;
+  logic     signLapri  ;
   extr_t    Lapri      ;
-  extr_t    Lapri2sum  ;
+
   logic     Lextr_val  ;
   strb_t    Lextr_strb ;
+  logic     Lextr_prod_sign;
+  logic     signLextr  ;
+  extr_t    absLextr   ;
   extr_t    Lextr      ;
 
   extr_p1_t Lapo       ; // + 1 for prevent overflow
@@ -275,8 +288,6 @@ module btc_dec_spc_decode
     end
   end
 
-  wire sign = iLapri[$high(iLapri)];  // Lapri < 0
-
   always_ff @(posedge iclk) begin
     if (iclkena) begin
       // regenerate strobes
@@ -287,20 +298,19 @@ module btc_dec_spc_decode
       // save mask
       Lextr_strb.mask <= strb.mask;
       //
-      Lapri <= iLapri;
+      signLapri       <= iLapri[$high(iLapri)];  // Lapri < 0
+      absLapri        <= {1'b0, iLapri[$high(Lapri)-1 : 0]};
       //
-      if (cnt.value == min0_idx) begin
-        Lextr <= (prod_sign ^ sign) ? -min1 : min1;
-      end
-      else begin
-        Lextr <= (prod_sign ^ sign) ? -min0 : min0;
-      end
+      Lextr_prod_sign <= prod_sign;
+      absLextr        <= (cnt.value == min0_idx) ? min1 : min0;
     end
   end
 
   //------------------------------------------------------------------------------------------------------
   // do decision
   //------------------------------------------------------------------------------------------------------
+
+  assign opre_val = Lextr_val; // look ahead oval
 
   always_ff @(posedge iclk or posedge ireset) begin
     if (ireset) begin
@@ -311,10 +321,12 @@ module btc_dec_spc_decode
     end
   end
 
-//assign Lapo       = Lapri + Lextr;
-  // Lapri in {sign, abs} format (!!!)
-  assign Lapri2sum  = Lapri[$high(Lapri)] ? -Lapri[$high(Lapri)-1 : 0] : Lapri[$high(Lapri)-1 : 0];
-  assign Lapo       = Lapri2sum + Lextr;
+  assign signLextr  = Lextr_prod_sign ^ signLapri;
+
+  assign Lapri      = signLapri ? -absLapri : absLapri;
+  assign Lextr      = signLextr ? -absLextr : absLextr;
+
+  assign Lapo       = Lapri + Lextr;
 
   assign bitdat     = !Lapo[$high(Lapo)]; // Lapo >= 0
 

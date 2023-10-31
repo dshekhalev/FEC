@@ -23,6 +23,8 @@
   logic                   btc_dec_eham_decision__ihd               ;
   logic                   btc_dec_eham_decision__ohd_read          ;
   //
+  logic                   btc_dec_eham_decision__opre_val          ;
+  //
   logic                   btc_dec_eham_decision__oval              ;
   strb_t                  btc_dec_eham_decision__ostrb             ;
   extr_t                  btc_dec_eham_decision__oLextr            ;
@@ -54,6 +56,8 @@
     //
     .ihd           ( btc_dec_eham_decision__ihd           ) ,
     .ohd_read      ( btc_dec_eham_decision__ohd_read      ) ,
+    //
+    .opre_val      ( btc_dec_eham_decision__opre_val      ) ,
     //
     .oval          ( btc_dec_eham_decision__oval          ) ,
     .ostrb         ( btc_dec_eham_decision__ostrb         ) ,
@@ -107,6 +111,8 @@ module btc_dec_eham_decision
   ihd           ,
   ohd_read      ,
   //
+  opre_val      ,
+  //
   oval          ,
   ostrb         ,
   oLextr        ,
@@ -127,7 +133,7 @@ module btc_dec_eham_decision
   input  logic                   iclkena           ;
   //
   input  btc_code_mode_t         imode             ;
-  //
+  // fast chase interface
   input  logic                   ival              ;
   input  strb_t                  istrb             ;
   input  metric_t                imin0             ;
@@ -135,10 +141,12 @@ module btc_dec_eham_decision
   input  logic           [4 : 0] ierr_bit_mask     ;
   input  bit_idx_t               ierr_bit_idx  [5] ;
   input  logic                   idecfail          ;
-  //
+  // Lapri hard decision ram reading interface
   input  logic                   ihd               ;
   output logic                   ohd_read          ;
-  //
+  // look ahead oval
+  output logic                   opre_val          ;
+  // output interface
   output logic                   oval              ;
   output strb_t                  ostrb             ;
   output extr_t                  oLextr            ;
@@ -166,11 +174,16 @@ module btc_dec_eham_decision
   strb_t        strb      ;
 
   metric_t      Lextr;
+  extr_t        satLextr;
 
   logic [4 : 0] err_bit_mask    ;
   bit_idx_t     err_bit_idx  [5];
 
-  logic         bitdat     ;
+  logic         bit_inv_mask;
+
+  logic         hd_val;
+  logic         hd_inv_mask;
+  strb_t        hd_strb;
 
   //------------------------------------------------------------------------------------------------------
   // FSM
@@ -237,42 +250,69 @@ module btc_dec_eham_decision
   assign ohd_read  = (state == cDO_STATE);
 
   //------------------------------------------------------------------------------------------------------
-  // Do decision and gent Lextr. Ram read latency is 0 tick (!!!)
+  // Pipeline/align delay Lapri hard decision bit inversion mask and Lextr saturation.
+  // hd FIFO read latency is 1 tick (!!!)
   //------------------------------------------------------------------------------------------------------
 
   always_ff @(posedge iclk or posedge ireset) begin
     if (ireset) begin
-      oval <= 1'b0;
+      hd_val <= 1'b0;
     end
     else if (iclkena) begin
-      oval <= (state == cDO_STATE);
+      hd_val <= (state == cDO_STATE);
     end
   end
 
   always_comb begin
-    bitdat = ihd;
+    bit_inv_mask = '0;
     for (int i = 0; i < 5; i++) begin
       if (cnt.value == err_bit_idx[i]) begin
-        bitdat ^= err_bit_mask[i];
+        bit_inv_mask ^= err_bit_mask[i];
       end
     end
   end
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
+      hd_inv_mask   <= bit_inv_mask;
       // regenerate strobes
-      ostrb.sof   <= strb.sof & cnt.zero;
-      ostrb.sop   <= cnt.zero;
-      ostrb.eop   <= cnt.done;
-      ostrb.eof   <= strb.eof & cnt.done;
+      hd_strb.sof   <= strb.sof & cnt.zero;
+      hd_strb.sop   <= cnt.zero;
+      hd_strb.eop   <= cnt.done;
+      hd_strb.eof   <= strb.eof & cnt.done;
       // save mask
-      ostrb.mask  <= strb.mask;
+      hd_strb.mask  <= strb.mask;
       //
-      oLextr      <= bitdat ? do_saturation(Lextr) : -do_saturation(Lextr);
-      obitdat     <= bitdat;
+      satLextr      <= do_saturation(Lextr);
+    end
+  end
+
+  //------------------------------------------------------------------------------------------------------
+  // Do decision and gen Lextr
+  //------------------------------------------------------------------------------------------------------
+
+  assign opre_val = hd_val; // look ahead oval
+
+  always_ff @(posedge iclk or posedge ireset) begin
+    if (ireset) begin
+      oval <= 1'b0;
+    end
+    else if (iclkena) begin
+      oval <= hd_val;
+    end
+  end
+
+  wire bitdat = ihd ^ hd_inv_mask;
+
+  always_ff @(posedge iclk) begin
+    if (iclkena) begin
+      ostrb   <= hd_strb;
       //
-      if (cnt.zero) begin
-        odecfail <= idecfail; // hold ~ 5 ticks
+      oLextr  <= bitdat ? satLextr : -satLextr;
+      obitdat <= bitdat;
+      //
+      if (hd_val & hd_strb.sop) begin
+        odecfail <= idecfail; // hold ~5 ticks
       end
     end
   end
