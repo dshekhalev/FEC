@@ -20,5 +20,6 @@ The library contain:
 14. QAM LLR demappers 
 15. DVB-S2 PLS code 
 16. DVB-S2/S2X BCH code 
+17. Wimax BTC (TPC) turbo code
 
 All FEC IP Cores has static configuration and constrained performance. Call me if you need any IP core extension 
