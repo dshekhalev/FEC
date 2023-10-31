@@ -68,7 +68,7 @@
 // Project       : ldpc DVB-S2
 // Author        : Shekhalev Denis (des00)
 // Workfile      : codec_srl_fifo.sv
-// Description   : Small SRL based fifo with with output delay 0/1 tick
+// Description   : Small SRL based fifo with output delay 0/1 tick
 //
 
 module codec_srl_fifo
