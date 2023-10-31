@@ -12,7 +12,7 @@ Encoder 	: LUT/REG/RAMB 	~310/~300/1.5	>250MHz (up to 250Mbps)
 
 Decoder settings : pLLR_W = 4 bits, 4 iterations
 
-Decoder 	: LUT/REG/RAMB 	4k/5.2k/2.5	>250MHz (~100-200Mbps)
+Decoder 	: LUT/REG/RAMB 	4.8k/5.2k/2.5	>250MHz (~100-200Mbps)
 
 Decoder performance for 4 iteration: 
 

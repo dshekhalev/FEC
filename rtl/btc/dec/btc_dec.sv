@@ -387,7 +387,7 @@ module btc_dec
   );
 
   assign source__isop     = isop;
-  assign source__ieop     = ieop & ordy;
+  assign source__ieop     = ieop;
   assign source__ival     = ival & ordy;
   assign source__iLLR     = iLLR;
 

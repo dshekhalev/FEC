@@ -380,8 +380,12 @@ module btc_dec_engine
     .odecfail  ( code__odecfail  )
   );
 
-  assign code__ixmode    = ixmode ;
-  assign code__iymode    = iymode ;
+  always_ff @(posedge iclk) begin
+    if (iclkena) begin
+      code__ixmode <= ixmode ;
+      code__iymode <= iymode ;
+    end
+  end
 
   assign code__istart    = ctrl__ostart_iter ;
   assign code__irow_mode = ctrl__orow_mode ;
