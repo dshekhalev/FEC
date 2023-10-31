@@ -15,6 +15,7 @@ Decoder settings : pLLR_W = 4 bits, 4 iterations
 Decoder 	: LUT/REG/RAMB 	4k/5.2k/2.5	>250MHz (~100-200Mbps)
 
 Decoder performance for 4 iteration: 
+
 (57, 64)x(57, 64) = 4889 tick
 
 (26, 32)x(26, 32) = 1561 tick
