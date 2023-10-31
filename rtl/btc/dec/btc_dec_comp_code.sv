@@ -240,6 +240,7 @@ module btc_dec_comp_code
 
   logic   [cLOG2_USED_COL_MAX : 0] row_length; // + 1 bit for 2^maximum(N);
   logic [cLOG2_USED_COL_MAX-1 : 0] row_length_m2;
+  logic                            row_length_less_eq_1;
 
   struct packed {
     logic                            done;
@@ -321,7 +322,6 @@ module btc_dec_comp_code
       );
 
       assign code__istart [g] = istart ;
-      assign code__imode  [g] = irow_mode ? ixmode : iymode ;
 
       assign code__ival   [g] = source__oval   [g] ;
       assign code__istrb  [g] = source__ostrb  [g] ;
@@ -329,6 +329,13 @@ module btc_dec_comp_code
       assign code__iLextr [g] = source__oLextr [g] ;
 
       assign code__ialpha [g] = source__oalpha [g] ;
+
+      always_ff @(posedge iclk) begin
+        if (iclkena) begin
+          code__imode [g] <= irow_mode ? ixmode : iymode ;
+        end
+      end
+
     end
   endgenerate
 
@@ -397,25 +404,27 @@ module btc_dec_comp_code
     end
   end
 
-  // hold after end
+  // there is +1 register inside sink_unit (2 tick bit error counting)
   assign obiterr = sink__obiterr;
 
   //------------------------------------------------------------------------------------------------------
   // address generation units (row/col)
   //------------------------------------------------------------------------------------------------------
 
-  assign col_data_length_m2 = get_data_bits(iymode) - 2;
-  assign col_code_length_m2 = get_code_bits(iymode) - 2;
-
-  assign row_length         = (get_code_bits(ixmode) >> cLOG2_DEC_NUM);
-  assign row_length_m2      = row_length - 2;
+  assign row_length = (get_code_bits(ixmode) >> cLOG2_DEC_NUM);
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
+      // have enougth time for reclock
+      col_data_length_m2   <= get_data_bits(iymode) - 2;
+      col_code_length_m2   <= get_code_bits(iymode) - 2;
+      row_length_m2        <=  row_length - 2;
+      row_length_less_eq_1 <= (row_length <= 1);
+      //
       if (sink__oval) begin
         if (sink__ostrb.sof) begin
           col_idx       <= '0;
-          col_idx.done  <= (row_length <= 1);
+          col_idx.done  <= row_length_less_eq_1;
           //
           row_idx       <= '0;
         end
@@ -425,7 +434,7 @@ module btc_dec_comp_code
           //
           if (row_idx.dec_done) begin
             col_idx.value <=  col_idx.done ? '0 : (col_idx.value + 1'b1);
-            col_idx.done  <= (col_idx.value == row_length_m2) | (row_length <= 1);
+            col_idx.done  <= (col_idx.value == row_length_m2) | row_length_less_eq_1;
             //
             if (col_idx.done) begin
               row_idx.value[cLOG2_ROW_MAX-1 : cLOG2_DEC_NUM] <= row_idx.value[cLOG2_ROW_MAX-1 : cLOG2_DEC_NUM] + 1'b1;
@@ -438,7 +447,7 @@ module btc_dec_comp_code
           //
           if (row_idx.code_done) begin
             col_idx.value <=  col_idx.done ? '0 : col_idx.value + 1'b1;
-            col_idx.done  <= (col_idx.value == row_length_m2) | (row_length <= 1);
+            col_idx.done  <= (col_idx.value == row_length_m2) | row_length_less_eq_1;
           end
         end
       end
@@ -466,7 +475,7 @@ module btc_dec_comp_code
     end
     // decfail common for both
     for (int i = 0; i < pDEC_NUM; i++) begin
-      decfail [i] = code__odecfail [i] & code__oval [i] & !code__ostrb[i].mask;
+      decfail [i] = code__odecfail [i] & code__oval [i] & code__ostrb[i].eop & !code__ostrb[i].mask;
     end
   end
 

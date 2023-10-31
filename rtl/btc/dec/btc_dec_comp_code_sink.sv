@@ -248,24 +248,29 @@ module btc_dec_comp_code_sink
 
   //------------------------------------------------------------------------------------------------------
   // bit error counting
+  // can do 2 tick and must align at the btc_dec_comp_code
   //------------------------------------------------------------------------------------------------------
 
-  logic [pDEC_NUM-1 : 0] err_mask;
+  logic [pDEC_NUM-1 : 0] biterr;
+  logic                  biterr_val;
+  logic                  biterr_sop;
+  logic [pDEC_NUM-1 : 0] biterr_mask;
 
   always_comb begin
-    err_mask = '0;
+    biterr_mask = '0;
     for (int i = 0; i < pDEC_NUM; i++) begin
-      err_mask[i] = !istrb[i].mask;
+      biterr_mask[i] = !istrb[i].mask;
     end
   end
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
-      if (ival[0] & istrb[0].sof) begin // only 0 can have valid sof
-        obiterr <= sum_vector(ibiterr & ival);
-      end
-      else if (ival != 0) begin // can make universal for col/row modes
-        obiterr <= obiterr + sum_vector(ibiterr & ival & err_mask);
+      biterr_val <= (ival != 0);              // make universal for col/row modes
+      biterr_sop <=  ival[0] & istrb[0].sof;  // only 0 can have valid sof
+      biterr     <= ibiterr & ival & biterr_mask;
+      //
+      if (biterr_val) begin
+        obiterr <= biterr_sop ? sum_vector(biterr) : (obiterr + sum_vector(biterr));
       end
     end
   end
