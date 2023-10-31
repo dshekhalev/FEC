@@ -261,20 +261,6 @@ module btc_dec_spc_eham_init
 
   assign satLapri = do_saturation(Lapri);
 
-  function extr_t do_saturation (input extr_p1_t data);
-    logic sign;
-    logic overflow;
-  begin
-    sign          = data[$high(data)];
-    overflow      = data[$high(data)] ^ data[$high(data)-1];
-    do_saturation = data[$high(data)-1 : 0];
-    //
-    if (overflow) begin
-      do_saturation = {sign, {{pEXTR_W-2}{!sign}}, 1'b1};
-    end
-  end
-  endfunction
-
   //------------------------------------------------------------------------------------------------------
   // get abs(Lapri) for sort &
   // save Lapri to decode in special format {signLapri, aLapri} to improve timing
@@ -444,5 +430,26 @@ module btc_dec_spc_eham_init
       endcase
     end
   end
+
+  //------------------------------------------------------------------------------------------------------
+  //
+  //------------------------------------------------------------------------------------------------------
+
+  function extr_t do_saturation (input extr_p1_t data);
+    logic poverflow;
+    logic noverflow;
+  begin
+    poverflow     = (data >  (2**(pEXTR_W-1)-1));
+    noverflow     = (data < -(2**(pEXTR_W-1)-1));
+    do_saturation = data[pEXTR_W-1 : 0];
+    //
+    if (poverflow) begin
+      do_saturation =  (2**(pEXTR_W-1)-1);
+    end
+    else if (noverflow) begin
+      do_saturation = -(2**(pEXTR_W-1)-1);
+    end
+  end
+  endfunction
 
 endmodule
