@@ -219,6 +219,12 @@ module btc_dec_eham_fchase
   metric_t      wacc;
 
   extr_t        absLapri;
+  logic         code_weigth_dec_val;
+  logic         code_weigth_dec_sop;
+  metric_t      code_weigth_dec;
+  logic [3 : 0] code_weigth_dec_eras_idx;
+  bit_idx_t     code_weigth_dec_err_idx;
+  logic         code_weigth_dec_err_mask;
 
   logic         code_weigth_val;
   logic         code_weigth_sop;
@@ -228,6 +234,7 @@ module btc_dec_eham_fchase
   logic         code_weigth_err_mask;
 
   logic         chase_val;
+  logic         chase_dec_val;
   strb_t        chase_strb;
 
   bit_idx_t     chase_Lpp_idx      [4] ;
@@ -382,24 +389,23 @@ module btc_dec_eham_fchase
 
   assign oLapri_raddr = err_idx;
 
-  assign absLapri     = {1'b0, iLapri[$high(iLapri)-1 : 0]}; // Lapri in {sign, abs} format (!!!)
 
   //
   // fast chase registers
 
   always_ff @(posedge iclk or posedge ireset) begin
     if (ireset) begin
-      chase_val <= 1'b0;
+      chase_dec_val <= 1'b0;
     end
     else if (iclkena) begin
-      chase_val <= (state == cDO_STATE) & cnt.done;
+      chase_dec_val <= (state == cDO_STATE) & cnt.done;
     end
   end
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
-      code_weigth_val <= 1'b0;
-      code_weigth_sop <= 1'b0;
+      code_weigth_dec_val <= 1'b0;
+      code_weigth_dec_sop <= 1'b0;
       //
       case (state)
         cRESET_STATE : begin
@@ -453,18 +459,17 @@ module btc_dec_eham_fchase
           end
           //
           // chase decode
-          code_weigth_sop         <= cnt.zero;
-          code_weigth_val         <= !decfail & (no_error | error_not_in_lpp_list);
-          code_weigth_eras_idx    <= cnt.value;
+          code_weigth_dec_sop         <= cnt.zero;
+          code_weigth_dec_val         <= !decfail & (no_error | error_not_in_lpp_list);
+          code_weigth_dec_eras_idx    <= cnt.value;
+          code_weigth_dec             <= wacc;
           if (no_error) begin
-            code_weigth           <= wacc;
-            code_weigth_err_idx   <= '0;
-            code_weigth_err_mask  <= 1'b0; // no error
+            code_weigth_dec_err_idx   <= '0;
+            code_weigth_dec_err_mask  <= 1'b0; // no error
           end
           else /*if (error_not_in_lpp_list)*/ begin
-            code_weigth           <= wacc + absLapri;
-            code_weigth_err_idx   <= err_idx;
-            code_weigth_err_mask  <= 1'b1; // is error at err idx
+            code_weigth_dec_err_idx   <= err_idx;
+            code_weigth_dec_err_mask  <= 1'b1; // is error at err idx
           end
           //
           // hold chase context
@@ -475,6 +480,33 @@ module btc_dec_eham_fchase
           end
         end
       endcase
+    end
+  end
+
+  //------------------------------------------------------------------------------------------------------
+  // Lapri ram reading is 1 tick
+  //------------------------------------------------------------------------------------------------------
+
+  always_ff @(posedge iclk or posedge ireset) begin
+    if (ireset) begin
+      chase_val <= 1'b0;
+    end
+    else if (iclkena) begin
+      chase_val <= chase_dec_val;
+    end
+  end
+
+  assign absLapri = {1'b0, iLapri[$high(iLapri)-1 : 0]}; // Lapri in {sign, abs} format (!!!)
+
+  always_ff @(posedge iclk) begin
+    if (iclkena) begin
+      code_weigth_val      <= code_weigth_dec_val;
+      code_weigth_sop      <= code_weigth_dec_sop;
+      code_weigth          <= code_weigth_dec + (code_weigth_dec_err_mask ? absLapri : 0);
+      //
+      code_weigth_eras_idx <= code_weigth_dec_eras_idx;
+      code_weigth_err_idx  <= code_weigth_dec_err_idx;
+      code_weigth_err_mask <= code_weigth_dec_err_mask;
     end
   end
 
@@ -527,37 +559,23 @@ module btc_dec_eham_fchase
 
   //------------------------------------------------------------------------------------------------------
   // decoding results
+  // chase_Lpp_idx/chase_strb/chase_decfail hold at least 6 ticks
+  // all signals latched inside hamm_decision unit
   //------------------------------------------------------------------------------------------------------
 
-  always_ff @(posedge iclk or posedge ireset) begin
-    if (ireset) begin
-      odone <= 1'b0;
-    end
-    else if (iclkena) begin
-      odone <= sort_val;
-    end
-  end
+  assign odone                = sort_val;
 
-  // bit idx hold at least 7 ticks and latched inside hamm_decision unit
-  always_comb begin
-    oerr_bit_idx [0 : 3]  = chase_Lpp_idx;
-    odecfail              = chase_decfail;
-  end
+  assign ostrb                = chase_strb;
 
-  always_ff @(posedge iclk) begin
-    if (iclkena) begin
-      ostrb <= chase_strb;
-      if (sort_val) begin
-        omin0 <= min0;
-        omin1 <= min1;
-        // bin2gray idx
-        oerr_bit_mask[3 : 0] <= (min0_eras_idx >> 1) ^ min0_eras_idx;
-//      oerr_bit_idx [0 : 3] <= chase_Lpp_idx;
-        //
-        oerr_bit_mask[4]     <= min0_err_mask;
-        oerr_bit_idx [4]     <= min0_err_idx;
-      end
-    end
-  end
+  assign omin0                = min0;
+  assign omin1                = min1;
+
+  assign oerr_bit_idx [0 : 3] = chase_Lpp_idx;
+  assign oerr_bit_mask[3 : 0] = (min0_eras_idx >> 1) ^ min0_eras_idx; // bin2gray
+
+  assign oerr_bit_mask[4]     = min0_err_mask;
+  assign oerr_bit_idx [4]     = min0_err_idx;
+
+  assign odecfail             = chase_decfail;
 
 endmodule

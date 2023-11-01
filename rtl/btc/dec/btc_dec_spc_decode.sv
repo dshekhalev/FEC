@@ -276,7 +276,7 @@ module btc_dec_spc_decode
   assign oLapri_raddr = cnt.value;
 
   //------------------------------------------------------------------------------------------------------
-  // count Lextr. Ram read latency is 0 tick (!!!)
+  // count Lextr. iLapri ram read latency is 1 tick (!!!)
   //------------------------------------------------------------------------------------------------------
 
   always_ff @(posedge iclk or posedge ireset) begin
@@ -298,9 +298,6 @@ module btc_dec_spc_decode
       // save mask
       Lextr_strb.mask <= strb.mask;
       //
-      signLapri       <= iLapri[$high(iLapri)];  // Lapri < 0
-      absLapri        <= {1'b0, iLapri[$high(Lapri)-1 : 0]};
-      //
       Lextr_prod_sign <= prod_sign;
       absLextr        <= (cnt.value == min0_idx) ? min1 : min0;
     end
@@ -320,6 +317,9 @@ module btc_dec_spc_decode
       oval <= Lextr_val;
     end
   end
+
+  assign signLapri  = iLapri[$high(iLapri)];  // Lapri < 0
+  assign absLapri   = {1'b0, iLapri[$high(Lapri)-1 : 0]};
 
   assign signLextr  = Lextr_prod_sign ^ signLapri;
 

@@ -410,7 +410,7 @@ module btc_dec_comp_code_engine
   #(
     .pADDR_W ( cLAPRI_MEM_ADDR_W ) ,
     .pDAT_W  ( cLAPRI_MEM_DAT_W  ) ,
-    .pNO_REG ( 1                 )
+    .pNO_REG ( 0                 )
   )
   Lapri_mem
   (
