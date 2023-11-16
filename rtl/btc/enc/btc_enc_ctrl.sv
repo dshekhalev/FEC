@@ -34,6 +34,7 @@
   logic                            btc_enc_ctrl__ocol_enc_eof  ;
   logic                            btc_enc_ctrl__ocol_enc_val  ;
   //
+  logic                            btc_enc_ctrl__iwrite_busy   ;
   logic                            btc_enc_ctrl__owrite        ;
   logic                            btc_enc_ctrl__owfull        ;
 
@@ -73,6 +74,7 @@
     .ocol_enc_eof  ( btc_enc_ctrl__ocol_enc_eof  ) ,
     .ocol_enc_val  ( btc_enc_ctrl__ocol_enc_val  ) ,
     //
+    .iwrite_busy   ( btc_enc_ctrl__iwrite_busy   ) ,
     .owrite        ( btc_enc_ctrl__owrite        ) ,
     .owfull        ( btc_enc_ctrl__owfull        )
   );
@@ -88,6 +90,7 @@
   assign btc_enc_ctrl__iwbuf_empty   = '0 ;
   assign btc_enc_ctrl__irow_enc_busy = '0 ;
   assign btc_enc_ctrl__icol_enc_busy = '0 ;
+  assign btc_enc_ctrl__iwrite_busy   = '0 ;
 
 
 
@@ -134,6 +137,7 @@ module btc_enc_ctrl
   ocol_enc_eof  ,
   ocol_enc_val  ,
   //
+  iwrite_busy   ,
   owrite        ,
   owfull
 );
@@ -172,6 +176,7 @@ module btc_enc_ctrl
   output logic                            ocol_enc_eof  ;
   output logic                            ocol_enc_val  ;
   //
+  input  logic                            iwrite_busy   ;
   output logic                            owrite        ;
   output logic                            owfull        ;
 
@@ -180,7 +185,7 @@ module btc_enc_ctrl
   //------------------------------------------------------------------------------------------------------
 
   localparam int cLOG2_DAT_W        = $clog2(pDAT_W);
-  localparam int cLOG2_USED_COL_MAX = cLOG2_COL_MAX - cLOG2_DAT_W; // rows store in pDAT_W memory
+  localparam int cLOG2_USED_ROW_MAX = cLOG2_ROW_MAX - cLOG2_DAT_W; // rows store in pDAT_W memory
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -202,23 +207,23 @@ module btc_enc_ctrl
     cDONE_STATE
   } state /* synthesis syn_encoding = "sequential", fsm_encoding = "sequential" */;
 
-  logic [cLOG2_ROW_MAX-1 : 0] col_data_length_m2;
-  logic [cLOG2_ROW_MAX-1 : 0] col_code_length_m2;
+  logic [cLOG2_COL_MAX-1 : 0] col_data_length_m2;
+  logic [cLOG2_COL_MAX-1 : 0] col_code_length_m2;
 
   struct packed {
     logic                       zero;
     logic                       data_done;
     logic                       code_done;
-    logic [cLOG2_ROW_MAX-1 : 0] value;
+    logic [cLOG2_COL_MAX-1 : 0] value;
   } row_idx;
 
-  logic   [cLOG2_USED_COL_MAX : 0] row_length; // + 1 bit for 2^maximum(N);
-  logic [cLOG2_USED_COL_MAX-1 : 0] row_length_m2;
+  logic [cLOG2_USED_ROW_MAX   : 0] row_length; // + 1 bit for 2^maximum(N);
+  logic [cLOG2_USED_ROW_MAX-1 : 0] row_length_m2;
 
   struct packed {
     logic                            zero;
     logic                            done;
-    logic [cLOG2_USED_COL_MAX-1 : 0] value;
+    logic [cLOG2_USED_ROW_MAX-1 : 0] value;
   } col_idx;
 
   //------------------------------------------------------------------------------------------------------
@@ -247,12 +252,12 @@ module btc_enc_ctrl
         //
         cDO_WRITE_STATE : state <=  write_done                ? cDONE_STATE     : cDO_WRITE_STATE;
         //
-        cDONE_STATE     : state <= cWAIT_STATE;
+        cDONE_STATE     : state <= !iwrite_busy               ? cWAIT_STATE     : cDONE_STATE;
       endcase
     end
   end
 
-  assign orempty = (state == cDONE_STATE);
+  assign orempty = (state == cDO_WRITE_STATE) & write_done;
 
   //------------------------------------------------------------------------------------------------------
   // FSM counters
@@ -336,8 +341,8 @@ module btc_enc_ctrl
   // output mapping
   //------------------------------------------------------------------------------------------------------
 
-  assign obuf_addr[0                  +: cLOG2_USED_COL_MAX] = col_idx.value;
-  assign obuf_addr[cLOG2_USED_COL_MAX +: cLOG2_ROW_MAX]      = row_idx.value;
+  assign obuf_addr[0                  +: cLOG2_USED_ROW_MAX] = col_idx.value;
+  assign obuf_addr[cLOG2_USED_ROW_MAX +: cLOG2_COL_MAX]      = row_idx.value;
 
   assign orow_mode    = (state == cDO_ROW_STATE) | (state == cWAIT_ROW_STATE);
 

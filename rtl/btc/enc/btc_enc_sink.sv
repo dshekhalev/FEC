@@ -161,18 +161,18 @@ module btc_enc_sink
     cDO_STATE
   } state;
 
-  logic [cLOG2_ROW_MAX-1 : 0] col_length_m2;
-
-  struct packed {
-    logic                       done;
-    logic [cLOG2_ROW_MAX-1 : 0] value;
-  } row_idx;
-
-  logic [cLOG2_COL_MAX-1 : 0] row_length_m2;
+  logic [cLOG2_COL_MAX-1 : 0] col_length_m2;
 
   struct packed {
     logic                       done;
     logic [cLOG2_COL_MAX-1 : 0] value;
+  } row_idx;
+
+  logic [cLOG2_ROW_MAX-1 : 0] row_length_m2;
+
+  struct packed {
+    logic                       done;
+    logic [cLOG2_ROW_MAX-1 : 0] value;
   } col_idx;
 
   logic [2 : 0] val;
@@ -227,8 +227,8 @@ module btc_enc_sink
 
   assign oread  = 1'b1;
 
-  assign oraddr[0             +: cLOG2_COL_MAX] = col_idx.value;
-  assign oraddr[cLOG2_COL_MAX +: cLOG2_ROW_MAX] = row_idx.value;
+  assign oraddr[0             +: cLOG2_ROW_MAX] = col_idx.value;
+  assign oraddr[cLOG2_ROW_MAX +: cLOG2_COL_MAX] = row_idx.value;
 
   //------------------------------------------------------------------------------------------------------
   // output mapping

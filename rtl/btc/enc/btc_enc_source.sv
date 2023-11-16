@@ -155,18 +155,18 @@ module btc_enc_source
   //
   //------------------------------------------------------------------------------------------------------
 
-  logic [cLOG2_ROW_MAX-1 : 0] col_length_m2;
-
-  struct packed {
-    logic                       done;
-    logic [cLOG2_ROW_MAX-1 : 0] value;
-  } row_idx;
-
-  logic [cLOG2_COL_MAX-1 : 0] row_length_m2;
+  logic [cLOG2_COL_MAX-1 : 0] col_length_m2;
 
   struct packed {
     logic                       done;
     logic [cLOG2_COL_MAX-1 : 0] value;
+  } row_idx;
+
+  logic [cLOG2_ROW_MAX-1 : 0] row_length_m2;
+
+  struct packed {
+    logic                       done;
+    logic [cLOG2_ROW_MAX-1 : 0] value;
   } col_idx;
 
   //------------------------------------------------------------------------------------------------------
@@ -208,8 +208,8 @@ module btc_enc_source
     end // iclkena
   end // iclk
 
-  assign owaddr[0             +: cLOG2_COL_MAX] = col_idx.value;
-  assign owaddr[cLOG2_COL_MAX +: cLOG2_ROW_MAX] = row_idx.value;
+  assign owaddr[0             +: cLOG2_ROW_MAX] = col_idx.value;
+  assign owaddr[cLOG2_ROW_MAX +: cLOG2_COL_MAX] = row_idx.value;
 
   //------------------------------------------------------------------------------------------------------
   //

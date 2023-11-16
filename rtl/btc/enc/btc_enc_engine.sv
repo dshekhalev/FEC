@@ -177,23 +177,24 @@ module btc_enc_engine
 
   //
   // ctrl
-  logic [cADDR_W-1 : 0] ctrl__obuf_addr    ;
+  logic [cADDR_W-1 : 0] ctrl__obuf_addr     ;
   //
-  logic                 ctrl__orow_mode    ;
+  logic                 ctrl__orow_mode     ;
   //
-  logic                 ctrl__irow_enc_busy;
-  logic                 ctrl__orow_enc_sop ;
-  logic                 ctrl__orow_enc_eop ;
-  logic                 ctrl__orow_enc_val ;
+  logic                 ctrl__irow_enc_busy ;
+  logic                 ctrl__orow_enc_sop  ;
+  logic                 ctrl__orow_enc_eop  ;
+  logic                 ctrl__orow_enc_val  ;
   //
-  logic                 ctrl__icol_enc_busy;
-  logic                 ctrl__ocol_enc_sop ;
-  logic                 ctrl__ocol_enc_eop ;
-  logic                 ctrl__ocol_enc_eof ;
-  logic                 ctrl__ocol_enc_val ;
+  logic                 ctrl__icol_enc_busy ;
+  logic                 ctrl__ocol_enc_sop  ;
+  logic                 ctrl__ocol_enc_eop  ;
+  logic                 ctrl__ocol_enc_eof  ;
+  logic                 ctrl__ocol_enc_val  ;
   //
-  logic                 ctrl__owrite       ;
-  logic                 ctrl__owfull       ;
+  logic                 ctrl__iwrite_busy   ;
+  logic                 ctrl__owrite        ;
+  logic                 ctrl__owfull        ;
 
   //
   // 1 row code, bitwidth = cDATW
@@ -267,12 +268,14 @@ module btc_enc_engine
     .ocol_enc_eof  ( ctrl__ocol_enc_eof  ) ,
     .ocol_enc_val  ( ctrl__ocol_enc_val  ) ,
     //
+    .iwrite_busy   ( ctrl__iwrite_busy   ) ,
     .owrite        ( ctrl__owrite        ) ,
     .owfull        ( ctrl__owfull        )
   );
 
   assign ctrl__irow_enc_busy = row_code__oval;
   assign ctrl__icol_enc_busy = col_code__oval;
+  assign ctrl__iwrite_busy   = owrite;
 
   //------------------------------------------------------------------------------------------------------
   // address/controls align line
@@ -316,7 +319,7 @@ module btc_enc_engine
   end
 
   //------------------------------------------------------------------------------------------------------
-  // row encoder pDAT_W width
+  // row encoder cDAT_W width
   //------------------------------------------------------------------------------------------------------
 
   btc_enc_row_code
