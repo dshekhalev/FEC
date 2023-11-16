@@ -15,6 +15,7 @@
   btc_code_mode_t                   btc_dec_ctrl__iymode      ;
   btc_short_mode_t                  btc_dec_ctrl__ismode      ;
   logic                     [3 : 0] btc_dec_ctrl__iNiter      ;
+  logic                             btc_dec_ctrl__ifmode      ;
   //
   logic                             btc_dec_ctrl__irbuf_full  ;
   logic                             btc_dec_ctrl__obuf_rempty ;
@@ -50,6 +51,7 @@
     .iymode      ( btc_dec_ctrl__iymode      ) ,
     .ismode      ( btc_dec_ctrl__ismode      ) ,
     .iNiter      ( btc_dec_ctrl__iNiter      ) ,
+    .ifmode      ( btc_dec_ctrl__ifmode      ) ,
     //
     .irbuf_full  ( btc_dec_ctrl__irbuf_full  ) ,
     .obuf_rempty ( btc_dec_ctrl__obuf_rempty ) ,
@@ -78,6 +80,7 @@
   assign btc_dec_ctrl__iymode      = '0 ;
   assign btc_dec_ctrl__ismode      = '0 ;
   assign btc_dec_ctrl__iNiter      = '0 ;
+  assign btc_dec_ctrl__ifmode      = '0 ;
   assign btc_dec_ctrl__irbuf_full  = '0 ;
   assign btc_dec_ctrl__iwbuf_empty = '0 ;
   assign btc_dec_ctrl__idec_busy   = '0 ;
@@ -104,6 +107,7 @@ module btc_dec_ctrl
   iymode      ,
   ismode      ,
   iNiter      ,
+  ifmode      ,
   //
   irbuf_full  ,
   obuf_rempty ,
@@ -142,6 +146,7 @@ module btc_dec_ctrl
   input  btc_code_mode_t                   iymode         ;
   input  btc_short_mode_t                  ismode         ;
   input  logic                     [3 : 0] iNiter         ;
+  input  logic                             ifmode         ;
   //
   input  logic                             irbuf_full     ;
   output logic                             obuf_rempty    ;
@@ -166,7 +171,7 @@ module btc_dec_ctrl
   //------------------------------------------------------------------------------------------------------
 
   localparam int cLOG2_DEC_NUM      = $clog2(pDEC_NUM);
-  localparam int cLOG2_USED_COL_MAX = cLOG2_COL_MAX - cLOG2_DEC_NUM; // rows store in pDEC_NUM memory
+  localparam int cLOG2_USED_ROW_MAX = cLOG2_ROW_MAX - cLOG2_DEC_NUM; // rows store in pDEC_NUM memory
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -189,7 +194,6 @@ module btc_dec_ctrl
   } state /* synthesis syn_encoding = "sequential", fsm_encoding = "sequential" */;
 
   logic [cLOG2_COL_MAX-1 : 0] col_data_length_m1;
-
   logic [cLOG2_COL_MAX-1 : 0] col_code_length_m2;
 
   logic [cLOG2_ROW_MAX-1 : 0] row_code_length_m2;
@@ -198,16 +202,16 @@ module btc_dec_ctrl
     logic                       zero;
     logic                       dec_done;
     logic                       code_done;
-    logic [cLOG2_ROW_MAX-1 : 0] value;
+    logic [cLOG2_COL_MAX-1 : 0] value;
   } row_idx;
 
-  logic   [cLOG2_USED_COL_MAX : 0] row_length; // + 1 bit for 2^maximum(N);
-  logic [cLOG2_USED_COL_MAX-1 : 0] row_length_m2;
+  logic [cLOG2_USED_ROW_MAX   : 0] row_length; // + 1 bit for 2^maximum(N);
+  logic [cLOG2_USED_ROW_MAX-1 : 0] row_length_m2;
 
   struct packed {
     logic                            zero;
     logic                            done;
-    logic [cLOG2_USED_COL_MAX-1 : 0] value;
+    logic [cLOG2_USED_ROW_MAX-1 : 0] value;
   } col_idx;
 
   logic [3 : 0] Niter_m2;
@@ -216,6 +220,23 @@ module btc_dec_ctrl
     logic [3 : 0] cnt;
     logic         last;
   } iter;
+
+  logic fast_stop;
+
+  //------------------------------------------------------------------------------------------------------
+  //
+  //------------------------------------------------------------------------------------------------------
+
+  always_ff @(posedge iclk) begin
+    if (iclkena) begin
+      if (state == cWAIT_STATE) begin
+        fast_stop <= 1'b0;
+      end
+      else if ((state == cWAIT_ROW_STATE) & !idec_busy) begin
+        fast_stop <= ifmode & !idecfail & (ixmode.code_type != cSPC_CODE) & (iymode.code_type != cSPC_CODE); // spc codes has uncertain decfail
+      end
+    end
+  end
 
   //------------------------------------------------------------------------------------------------------
   // FSM
@@ -226,7 +247,7 @@ module btc_dec_ctrl
 
   wire do_bypass      = (iNiter == 0);
   wire outbuf_nrdy    = iter.last & !iwbuf_empty;
-  wire do_last        = iter.last;
+  wire do_last        = iter.last | fast_stop;
 
   always_ff @(posedge iclk or posedge ireset) begin
     if (ireset) begin
@@ -355,8 +376,8 @@ module btc_dec_ctrl
   // output mapping
   //------------------------------------------------------------------------------------------------------
 
-  assign obuf_addr[0                  +: cLOG2_USED_COL_MAX] = col_idx.value;
-  assign obuf_addr[cLOG2_USED_COL_MAX +: cLOG2_ROW_MAX]      = row_idx.value;
+  assign obuf_addr[0                  +: cLOG2_USED_ROW_MAX] = col_idx.value;
+  assign obuf_addr[cLOG2_USED_ROW_MAX +: cLOG2_COL_MAX]      = row_idx.value;
 
   //
   // have more then 2 tick address reading for modes
@@ -385,7 +406,7 @@ module btc_dec_ctrl
       odec_strb.eof = row_idx.code_done & col_idx.done;
       //
       if (row_idx.value > col_data_length_m1) begin
-        odec_alpha  = '0;
+        odec_alpha  = '0; // no extrinsic for column parity checks
       end
       else begin
         odec_alpha  = (iymode.code_type == cSPC_CODE) ? cSPC_COL_ALPHA[iter.cnt] : cE_HAM_COL_ALPHA[iter.cnt];

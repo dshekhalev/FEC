@@ -21,6 +21,7 @@
   btc_code_mode_t                   btc_dec_engine__iymode                 ;
   btc_short_mode_t                  btc_dec_engine__ismode                 ;
   logic                     [3 : 0] btc_dec_engine__iNiter                 ;
+  logic                             btc_dec_engine__ifmode                 ;
   //
   logic                             btc_dec_engine__irbuf_full             ;
   logic              [pLLR_W-1 : 0] btc_dec_engine__irLLR       [pDEC_NUM] ;
@@ -66,6 +67,7 @@
     .iymode      ( btc_dec_engine__iymode      ) ,
     .ismode      ( btc_dec_engine__ismode      ) ,
     .iNiter      ( btc_dec_engine__iNiter      ) ,
+    .ifmode      ( btc_dec_engine__ifmode      ) ,
     //
     .irbuf_full  ( btc_dec_engine__irbuf_full  ) ,
     .irLLR       ( btc_dec_engine__irLLR       ) ,
@@ -123,6 +125,7 @@ module btc_dec_engine
   iymode      ,
   ismode      ,
   iNiter      ,
+  ifmode      ,
   //
   irbuf_full  ,
   irLLR       ,
@@ -166,7 +169,8 @@ module btc_dec_engine
   input  btc_code_mode_t                   ixmode                 ;
   input  btc_code_mode_t                   iymode                 ;
   input  btc_short_mode_t                  ismode                 ;
-  input  logic                     [3 : 0] iNiter;
+  input  logic                     [3 : 0] iNiter                 ;
+  input  logic                             ifmode                 ;
   //
   input  logic                             irbuf_full             ;
   input  logic              [pLLR_W-1 : 0] irLLR       [pDEC_NUM] ;
@@ -272,6 +276,7 @@ module btc_dec_engine
     .iymode      ( iymode            ) ,
     .ismode      ( ismode            ) ,
     .iNiter      ( iNiter            ) ,
+    .ifmode      ( ifmode            ) ,
     //
     .irbuf_full  ( ctrl__irbuf_full  ) ,
     .obuf_rempty ( ctrl__obuf_rempty ) ,
@@ -296,7 +301,7 @@ module btc_dec_engine
 
   assign ctrl__iwbuf_empty  = iwbuf_empty;
 
-  assign ctrl__idecfail     = 1'b0;
+  assign ctrl__idecfail     = code__odecfail;
 
   always_ff @(posedge iclk or posedge ireset) begin
     if (ireset) begin

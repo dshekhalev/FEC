@@ -16,6 +16,7 @@
   btc_code_mode_t                 btc_dec__iymode   ;
   btc_short_mode_t                btc_dec__ismode   ;
   logic                   [3 : 0] btc_dec__iNiter   ;
+  logic                           btc_dec__ifmode   ;
   //
   logic                           btc_dec__iclkin   ;
   logic                           btc_dec__ival     ;
@@ -59,6 +60,7 @@
     .iymode   ( btc_dec__iymode   ) ,
     .ismode   ( btc_dec__ismode   ) ,
     .iNiter   ( btc_dec__iNiter   ) ,
+    .ifmode   ( btc_dec__ifmode   ) ,
     //
     .iclkin   ( btc_dec__iclkin   ) ,
     .ival     ( btc_dec__ival     ) ,
@@ -92,6 +94,7 @@
   assign btc_dec__iymode  = '0 ;
   assign btc_dec__ismode  = '0 ;
   assign btc_dec__iNiter  = '0 ;
+  assign btc_dec__ifmode  = '0 ;
   assign btc_dec__iclkin  = '0 ;
   assign btc_dec__ival    = '0 ;
   assign btc_dec__isop    = '0 ;
@@ -121,6 +124,7 @@ module btc_dec
   iymode   ,
   ismode   ,
   iNiter   ,
+  ifmode   ,
   //
   iclkin   ,
   ival     ,
@@ -164,6 +168,7 @@ module btc_dec
   input  btc_code_mode_t                 iymode   ;
   input  btc_short_mode_t                ismode   ;
   input  logic                   [3 : 0] iNiter   ;
+  input  logic                           ifmode   ;
   //
   input  logic                           iclkin   ; // input interface clock
   //
@@ -205,7 +210,7 @@ module btc_dec
   localparam int cIBUF_RADDR_W  = $clog2(cBUF_MAX_BIT/cDEC_NUM) ;
   localparam int cIBUF_RDAT_W   = cDEC_NUM*pLLR_W ;
   //
-  localparam int cIBUF_TAG_W    = $bits(ixmode) + $bits(iymode) + $bits(ismode) + pTAG_W + 4; // + Niter
+  localparam int cIBUF_TAG_W    = $bits(ixmode) + $bits(iymode) + $bits(ismode) + pTAG_W + 4 + 1; // + Niter + fmode
 
   //
   localparam int cOBUF_WADDR_W  = $clog2(cBUF_MAX_BIT/cDEC_NUM);
@@ -264,6 +269,7 @@ module btc_dec
   btc_code_mode_t             engine__iymode                 ;
   btc_short_mode_t            engine__ismode                 ;
   logic               [3 : 0] engine__iNiter                 ;
+  logic                       engine__ifmode                 ;
   //
   logic                       engine__irbuf_full             ;
   logic        [pLLR_W-1 : 0] engine__irLLR       [cDEC_NUM] ;
@@ -448,7 +454,7 @@ module btc_dec
 
   always_ff @(posedge iclkin) begin
     if (ival & isop) begin
-      ibuffer__iwtag <= {ixmode, iymode, ismode, iNiter, itag};
+      ibuffer__iwtag <= {ixmode, iymode, ismode, iNiter, ifmode, itag};
     end
   end
 
@@ -481,6 +487,7 @@ module btc_dec
     .iymode      ( engine__iymode      ) ,
     .ismode      ( engine__ismode      ) ,
     .iNiter      ( engine__iNiter      ) ,
+    .ifmode      ( engine__ifmode      ) ,
     //
     .irbuf_full  ( engine__irbuf_full  ) ,
     .irLLR       ( engine__irLLR       ) ,
@@ -509,6 +516,7 @@ module btc_dec
           engine__iymode,
           engine__ismode,
           engine__iNiter,
+          engine__ifmode,
           engine__irtag} = ibuffer__ortag;
 
   always_comb begin
