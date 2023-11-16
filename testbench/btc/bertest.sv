@@ -43,7 +43,8 @@ module bertest ;
   logic                enc__oval      ;
   logic                enc__odat      ;
 
-  bit          [3 : 0] iNiter;
+  bit          [3 : 0] iNiter         ;
+  bit                  ifmode         ;
 
   bit                  dec__ival      ;
   bit                  dec__isop      ;
@@ -229,6 +230,7 @@ module bertest ;
     .iymode   ( iymode        ) ,
     .ismode   ( ismode        ) ,
     .iNiter   ( iNiter        ) ,
+    .ifmode   ( ifmode        ) ,
     //
     .iclkin   ( iclk          ) ,
     .ival     ( dec__ival     ) ,
@@ -332,8 +334,9 @@ module bertest ;
 
     ismode    <= '0;
     iNiter    <= 5;
+    ifmode    <= 1;
     //
-    // simple 8x8 spc code
+    //
     ixmode.code_type <= cSPC_CODE;
     ixmode.code_type <= cE_HAM_CODE;
     ixmode.size      <= cBSIZE_8;
