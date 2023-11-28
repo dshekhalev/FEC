@@ -34,6 +34,7 @@
   logic           btc_dec_spc_decode__obitdat      ;
   //
   logic           btc_dec_spc_decode__odecfail     ;
+  logic           btc_dec_spc_decode__odecfail_val ;
 
 
 
@@ -70,7 +71,8 @@
     .oLextr       ( btc_dec_spc_decode__oLextr       ) ,
     .obitdat      ( btc_dec_spc_decode__obitdat      ) ,
     //
-    .odecfail     ( btc_dec_spc_decode__odecfail     )
+    .odecfail     ( btc_dec_spc_decode__odecfail     ) ,
+    .odecfail_val ( btc_dec_spc_decode__odecfail_val )
   );
 
 
@@ -126,7 +128,8 @@ module btc_dec_spc_decode
   oLextr       ,
   obitdat      ,
   //
-  odecfail
+  odecfail     ,
+  odecfail_val
 );
 
   `include "../btc_parameters.svh"
@@ -163,6 +166,7 @@ module btc_dec_spc_decode
   output logic           obitdat      ;
   //
   output logic           odecfail     ;
+  output logic           odecfail_val ;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -295,8 +299,6 @@ module btc_dec_spc_decode
       Lextr_strb.sop  <= cnt.zero;
       Lextr_strb.eop  <= cnt.done;
       Lextr_strb.eof  <= strb.eof & cnt.done;
-      // save mask
-      Lextr_strb.mask <= strb.mask;
       //
       Lextr_prod_sign <= prod_sign;
       absLextr        <= (cnt.value == min0_idx) ? min1 : min0;
@@ -319,7 +321,7 @@ module btc_dec_spc_decode
   end
 
   assign signLapri  = iLapri[$high(iLapri)];  // Lapri < 0
-  assign absLapri   = {1'b0, iLapri[$high(Lapri)-1 : 0]};
+  assign absLapri   = {1'b0, iLapri[$high(iLapri)-1 : 0]};
 
   assign signLextr  = Lextr_prod_sign ^ signLapri;
 
@@ -335,10 +337,33 @@ module btc_dec_spc_decode
       ostrb   <= Lextr_strb;
       oLextr  <= Lextr;
       obitdat <= bitdat;
-      // decfail if parity fail occured
+    end
+  end
+
+  //------------------------------------------------------------------------------------------------------
+  // decfail based upon Lapri & Lextr gradient
+  //------------------------------------------------------------------------------------------------------
+
+  wire Lapri_zero = (absLapri == 0) | (absLapri == 1);
+  wire Lapri_sign = signLapri;
+
+  wire Lextr_zero = (absLextr == 1) | (absLextr == 1);
+  wire Lextr_sign = signLextr;
+
+  always_ff @(posedge iclk) begin
+    if (iclkena) begin
       if (Lextr_val) begin
-        odecfail <= Lextr_strb.sop ? bitdat : (odecfail ^ bitdat);
+        odecfail <= (Lextr_strb.sop ? 1'b0 : odecfail) | (Lextr_zero | Lapri_zero | (Lextr_sign ^ Lapri_sign));
       end
+    end
+  end
+
+  always_ff @(posedge iclk or posedge ireset) begin
+    if (ireset) begin
+      odecfail_val <= 1'b0;
+    end
+    else if (iclkena) begin
+      odecfail_val <= Lextr_val & Lextr_strb.eop;
     end
   end
 

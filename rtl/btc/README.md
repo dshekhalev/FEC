@@ -4,7 +4,7 @@ Coder/Decoder architecture base upon least RAMB resources using. Decoder use sof
 
 This units can switch component code modes SPC/eHAM and size 8/16/32/64 each block independetly. 
 
-Decoder input/core/output work in different clock domains. 
+Decoder input/core/output work in different clock domains. Decoder can use up to 8 engines to increase throughput
 
 vivado 2020.2 Kintex 7 - 2 
 
@@ -12,7 +12,7 @@ Encoder 	: LUT/REG/RAMB 	~310/~300/1.5	>250MHz (up to 250Mbps)
 
 Decoder settings : pLLR_W = 4 bits, 4 iterations
 
-Decoder 	: LUT/REG/RAMB 	4.8k/5.2k/2.5	>250MHz (~100-200Mbps)
+Decoder 	: LUT/REG/RAMB 	5.5k/6k/2.5	>250MHz (~100-200Mbps for single engine decoder)
 
 Decoder performance for 4 iteration: 
 

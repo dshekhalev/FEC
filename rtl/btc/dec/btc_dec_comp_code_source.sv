@@ -6,27 +6,26 @@
   parameter int pEXTR_W  = 5 ;
   //
   parameter int pDEC_NUM = 8 ;
-  parameter int pDEC_IDX = 0 ;
 
 
 
-  logic   btc_dec_comp_code_source__iclk                 ;
-  logic   btc_dec_comp_code_source__ireset               ;
-  logic   btc_dec_comp_code_source__iclkena              ;
+  logic                    btc_dec_comp_code_source__iclk                 ;
+  logic                    btc_dec_comp_code_source__ireset               ;
+  logic                    btc_dec_comp_code_source__iclkena              ;
   //
-  logic   btc_dec_comp_code_source__irow_mode            ;
+  logic                    btc_dec_comp_code_source__irow_mode            ;
   //
-  logic   btc_dec_comp_code_source__ival                 ;
-  strb_t  btc_dec_comp_code_source__istrb                ;
-  llr_t   btc_dec_comp_code_source__iLLR      [pDEC_NUM] ;
-  extr_t  btc_dec_comp_code_source__iLextr    [pDEC_NUM] ;
-  alpha_t btc_dec_comp_code_source__ialpha               ;
+  logic   [pDEC_NUM-1 : 0] btc_dec_comp_code_source__ival                 ;
+  strb_t                   btc_dec_comp_code_source__istrb                ;
+  logic                    btc_dec_comp_code_source__ismask    [pDEC_NUM] ;
+  llr_t                    btc_dec_comp_code_source__iLLR      [pDEC_NUM] ;
+  extr_t                   btc_dec_comp_code_source__iLextr    [pDEC_NUM] ;
+  alpha_t                  btc_dec_comp_code_source__ialpha               ;
   //
-  logic   btc_dec_comp_code_source__oval                 ;
-  strb_t  btc_dec_comp_code_source__ostrb                ;
-  llr_t   btc_dec_comp_code_source__oLLR                 ;
-  extr_t  btc_dec_comp_code_source__oLextr               ;
-  alpha_t btc_dec_comp_code_source__oalpha               ;
+  logic                    btc_dec_comp_code_source__oval      [pDEC_NUM] ;
+  strb_t                   btc_dec_comp_code_source__ostrb     [pDEC_NUM] ;
+  logic                    btc_dec_comp_code_source__och_hd    [pDEC_NUM] ;
+  extr_t                   btc_dec_comp_code_source__oLapri    [pDEC_NUM] ;
 
 
 
@@ -35,8 +34,7 @@
     .pLLR_W   ( pLLR_W   ) ,
     .pEXTR_W  ( pEXTR_W  ) ,
     //
-    .pDEC_NUM ( pDEC_NUM ) ,
-    .pDEC_IDX ( pDEC_IDX )
+    .pDEC_NUM ( pDEC_NUM )
   )
   btc_dec_comp_code_source
   (
@@ -48,15 +46,15 @@
     //
     .ival      ( btc_dec_comp_code_source__ival      ) ,
     .istrb     ( btc_dec_comp_code_source__istrb     ) ,
+    .ismask    ( btc_dec_comp_code_source__ismask    ) ,
     .iLLR      ( btc_dec_comp_code_source__iLLR      ) ,
     .iLextr    ( btc_dec_comp_code_source__iLextr    ) ,
     .ialpha    ( btc_dec_comp_code_source__ialpha    ) ,
     //
     .oval      ( btc_dec_comp_code_source__oval      ) ,
     .ostrb     ( btc_dec_comp_code_source__ostrb     ) ,
-    .oLLR      ( btc_dec_comp_code_source__oLLR      ) ,
-    .oLextr    ( btc_dec_comp_code_source__oLextr    ) ,
-    .oalpha    ( btc_dec_comp_code_source__oalpha    )
+    .och_hd    ( btc_dec_comp_code_source__och_hd    ) ,
+    .oLapri    ( btc_dec_comp_code_source__oLapri    )
   );
 
 
@@ -66,6 +64,7 @@
   assign btc_dec_comp_code_source__irow_mode = '0 ;
   assign btc_dec_comp_code_source__ival      = '0 ;
   assign btc_dec_comp_code_source__istrb     = '0 ;
+  assign btc_dec_comp_code_source__ismask    = '0 ;
   assign btc_dec_comp_code_source__iLLR      = '0 ;
   assign btc_dec_comp_code_source__iLextr    = '0 ;
   assing btc_dec_comp_code_source__ialpha    = '0 ;
@@ -93,19 +92,18 @@ module btc_dec_comp_code_source
   //
   ival      ,
   istrb     ,
+  ismask    ,
   iLLR      ,
   iLextr    ,
   ialpha    ,
   //
   oval      ,
   ostrb     ,
-  oLLR      ,
-  oLextr    ,
-  oalpha
+  och_hd    ,
+  oLapri
 );
 
   parameter int pDEC_NUM = 8 ;
-  parameter int pDEC_IDX = 0 ;
 
   `include "btc_dec_types.svh"
 
@@ -113,23 +111,23 @@ module btc_dec_comp_code_source
   //
   //------------------------------------------------------------------------------------------------------
 
-  input  logic   iclk                 ;
-  input  logic   ireset               ;
-  input  logic   iclkena              ;
+  input  logic                    iclk                 ;
+  input  logic                    ireset               ;
+  input  logic                    iclkena              ;
   //
-  input  logic   irow_mode            ;
+  input  logic                    irow_mode            ;
   //
-  input  logic   ival                 ;
-  input  strb_t  istrb                ;
-  input  llr_t   iLLR      [pDEC_NUM] ;
-  input  extr_t  iLextr    [pDEC_NUM] ;
-  input  alpha_t ialpha               ;
+  input  logic   [pDEC_NUM-1 : 0] ival                 ;
+  input  strb_t                   istrb                ;
+  input  logic                    ismask    [pDEC_NUM] ;
+  input  llr_t                    iLLR      [pDEC_NUM] ;
+  input  extr_t                   iLextr    [pDEC_NUM] ;
+  input  alpha_t                  ialpha               ;
   //
-  output logic   oval                 ;
-  output strb_t  ostrb                ;
-  output llr_t   oLLR                 ;
-  output extr_t  oLextr               ;
-  output alpha_t oalpha               ;
+  output logic                    oval      [pDEC_NUM] ;
+  output strb_t                   ostrb     [pDEC_NUM] ;
+  output logic                    och_hd    [pDEC_NUM] ;
+  output extr_t                   oLapri    [pDEC_NUM] ;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -137,95 +135,141 @@ module btc_dec_comp_code_source
 
   localparam int cLOG2_DEC_NUM = $clog2(pDEC_NUM);
 
+  localparam int cSER_DAT_W = pEXTR_W + 1; // + hd
+
   //------------------------------------------------------------------------------------------------------
   //
   //------------------------------------------------------------------------------------------------------
 
-  logic [cLOG2_DEC_NUM : 0] val_cnt;
-  strb_t                    strb;
+  logic  [pDEC_NUM-1 : 0] val;
+  strb_t                  strb;
+  logic                   smask       [pDEC_NUM] ;
 
-  llr_t                     LLR_line   [pDEC_NUM];
-  extr_t                    Lextr_line [pDEC_NUM];
+  logic                   ch_hd       [pDEC_NUM] ;
+  extr_p1_t               Lapri       [pDEC_NUM] ;
+  extr_t                  satLapri    [pDEC_NUM] ;
+
+  //
+  // serializers
+  logic  [pDEC_NUM-1 : 0] ser__ival              ;
+  strb_t                  ser__istrb             ;
+  logic     [pEXTR_W : 0] ser__idat   [pDEC_NUM] ;
+  //
+  logic                   ser__oval   [pDEC_NUM] ;
+  strb_t                  ser__ostrb  [pDEC_NUM] ;
+  logic     [pEXTR_W : 0] ser__odat   [pDEC_NUM] ;
+
 
   //------------------------------------------------------------------------------------------------------
-  // val generator
+  // get Lapri
   //------------------------------------------------------------------------------------------------------
 
   always_ff @(posedge iclk or posedge ireset) begin
     if (ireset) begin
-      val_cnt <= '0;
+      val <= '0;
     end
     else if (iclkena) begin
-      if (ival) begin
-        if (irow_mode) begin
-          val_cnt <= '0;
-          val_cnt[cLOG2_DEC_NUM] <= 1'b1;
+      val <= ival;
+    end
+  end
+
+  always_ff @(posedge iclk) begin
+    if (iclkena) begin
+      strb  <= istrb;
+      smask <= ismask;
+      for (int i = 0; i < pDEC_NUM; i++) begin
+        if (ismask[i]) begin
+          ch_hd[i] <= 1'b0;
+          Lapri[i] <= -(2**(pLLR_W-1)-1); // strongest zero for shortened
         end
         else begin
-          val_cnt <= '1; // single pulse
+          ch_hd[i] <= (iLLR[i] >= 0);
+          Lapri[i] <=  iLLR[i] + do_scale(iLextr[i], ialpha);
         end
-      end
-      else begin
-        val_cnt <= val_cnt + val_cnt[cLOG2_DEC_NUM];
       end
     end
   end
 
-  assign oval = val_cnt[cLOG2_DEC_NUM];
+  //------------------------------------------------------------------------------------------------------
+  // saturate Lapri
+  //------------------------------------------------------------------------------------------------------
+
+  always_ff @(posedge iclk or posedge ireset) begin
+    if (ireset) begin
+      ser__ival <= '0;
+    end
+    else if (iclkena) begin
+      ser__ival <= val;
+    end
+  end
+
+  always_ff @(posedge iclk) begin
+    if (iclkena) begin
+      ser__istrb <= strb;
+      for (int i = 0; i < pDEC_NUM; i++) begin
+        ser__idat[i][pEXTR_W]       <= ch_hd[i];
+        ser__idat[i][pEXTR_W-1 : 0] <= do_saturation(Lapri[i]);
+      end
+    end
+  end
+
+  //------------------------------------------------------------------------------------------------------
+  // serializers
+  //------------------------------------------------------------------------------------------------------
+
+  genvar g;
+
+  generate
+    for (g = 0; g < pDEC_NUM; g++) begin : ser_inst_gen
+      btc_dec_comp_code_ser
+      #(
+        .pDAT_W   ( pEXTR_W + 1 ) ,
+        .pDEC_NUM ( pDEC_NUM    ) ,
+        .pDEC_IDX ( g           )
+      )
+      ser
+      (
+        .iclk      ( iclk           ) ,
+        .ireset    ( ireset         ) ,
+        .iclkena   ( iclkena        ) ,
+        //
+        .irow_mode ( irow_mode      ) ,
+        //
+        .ival      ( ser__ival  [g] ) ,
+        .istrb     ( ser__istrb     ) ,
+        .idat      ( ser__idat      ) ,
+        //
+        .oval      ( ser__oval  [g] ) ,
+        .ostrb     ( ser__ostrb [g] ) ,
+        .odat      ( ser__odat  [g] )
+      );
+
+      assign  oval   [g] = ser__oval  [g];
+      assign  ostrb  [g] = ser__ostrb [g];
+      assign {och_hd [g],
+              oLapri [g]} = ser__odat [g];
+    end
+  endgenerate
 
   //------------------------------------------------------------------------------------------------------
   //
   //------------------------------------------------------------------------------------------------------
 
-  always_ff @(posedge iclk) begin
-    if (iclkena) begin
-      if (ival) begin
-        strb <= istrb;
-      end
-      //
-      if (irow_mode) begin
-        // regenerate strobes
-        ostrb.sof   <= istrb.sof & ival;
-        ostrb.sop   <= istrb.sop & ival;
-        ostrb.eop   <=  strb.eop & (val_cnt[cLOG2_DEC_NUM-1 : 0] == (pDEC_NUM-2));
-        ostrb.eof   <=  strb.eof & (val_cnt[cLOG2_DEC_NUM-1 : 0] == (pDEC_NUM-2));
-        ostrb.mask  <=  strb.mask;
-      end
-      else begin
-        ostrb   <= istrb;
-      end
+  function extr_t do_saturation (input extr_p1_t data);
+    logic poverflow;
+    logic noverflow;
+  begin
+    poverflow     = (data >  (2**(pEXTR_W-1)-1));
+    noverflow     = (data < -(2**(pEXTR_W-1)-1));
+    do_saturation = data[pEXTR_W-1 : 0];
+    //
+    if (poverflow) begin
+      do_saturation =  (2**(pEXTR_W-1)-1);
+    end
+    else if (noverflow) begin
+      do_saturation = -(2**(pEXTR_W-1)-1);
     end
   end
-
-  //------------------------------------------------------------------------------------------------------
-  // data shift registers : lsb first
-  //------------------------------------------------------------------------------------------------------
-
-  always_ff @(posedge iclk) begin
-    if (iclkena) begin
-      oalpha <= ialpha;
-      if (irow_mode) begin
-        if (ival) begin
-          LLR_line   <= iLLR;
-          Lextr_line <= iLextr;
-        end
-        else begin
-          for (int i = 0; i < pDEC_NUM-1; i++) begin
-            LLR_line  [i] <= LLR_line   [i+1];
-            Lextr_line[i] <= Lextr_line [i+1];
-          end
-        end
-      end
-      else begin
-        if (ival) begin
-          LLR_line  [0] <= iLLR   [pDEC_IDX];
-          Lextr_line[0] <= iLextr [pDEC_IDX];
-        end
-      end
-    end
-  end
-
-  assign oLLR   = LLR_line  [0];
-  assign oLextr = Lextr_line[0];
+  endfunction
 
 endmodule

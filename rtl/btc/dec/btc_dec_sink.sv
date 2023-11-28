@@ -8,39 +8,42 @@
   parameter int pERR_W   = 16 ;
   //
   parameter int pTAG_W   =  8 ;
+  //
+  parameter int pDB_NUM  =  1 ;
 
 
 
-  logic                             btc_dec_sink__iclk      ;
-  logic                             btc_dec_sink__ireset    ;
-  logic                             btc_dec_sink__iclkena   ;
+  logic                             btc_dec_sink__iclk                ;
+  logic                             btc_dec_sink__ireset              ;
+  logic                             btc_dec_sink__iclkena             ;
   //
-  btc_code_mode_t                   btc_dec_sink__ixmode    ;
-  btc_code_mode_t                   btc_dec_sink__iymode    ;
-  btc_short_mode_t                  btc_dec_sink__ismode    ;
+  btc_code_mode_t                   btc_dec_sink__ixmode    [pDB_NUM] ;
+  btc_code_mode_t                   btc_dec_sink__iymode    [pDB_NUM] ;
+  btc_short_mode_t                  btc_dec_sink__ismode    [pDB_NUM] ;
   //
-  logic                             btc_dec_sink__irfull    ;
-  logic             [pRDAT_W-1 : 0] btc_dec_sink__irdat     ;
-  logic              [pTAG_W-1 : 0] btc_dec_sink__irtag     ;
+  logic                             btc_dec_sink__irfull    [pDB_NUM] ;
+  logic             [pRDAT_W-1 : 0] btc_dec_sink__irdat     [pDB_NUM] ;
+  logic              [pTAG_W-1 : 0] btc_dec_sink__irtag     [pDB_NUM] ;
   //
-  logic              [pERR_W-1 : 0] btc_dec_sink__irerr     ;
-  logic                             btc_dec_sink__irdecfail ;
+  logic              [pERR_W-1 : 0] btc_dec_sink__irerr     [pDB_NUM] ;
+  logic              [pERR_W-1 : 0] btc_dec_sink__irerr_num [pDB_NUM] ;
+  logic                             btc_dec_sink__irdecfail [pDB_NUM] ;
   //
-  logic                             btc_dec_sink__orempty   ;
-  logic            [pRADDR_W-1 : 0] btc_dec_sink__oraddr    ;
+  logic                             btc_dec_sink__orempty   [pDB_NUM] ;
+  logic            [pRADDR_W-1 : 0] btc_dec_sink__oraddr              ;
   //
-  logic                             btc_dec_sink__ireq      ;
-  logic                             btc_dec_sink__ofull     ;
+  logic                             btc_dec_sink__ireq                ;
+  logic                             btc_dec_sink__ofull               ;
   //
-  logic                             btc_dec_sink__oval      ;
-  logic                             btc_dec_sink__osop      ;
-  logic                             btc_dec_sink__oeop      ;
-  logic                             btc_dec_sink__odat      ;
-  logic              [pTAG_W-1 : 0] btc_dec_sink__otag      ;
+  logic                             btc_dec_sink__oval                ;
+  logic                             btc_dec_sink__osop                ;
+  logic                             btc_dec_sink__oeop                ;
+  logic                             btc_dec_sink__odat                ;
+  logic              [pTAG_W-1 : 0] btc_dec_sink__otag                ;
   //
-  logic                             btc_dec_sink__odecfail  ;
-  logic              [pERR_W-1 : 0] btc_dec_sink__oerr      ;
-  logic              [pERR_W-1 : 0] btc_dec_sink__onum      ;
+  logic                             btc_dec_sink__odecfail            ;
+  logic              [pERR_W-1 : 0] btc_dec_sink__oerr                ;
+  logic              [pERR_W-1 : 0] btc_dec_sink__onum                ;
 
 
 
@@ -51,7 +54,9 @@
     //
     .pERR_W   ( pERR_W   ) ,
     //
-    .pTAG_W   ( pTAG_W   )
+    .pTAG_W   ( pTAG_W   ) ,
+    //
+    .pDB_NUM  ( pDB_NUM  )
   )
   btc_dec_sink
   (
@@ -68,6 +73,7 @@
     .irtag     ( btc_dec_sink__irtag     ) ,
     //
     .irerr     ( btc_dec_sink__irerr     ) ,
+    .irerr_num ( btc_dec_sink__irerr_num ) ,
     .irdecfail ( btc_dec_sink__irdecfail ) ,
     //
     .orempty   ( btc_dec_sink__orempty   ) ,
@@ -114,12 +120,14 @@
 
 module btc_dec_sink
 #(
-  parameter int pRDAT_W  =  1 ,
-  parameter int pRADDR_W =  8 ,
+  parameter int pRDAT_W           =  1 ,
+  parameter int pRADDR_W          =  8 ,
   //
-  parameter int pERR_W   = 16 ,
+  parameter int pERR_W            = 16 ,
   //
-  parameter int pTAG_W   =  8
+  parameter int pTAG_W            =  8 ,
+  //
+  parameter int pDB_NUM           =  1    // decoder block number
 )
 (
   iclk      ,
@@ -135,6 +143,7 @@ module btc_dec_sink
   irtag     ,
   //
   irerr     ,
+  irerr_num ,
   irdecfail ,
   //
   orempty   ,
@@ -160,45 +169,57 @@ module btc_dec_sink
   //
   //------------------------------------------------------------------------------------------------------
 
-  input  logic                             iclk      ;
-  input  logic                             ireset    ;
-  input  logic                             iclkena   ;
+  input  logic                             iclk                ;
+  input  logic                             ireset              ;
+  input  logic                             iclkena             ;
   //
-  input  btc_code_mode_t                   ixmode    ;
-  input  btc_code_mode_t                   iymode    ;
-  input  btc_short_mode_t                  ismode    ;
+  input  btc_code_mode_t                   ixmode    [pDB_NUM] ;
+  input  btc_code_mode_t                   iymode    [pDB_NUM] ;
+  input  btc_short_mode_t                  ismode    [pDB_NUM] ;
   //
-  input  logic                             irfull    ;
-  input  logic             [pRDAT_W-1 : 0] irdat     ;
-  input  logic              [pTAG_W-1 : 0] irtag     ;
+  input  logic                             irfull    [pDB_NUM] ;
+  input  logic             [pRDAT_W-1 : 0] irdat     [pDB_NUM] ;
+  input  logic              [pTAG_W-1 : 0] irtag     [pDB_NUM] ;
   //
-  input  logic              [pERR_W-1 : 0] irerr     ;
-  input  logic                             irdecfail ;
+  input  logic              [pERR_W-1 : 0] irerr     [pDB_NUM] ;
+  input  logic              [pERR_W-1 : 0] irerr_num [pDB_NUM] ;
+  input  logic                             irdecfail [pDB_NUM] ;
   //
-  output logic                             orempty   ;
-  output logic            [pRADDR_W-1 : 0] oraddr    ;
+  output logic                             orempty   [pDB_NUM] ;
+  output logic            [pRADDR_W-1 : 0] oraddr              ;
   //
-  input  logic                             ireq      ;
-  output logic                             ofull     ;
+  input  logic                             ireq                ;
+  output logic                             ofull               ;
   //
-  output logic                             oval      ;
-  output logic                             osop      ;
-  output logic                             oeop      ;
-  output logic                             odat      ;
-  output logic              [pTAG_W-1 : 0] otag      ;
+  output logic                             oval                ;
+  output logic                             osop                ;
+  output logic                             oeop                ;
+  output logic                             odat                ;
+  output logic              [pTAG_W-1 : 0] otag                ;
   //
-  output logic                             odecfail  ;
-  output logic              [pERR_W-1 : 0] oerr      ;
-  output logic              [pERR_W-1 : 0] onum      ;
+  output logic                             odecfail            ;
+  output logic              [pERR_W-1 : 0] oerr                ;
+  output logic              [pERR_W-1 : 0] onum                ;
 
   //------------------------------------------------------------------------------------------------------
   //
   //------------------------------------------------------------------------------------------------------
 
-  enum bit {
+  localparam int cLOG2_DB_NUM = $clog2(pDB_NUM);
+
+  //------------------------------------------------------------------------------------------------------
+  //
+  //------------------------------------------------------------------------------------------------------
+
+  enum bit [1 : 0] {
     cRESET_STATE,
-    cDO_STATE
-  } state;
+    cINIT_STATE ,
+    cDO_STATE   ,
+    cDONE_STATE
+  } state /* synthesis syn_encoding = "sequential", fsm_encoding = "sequential" */;
+
+  btc_code_mode_t  xmode;
+  btc_code_mode_t  ymode;
 
   logic [cLOG2_COL_MAX-1 : 0] col_length_m2;
 
@@ -219,6 +240,9 @@ module btc_dec_sink
 
   logic [1 : 0] set_sf; // set sop/full
 
+  logic [cLOG2_DB_NUM-1 : 0] sel;
+  logic [cLOG2_DB_NUM-1 : 0] sel2dat;
+
   //------------------------------------------------------------------------------------------------------
   // FSM
   //------------------------------------------------------------------------------------------------------
@@ -231,13 +255,62 @@ module btc_dec_sink
     end
     else if (iclkena) begin
       case (state)
-        cRESET_STATE : state <=  irfull            ? cDO_STATE    : cRESET_STATE;
-        cDO_STATE    : state <= (ireq & work_done) ? cRESET_STATE : cDO_STATE;
+        cRESET_STATE : state <=  irfull[sel]       ? cINIT_STATE  : cRESET_STATE;
+        //
+        cINIT_STATE  : state <= cDO_STATE;
+        //
+        cDO_STATE    : state <= (ireq & work_done) ? cDONE_STATE  : cDO_STATE;
+        //
+        cDONE_STATE  : state <= cRESET_STATE;
       endcase
     end
   end
 
-  assign orempty = (state == cDO_STATE & ireq & work_done);
+  always_comb begin
+    for (int i = 0; i < pDB_NUM; i++) begin
+      orempty[i] = (state == cDONE_STATE) & (i == sel);
+    end
+  end
+
+  //------------------------------------------------------------------------------------------------------
+  // decoder block select arbiter
+  //------------------------------------------------------------------------------------------------------
+
+  generate
+    if (pDB_NUM <= 1) begin
+      assign sel = 1'b0;
+    end
+    else begin
+      always_ff @(posedge iclk or posedge ireset) begin
+        if (ireset) begin
+          sel <= '0;
+        end
+        else if (iclkena) begin
+          if (state == cDONE_STATE) begin
+            if (pDB_NUM == 2**cLOG2_DB_NUM) begin
+              sel <= sel + 1'b1;
+            end
+            else begin
+              sel <= (sel == pDB_NUM-1) ? '0 : (sel + 1'b1);
+            end
+          end
+        end
+      end
+    end
+  endgenerate
+
+  //------------------------------------------------------------------------------------------------------
+  // used mode selection
+  //------------------------------------------------------------------------------------------------------
+
+  always_ff @(posedge iclk) begin
+    if (iclkena) begin
+      if (state == cRESET_STATE) begin
+        xmode <= ixmode[sel];
+        ymode <= iymode[sel];
+      end
+    end
+  end
 
   //------------------------------------------------------------------------------------------------------
   // FSM counters
@@ -245,12 +318,12 @@ module btc_dec_sink
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
-      if (state == cRESET_STATE) begin
+      if (state == cINIT_STATE) begin
         row_idx       <= '0;
         col_idx       <= '0;
         //
-        row_length_m2 <= get_data_bits(ixmode) - 2;
-        col_length_m2 <= get_data_bits(iymode) - 2;
+        row_length_m2 <= get_data_bits(xmode) - 2;
+        col_length_m2 <= get_data_bits(ymode) - 2;
       end
       else if (state == cDO_STATE & ireq) begin
         col_idx.value <=  col_idx.done ? '0 : (col_idx.value + 1'b1);
@@ -271,7 +344,7 @@ module btc_dec_sink
   // output mapping
   //------------------------------------------------------------------------------------------------------
 
-  wire start = (state == cRESET_STATE) & irfull;
+  wire start = (state == cINIT_STATE);
 
   always_ff @(posedge iclk or posedge ireset) begin
     if (ireset) begin
@@ -289,7 +362,7 @@ module btc_dec_sink
       if (set_sf[1]) begin
         ofull <= 1'b1;
       end
-      else if (orempty) begin
+      else if (state == cDONE_STATE) begin
         ofull <= 1'b0;
       end
       //
@@ -308,14 +381,17 @@ module btc_dec_sink
     if (iclkena) begin
       eop  <= (eop << 1) | (state == cDO_STATE & work_done);
       //
-      odat <= irdat;
+      odat <= irdat[sel2dat];
       //
       if (start) begin
-        otag      <= irtag;
-        odecfail  <= irdecfail;
-        oerr      <= irerr;
-        // errors count based upon only row data (!!!)
-        onum      <= cDATA_ERR_BIT_SIZE[{iymode, ixmode}];
+        otag      <= irtag    [sel];
+        odecfail  <= irdecfail[sel];
+        oerr      <= irerr    [sel];
+        onum      <= irerr_num[sel];
+      end
+      //
+      if (state == cDO_STATE) begin
+        sel2dat   <= sel;
       end
     end
   end

@@ -20,22 +20,26 @@
   btc_code_mode_t                  btc_dec_comp_code__iymode               ;
   //
   logic                            btc_dec_comp_code__istart               ;
+  logic                            btc_dec_comp_code__istart_iter          ;
   logic                            btc_dec_comp_code__irow_mode            ;
   alpha_t                          btc_dec_comp_code__ialpha               ;
   //
   logic           [pDEC_NUM-1 : 0] btc_dec_comp_code__ival                 ;
   strb_t                           btc_dec_comp_code__istrb                ;
+  logic                            btc_dec_comp_code__ismask    [pDEC_NUM] ;
   llr_t                            btc_dec_comp_code__iLLR      [pDEC_NUM] ;
   extr_t                           btc_dec_comp_code__iLextr    [pDEC_NUM] ;
   //
   logic                            btc_dec_comp_code__oval                 ;
   strb_t                           btc_dec_comp_code__ostrb     [pDEC_NUM] ;
   extr_t                           btc_dec_comp_code__oLextr    [pDEC_NUM] ;
+  logic           [pDEC_NUM-1 : 0] btc_dec_comp_code__obitdat              ;
   //
   logic            [pADDR_W-1 : 0] btc_dec_comp_code__owaddr               ;
   //
-  logic           [pDEC_NUM-1 : 0] btc_dec_comp_code__obitdat              ;
   logic             [pERR_W-1 : 0] btc_dec_comp_code__obiterr              ;
+  logic                            btc_dec_comp_code__obiterr_val          ;
+  logic             [pERR_W-1 : 0] btc_dec_comp_code__obiterr_num          ;
   //
   logic                            btc_dec_comp_code__odecfail             ;
 
@@ -50,47 +54,53 @@
   )
   btc_dec_comp_code
   (
-    .iclk      ( btc_dec_comp_code__iclk      ) ,
-    .ireset    ( btc_dec_comp_code__ireset    ) ,
-    .iclkena   ( btc_dec_comp_code__iclkena   ) ,
+    .iclk        ( btc_dec_comp_code__iclk        ) ,
+    .ireset      ( btc_dec_comp_code__ireset      ) ,
+    .iclkena     ( btc_dec_comp_code__iclkena     ) ,
     //
-    .ixmode    ( btc_dec_comp_code__ixmode    ) ,
-    .iymode    ( btc_dec_comp_code__iymode    ) ,
+    .ixmode      ( btc_dec_comp_code__ixmode      ) ,
+    .iymode      ( btc_dec_comp_code__iymode      ) ,
     //
-    .istart    ( btc_dec_comp_code__istart    ) ,
-    .irow_mode ( btc_dec_comp_code__irow_mode ) ,
-    .ialpha    ( btc_dec_comp_code__ialpha    ) ,
+    .istart      ( btc_dec_comp_code__istart      ) ,
+    .istart_iter ( btc_dec_comp_code__istart_iter ) ,
+    .irow_mode   ( btc_dec_comp_code__irow_mode   ) ,
+    .ialpha      ( btc_dec_comp_code__ialpha      ) ,
     //
-    .ival      ( btc_dec_comp_code__ival      ) ,
-    .istrb     ( btc_dec_comp_code__istrb     ) ,
-    .iLLR      ( btc_dec_comp_code__iLLR      ) ,
-    .iLextr    ( btc_dec_comp_code__iLextr    ) ,
+    .ival        ( btc_dec_comp_code__ival        ) ,
+    .istrb       ( btc_dec_comp_code__istrb       ) ,
+    .ismask      ( btc_dec_comp_code__ismask      ) ,
+    .iLLR        ( btc_dec_comp_code__iLLR        ) ,
+    .iLextr      ( btc_dec_comp_code__iLextr      ) ,
     //
-    .oval      ( btc_dec_comp_code__oval      ) ,
-    .ostrb     ( btc_dec_comp_code__ostrb     ) ,
-    .oLextr    ( btc_dec_comp_code__oLextr    ) ,
+    .oval        ( btc_dec_comp_code__oval        ) ,
+    .ostrb       ( btc_dec_comp_code__ostrb       ) ,
+    .oLextr      ( btc_dec_comp_code__oLextr      ) ,
+    .obitdat     ( btc_dec_comp_code__obitdat     ) ,
     //
-    .owaddr    ( btc_dec_comp_code__owaddr    ) ,
+    .owaddr      ( btc_dec_comp_code__owaddr      ) ,
     //
-    .obitdat   ( btc_dec_comp_code__obitdat   ) ,
-    .obiterr   ( btc_dec_comp_code__obiterr   ) ,
+    .obiterr     ( btc_dec_comp_code__obiterr     ) ,
+    .obiterr_val ( btc_dec_comp_code__obiterr_val ) ,
+    .obiterr_num ( btc_dec_comp_code__obiterr_num ) ,
     //
-    .odecfail  ( btc_dec_comp_code__odecfail  )
+    .odecfail    ( btc_dec_comp_code__odecfail    )
   );
 
 
-  assign btc_dec_comp_code__iclk      = '0 ;
-  assign btc_dec_comp_code__ireset    = '0 ;
-  assign btc_dec_comp_code__iclkena   = '0 ;
-  assign btc_dec_comp_code__ixmode    = '0 ;
-  assign btc_dec_comp_code__iymode    = '0 ;
-  assign btc_dec_comp_code__istart    = '0 ;
-  assign btc_dec_comp_code__irow_mode = '0 ;
-  assign btc_dec_comp_code__ialpha    = '0 ;
-  assign btc_dec_comp_code__ival      = '0 ;
-  assign btc_dec_comp_code__istrb     = '0 ;
-  assign btc_dec_comp_code__iLLR      = '0 ;
-  assign btc_dec_comp_code__iLextr    = '0 ;
+  assign btc_dec_comp_code__iclk        = '0 ;
+  assign btc_dec_comp_code__ireset      = '0 ;
+  assign btc_dec_comp_code__iclkena     = '0 ;
+  assign btc_dec_comp_code__ixmode      = '0 ;
+  assign btc_dec_comp_code__iymode      = '0 ;
+  assign btc_dec_comp_code__istart      = '0 ;
+  assign btc_dec_comp_code__istart_iter = '0 ;
+  assign btc_dec_comp_code__irow_mode   = '0 ;
+  assign btc_dec_comp_code__ialpha      = '0 ;
+  assign btc_dec_comp_code__ival        = '0 ;
+  assign btc_dec_comp_code__istrb       = '0 ;
+  assign btc_dec_comp_code__ismask      = '0 ;
+  assign btc_dec_comp_code__iLLR        = '0 ;
+  assign btc_dec_comp_code__iLextr      = '0 ;
 
 
 
@@ -105,30 +115,34 @@
 
 module btc_dec_comp_code
 (
-  iclk      ,
-  ireset    ,
-  iclkena   ,
+  iclk        ,
+  ireset      ,
+  iclkena     ,
   //
-  ixmode    ,
-  iymode    ,
+  ixmode      ,
+  iymode      ,
   //
-  istart    ,
-  irow_mode ,
-  ialpha    ,
+  istart      ,
+  istart_iter ,
+  irow_mode   ,
+  ialpha      ,
   //
-  ival      ,
-  istrb     ,
-  iLLR      ,
-  iLextr    ,
+  ival        ,
+  istrb       ,
+  ismask      ,
+  iLLR        ,
+  iLextr      ,
   //
-  oval      ,
-  ostrb     ,
-  oLextr    ,
+  oval        ,
+  ostrb       ,
+  oLextr      ,
+  obitdat     ,
   //
-  owaddr    ,
+  owaddr      ,
   //
-  obitdat   ,
-  obiterr   ,
+  obiterr     ,
+  obiterr_val ,
+  obiterr_num ,
   //
   odecfail
 );
@@ -152,23 +166,27 @@ module btc_dec_comp_code
   input  btc_code_mode_t                  ixmode               ;  // component code modes
   input  btc_code_mode_t                  iymode               ;
   //
-  input  logic                            istart               ;  // iteration start
+  input  logic                            istart               ;  // decoding start
+  input  logic                            istart_iter          ;  // iteration start
   input  logic                            irow_mode            ;  // row/col mode
   input  alpha_t                          ialpha               ;  // iteration row/col scale factor
   //
   input  logic           [pDEC_NUM-1 : 0] ival                 ;
   input  strb_t                           istrb                ;
+  input  logic                            ismask    [pDEC_NUM] ;
   input  llr_t                            iLLR      [pDEC_NUM] ;
   input  extr_t                           iLextr    [pDEC_NUM] ;
   //
   output logic                            oval                 ;
   output strb_t                           ostrb                ;
   output extr_t                           oLextr    [pDEC_NUM] ;
+  output logic           [pDEC_NUM-1 : 0] obitdat              ;
   //
   output logic            [pADDR_W-1 : 0] owaddr               ;
   //
-  output logic           [pDEC_NUM-1 : 0] obitdat              ;
   output logic             [pERR_W-1 : 0] obiterr              ;
+  output logic                            obiterr_val          ;
+  output logic             [pERR_W-1 : 0] obiterr_num          ;
   //
   output logic                            odecfail             ;
 
@@ -177,7 +195,7 @@ module btc_dec_comp_code
   //------------------------------------------------------------------------------------------------------
 
   localparam int cLOG2_DEC_NUM      = $clog2(pDEC_NUM);
-  localparam int cLOG2_USED_COL_MAX = cLOG2_COL_MAX - cLOG2_DEC_NUM; // rows store in pDEC_NUM memory
+  localparam int cLOG2_USED_ROW_MAX = cLOG2_ROW_MAX - cLOG2_DEC_NUM; // rows store in pDEC_NUM memory
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -187,29 +205,28 @@ module btc_dec_comp_code
   // source
   logic                   source__oval    [pDEC_NUM] ;
   strb_t                  source__ostrb   [pDEC_NUM] ;
-  llr_t                   source__oLLR    [pDEC_NUM] ;
-  extr_t                  source__oLextr  [pDEC_NUM] ;
-  alpha_t                 source__oalpha  [pDEC_NUM] ;
+  logic                   source__och_hd  [pDEC_NUM] ;
+  extr_t                  source__oLapri  [pDEC_NUM] ;
 
   //
   // component code decoders
-  logic                   code__istart    [pDEC_NUM];
-  btc_code_mode_t         code__imode     [pDEC_NUM];
+  logic                   code__istart        [pDEC_NUM] ;
+  btc_code_mode_t         code__imode         [pDEC_NUM] ;
   //
-  logic                   code__ival      [pDEC_NUM];
-  strb_t                  code__istrb     [pDEC_NUM];
-  llr_t                   code__iLLR      [pDEC_NUM];
-  extr_t                  code__iLextr    [pDEC_NUM];
-  alpha_t                 code__ialpha    [pDEC_NUM];
+  logic                   code__ival          [pDEC_NUM] ;
+  strb_t                  code__istrb         [pDEC_NUM] ;
+  logic                   code__ich_hd        [pDEC_NUM] ;
+  extr_t                  code__iLapri        [pDEC_NUM] ;
 
-  logic                   code__oval      [pDEC_NUM];
-  strb_t                  code__ostrb     [pDEC_NUM];
-  extr_t                  code__oLextr    [pDEC_NUM];
+  logic                   code__oval          [pDEC_NUM] ;
+  strb_t                  code__ostrb         [pDEC_NUM] ;
+  extr_t                  code__oLextr        [pDEC_NUM] ;
   //
-  logic                   code__obitdat   [pDEC_NUM];
-  logic                   code__obiterr   [pDEC_NUM];
+  logic                   code__obitdat       [pDEC_NUM] ;
+  logic                   code__obiterr       [pDEC_NUM] ;
   //
-  logic                   code__odecfail  [pDEC_NUM];
+  logic                   code__odecfail      [pDEC_NUM] ;
+  logic                   code__odecfail_val  [pDEC_NUM] ;
 
   //
   // sink
@@ -224,71 +241,72 @@ module btc_dec_comp_code
   strb_t                  sink__ostrb                ;
   extr_t                  sink__oLextr    [pDEC_NUM] ;
   logic  [pDEC_NUM-1 : 0] sink__obitdat              ;
-  //
-  logic    [pERR_W-1 : 0] sink__obiterr              ;
+  logic  [pDEC_NUM-1 : 0] sink__obiterr              ;
 
   //
   // address generation unit
-  logic [cLOG2_ROW_MAX-1 : 0] col_data_length_m2;
-  logic [cLOG2_ROW_MAX-1 : 0] col_code_length_m2;
+  logic [cLOG2_COL_MAX-1 : 0] col_data_length_m1;
+  logic [cLOG2_COL_MAX-1 : 0] col_code_length_m2;
 
   struct packed {
     logic                       dec_done;
     logic                       code_done;
-    logic [cLOG2_ROW_MAX-1 : 0] value;
+    logic [cLOG2_COL_MAX-1 : 0] value;
   } row_idx;
 
-  logic   [cLOG2_USED_COL_MAX : 0] row_length; // + 1 bit for 2^maximum(N);
-  logic [cLOG2_USED_COL_MAX-1 : 0] row_length_m2;
+  logic [cLOG2_USED_ROW_MAX   : 0] row_length; // + 1 bit for 2^maximum(N);
+  logic [cLOG2_USED_ROW_MAX-1 : 0] row_length_m2;
   logic                            row_length_less_eq_1;
 
   struct packed {
     logic                            done;
-    logic [cLOG2_USED_COL_MAX-1 : 0] value;
+    logic [cLOG2_USED_ROW_MAX-1 : 0] value;
   } col_idx;
+
+  //
+  // biterr counter
+  logic [pDEC_NUM-1 : 0] biterr;
+  logic                  biterr_val;
+  strb_t                 biterr_strb;
+  logic [pDEC_NUM-1 : 0] biterr_mask;
 
   //------------------------------------------------------------------------------------------------------
   // cc source
   //------------------------------------------------------------------------------------------------------
 
-  genvar g;
-
-  generate
-    for (g = 0; g < pDEC_NUM; g++) begin : source_inst_gen
-      btc_dec_comp_code_source
-      #(
-        .pLLR_W   ( pLLR_W   ) ,
-        .pEXTR_W  ( pEXTR_W  ) ,
-        //
-        .pDEC_NUM ( pDEC_NUM ) ,
-        .pDEC_IDX ( g        )
-      )
-      source
-      (
-        .iclk      ( iclk               ) ,
-        .ireset    ( ireset             ) ,
-        .iclkena   ( iclkena            ) ,
-        //
-        .irow_mode ( irow_mode          ) ,
-        //
-        .ival      ( ival           [g] ) ,
-        .istrb     ( istrb              ) ,
-        .iLLR      ( iLLR               ) ,
-        .iLextr    ( iLextr             ) ,
-        .ialpha    ( ialpha             ) ,
-        //
-        .oval      ( source__oval   [g] ) ,
-        .ostrb     ( source__ostrb  [g] ) ,
-        .oLLR      ( source__oLLR   [g] ) ,
-        .oLextr    ( source__oLextr [g] ) ,
-        .oalpha    ( source__oalpha [g] )
-      );
-    end
-  endgenerate
+  btc_dec_comp_code_source
+  #(
+    .pLLR_W   ( pLLR_W   ) ,
+    .pEXTR_W  ( pEXTR_W  ) ,
+    //
+    .pDEC_NUM ( pDEC_NUM )
+  )
+  source
+  (
+    .iclk      ( iclk           ) ,
+    .ireset    ( ireset         ) ,
+    .iclkena   ( iclkena        ) ,
+    //
+    .irow_mode ( irow_mode      ) ,
+    //
+    .ival      ( ival           ) ,
+    .istrb     ( istrb          ) ,
+    .ismask    ( ismask         ) ,
+    .iLLR      ( iLLR           ) ,
+    .iLextr    ( iLextr         ) ,
+    .ialpha    ( ialpha         ) ,
+    //
+    .oval      ( source__oval   ) ,
+    .ostrb     ( source__ostrb  ) ,
+    .och_hd    ( source__och_hd ) ,
+    .oLapri    ( source__oLapri )
+  );
 
   //------------------------------------------------------------------------------------------------------
   // cc engines
   //------------------------------------------------------------------------------------------------------
+
+  genvar g;
 
   generate
     for (g = 0; g < pDEC_NUM; g++) begin : comp_code_inst_gen
@@ -299,36 +317,34 @@ module btc_dec_comp_code
       )
       code
       (
-        .iclk      ( iclk                ) ,
-        .ireset    ( ireset              ) ,
-        .iclkena   ( iclkena             ) ,
+        .iclk         ( iclk                   ) ,
+        .ireset       ( ireset                 ) ,
+        .iclkena      ( iclkena                ) ,
         //
-        .istart    ( code__istart    [g] ) ,
-        .imode     ( code__imode     [g] ) ,
-        .ialpha    ( code__ialpha    [g] ) ,
+        .istart       ( code__istart       [g] ) ,
+        .imode        ( code__imode        [g] ) ,
         //
-        .ival      ( code__ival      [g] ) ,
-        .istrb     ( code__istrb     [g] ) ,
-        .iLLR      ( code__iLLR      [g] ) ,
-        .iLextr    ( code__iLextr    [g] ) ,
+        .ival         ( code__ival         [g] ) ,
+        .istrb        ( code__istrb        [g] ) ,
+        .ich_hd       ( code__ich_hd       [g] ) ,
+        .iLapri       ( code__iLapri       [g] ) ,
         //
-        .oval      ( code__oval      [g] ) ,
-        .ostrb     ( code__ostrb     [g] ) ,
-        .oLextr    ( code__oLextr    [g] ) ,
-        .obitdat   ( code__obitdat   [g] ) ,
-        .obiterr   ( code__obiterr   [g] ) ,
+        .oval         ( code__oval         [g] ) ,
+        .ostrb        ( code__ostrb        [g] ) ,
+        .oLextr       ( code__oLextr       [g] ) ,
+        .obitdat      ( code__obitdat      [g] ) ,
+        .obiterr      ( code__obiterr      [g] ) ,
         //
-        .odecfail  ( code__odecfail  [g] )
+        .odecfail     ( code__odecfail     [g] ) ,
+        .odecfail_val ( code__odecfail_val [g] )
       );
 
-      assign code__istart [g] = istart ;
+      assign code__istart [g] = istart_iter ;
 
       assign code__ival   [g] = source__oval   [g] ;
       assign code__istrb  [g] = source__ostrb  [g] ;
-      assign code__iLLR   [g] = source__oLLR   [g] ;
-      assign code__iLextr [g] = source__oLextr [g] ;
-
-      assign code__ialpha [g] = source__oalpha [g] ;
+      assign code__ich_hd [g] = source__och_hd [g] ;
+      assign code__iLapri [g] = source__oLapri [g] ;
 
       always_ff @(posedge iclk) begin
         if (iclkena) begin
@@ -404,23 +420,20 @@ module btc_dec_comp_code
     end
   end
 
-  // there is +1 register inside sink_unit (2 tick bit error counting)
-  assign obiterr = sink__obiterr;
-
   //------------------------------------------------------------------------------------------------------
   // address generation units (row/col)
   //------------------------------------------------------------------------------------------------------
 
-  assign row_length = (get_code_bits(ixmode) >> cLOG2_DEC_NUM);
+  // has regiser upside
+  assign col_data_length_m1   = get_data_bits(iymode) - 1;
+  assign col_code_length_m2   = get_code_bits(iymode) - 2;
+
+  assign row_length           = (get_code_bits(ixmode) >> cLOG2_DEC_NUM);
+  assign row_length_m2        =  row_length - 2;
+  assign row_length_less_eq_1 = (row_length <= 1);
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
-      // have enougth time for reclock
-      col_data_length_m2   <= get_data_bits(iymode) - 2;
-      col_code_length_m2   <= get_code_bits(iymode) - 2;
-      row_length_m2        <=  row_length - 2;
-      row_length_less_eq_1 <= (row_length <= 1);
-      //
       if (sink__oval) begin
         if (sink__ostrb.sof) begin
           col_idx       <= '0;
@@ -454,49 +467,115 @@ module btc_dec_comp_code
     end
   end
 
-  assign owaddr[0                  +: cLOG2_USED_COL_MAX] = col_idx.value;
-  assign owaddr[cLOG2_USED_COL_MAX +: cLOG2_ROW_MAX]      = row_idx.value;
+  assign owaddr[0                  +: cLOG2_USED_ROW_MAX] = col_idx.value;
+  assign owaddr[cLOG2_USED_ROW_MAX +: cLOG2_COL_MAX]      = row_idx.value;
 
   //------------------------------------------------------------------------------------------------------
-  // decfail accumulate unit
+  // get col/row shortened and unused for error row bitmask
   //------------------------------------------------------------------------------------------------------
 
-  logic                  col_decfail_val;
-  logic [pDEC_NUM-1 : 0] row_decfail_val;
-
-  logic [pDEC_NUM-1 : 0] decfail;
+  logic [pDEC_NUM-1 : 0] tbiterr;
+  logic [pDEC_NUM-1 : 0] tbiterr_mask;
 
   always_comb begin
-    // parralel
-    col_decfail_val = code__oval[0] & code__ostrb[0].eop;
-    // quazi parallel
+    tbiterr_mask = '0;
+    //
     for (int i = 0; i < pDEC_NUM; i++) begin
-      row_decfail_val[i] = code__oval [i] & code__ostrb[i].eop;
+      if (row_idx.value > col_data_length_m1) begin // parity rows
+        tbiterr_mask[i] = 1'b1;
+      end
     end
-    // decfail common for both
-    for (int i = 0; i < pDEC_NUM; i++) begin
-      decfail [i] = code__odecfail [i] & code__oval [i] & code__ostrb[i].eop & !code__ostrb[i].mask;
+  end
+
+  always_ff @(posedge iclk or posedge ireset) begin
+    if (ireset) begin
+      biterr_val <= 1'b0;
+    end
+    else if (iclkena) begin
+      biterr_val <= oval;
     end
   end
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
-      if (istart) begin
-        odecfail <= 1'b0;
-      end
-      else begin
-        if (irow_mode) begin
-          if (row_decfail_val != 0) begin
-            odecfail <= odecfail | (|decfail);
-          end
-        end
-        else begin
-          if (col_decfail_val) begin
-            odecfail <= odecfail | (|decfail);
-          end
-        end
+      // align bitmask(row_idx, col_idx) generation
+      tbiterr     <= sink__obiterr;
+      //
+      biterr      <= tbiterr;
+      biterr_strb <= ostrb;
+      biterr_mask <= tbiterr_mask;
+    end
+  end
+
+  //------------------------------------------------------------------------------------------------------
+  // error counter
+  //------------------------------------------------------------------------------------------------------
+
+  always_ff @(posedge iclk or posedge ireset) begin
+    if (ireset) begin
+      obiterr_val <= 1'b0;
+    end
+    else if (iclkena) begin
+      obiterr_val <= biterr_val & biterr_strb.eof;
+    end
+  end
+
+  always_ff @(posedge iclk) begin
+    if (iclkena) begin
+      if (biterr_val) begin
+        obiterr     <= biterr_strb.sof ? sum_vector(biterr & ~biterr_mask)  : (obiterr      + sum_vector(biterr & ~biterr_mask));
+        obiterr_num <= biterr_strb.sof ? sum_vector(         ~biterr_mask)  : (obiterr_num  + sum_vector(         ~biterr_mask));
       end
     end
   end
+
+  //------------------------------------------------------------------------------------------------------
+  // decfail based upon Lextr gradient
+  //------------------------------------------------------------------------------------------------------
+
+  logic [pDEC_NUM-1 : 0] decfail_val;
+  logic [pDEC_NUM-1 : 0] decfail;
+  logic                  decfail_acc;
+  logic                  decfail_post;
+
+  always_comb begin
+    for (int i = 0; i < pDEC_NUM; i++) begin
+      decfail     [i] = code__odecfail     [i] & code__odecfail_val[i];
+      decfail_val [i] = code__odecfail_val [i];
+    end
+  end
+
+  always_ff @(posedge iclk) begin
+    if (iclkena) begin
+      if (istart_iter) begin
+        decfail_acc <= 1'b0;
+      end
+      else if (irow_mode & (decfail_val != 0)) begin
+        decfail_acc <= decfail_acc | (decfail != 0);
+      end
+      //
+      if (istart) begin
+        decfail_post <= 1'b1;
+        odecfail     <= 1'b1;
+      end
+      else if (irow_mode & oval & ostrb.eof) begin
+        decfail_post <= decfail_acc;
+        odecfail     <= decfail_acc | decfail_post;
+      end
+    end
+  end
+
+  //------------------------------------------------------------------------------------------------------
+  // used functions
+  //------------------------------------------------------------------------------------------------------
+
+  function logic [pERR_W-1 : 0] sum_vector (input logic [pDEC_NUM-1 : 0] biterr);
+  begin
+    sum_vector = '0;
+    for (int i = 0; i < pDEC_NUM; i++) begin
+      sum_vector += biterr[i];
+    end
+  end
+  endfunction
 
 endmodule

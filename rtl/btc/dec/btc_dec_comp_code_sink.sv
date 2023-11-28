@@ -27,7 +27,7 @@
   strb_t                  btc_dec_comp_code_sink__ostrb                ;
   extr_t                  btc_dec_comp_code_sink__oLextr    [pDEC_NUM] ;
   logic  [pDEC_NUM-1 : 0] btc_dec_comp_code_sink__obitdat              ;
-  logic    [pERR_W-1 : 0] btc_dec_comp_code_sink__obiterr              ;
+  logic  [pDEC_NUM-1 : 0] btc_dec_comp_code_sink__obiterr              ;
 
 
 
@@ -131,14 +131,13 @@ module btc_dec_comp_code_sink
   output strb_t                  ostrb                ;
   output extr_t                  oLextr    [pDEC_NUM] ;
   output logic  [pDEC_NUM-1 : 0] obitdat              ;
-  //
-  output logic    [pERR_W-1 : 0] obiterr              ;
+  output logic  [pDEC_NUM-1 : 0] obiterr              ;
 
   //------------------------------------------------------------------------------------------------------
   //
   //------------------------------------------------------------------------------------------------------
 
-  localparam int cASM_DAT_W = pEXTR_W + 1; // + bitdat
+  localparam int cASM_DAT_W = pEXTR_W + 2; // + bitdat + biterr
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -160,6 +159,7 @@ module btc_dec_comp_code_sink
   strb_t                    vect_strb   [pDEC_NUM];
   extr_t                    vect_Lextr  [pDEC_NUM][pDEC_NUM];
   logic    [pDEC_NUM-1 : 0] vect_bitdat [pDEC_NUM];
+  logic    [pDEC_NUM-1 : 0] vect_biterr [pDEC_NUM];
 
   //------------------------------------------------------------------------------------------------------
   // serial - parralel assembler's
@@ -190,7 +190,7 @@ module btc_dec_comp_code_sink
 
       assign asm__ival  [g] =  ival    [g];
       assign asm__istrb [g] =  istrb   [g];
-      assign asm__idat  [g] = {ibitdat [g], iLextr[g]};
+      assign asm__idat  [g] = {ibiterr [g], ibitdat [g], iLextr[g]};
     end
   endgenerate
 
@@ -199,7 +199,7 @@ module btc_dec_comp_code_sink
       vect_val  [i] = asm__oval [i];
       vect_strb [i] = asm__ostrb[i];
       for (int b = 0; b < pDEC_NUM; b++) begin
-        {vect_bitdat[i][b], vect_Lextr[i][b]} = asm__odat[i][b];
+        {vect_biterr[i][b], vect_bitdat[i][b], vect_Lextr[i][b]} = asm__odat[i][b];
       end
     end
   end
@@ -229,12 +229,14 @@ module btc_dec_comp_code_sink
         ostrb   <= vect_strb   [0];
         oLextr  <= vect_Lextr  [0];
         obitdat <= vect_bitdat [0];
+        obiterr <= vect_biterr [0];
         //
         for (int i = 1; i < pDEC_NUM; i++) begin
-          if (asm__oval[i]) begin
+          if (vect_val[i]) begin
             ostrb   <= vect_strb   [i];
             oLextr  <= vect_Lextr  [i];
             obitdat <= vect_bitdat [i];
+            obiterr <= vect_biterr [i];
           end
         end
       end
@@ -242,47 +244,10 @@ module btc_dec_comp_code_sink
         ostrb   <= istrb[0];
         oLextr  <= iLextr;
         obitdat <= ibitdat;
+        obiterr <= ibiterr;
       end
     end
   end
-
-  //------------------------------------------------------------------------------------------------------
-  // bit error counting
-  // can do 2 tick and must align at the btc_dec_comp_code
-  //------------------------------------------------------------------------------------------------------
-
-  logic [pDEC_NUM-1 : 0] biterr;
-  logic                  biterr_val;
-  logic                  biterr_sop;
-  logic [pDEC_NUM-1 : 0] biterr_mask;
-
-  always_comb begin
-    biterr_mask = '0;
-    for (int i = 0; i < pDEC_NUM; i++) begin
-      biterr_mask[i] = !istrb[i].mask;
-    end
-  end
-
-  always_ff @(posedge iclk) begin
-    if (iclkena) begin
-      biterr_val <= (ival != 0);              // make universal for col/row modes
-      biterr_sop <=  ival[0] & istrb[0].sof;  // only 0 can have valid sof
-      biterr     <= ibiterr & ival & biterr_mask;
-      //
-      if (biterr_val) begin
-        obiterr <= biterr_sop ? sum_vector(biterr) : (obiterr + sum_vector(biterr));
-      end
-    end
-  end
-
-  function logic [pERR_W-1 : 0] sum_vector (input logic [pDEC_NUM-1 : 0] biterr);
-  begin
-    sum_vector = '0;
-    for (int i = 0; i < pDEC_NUM; i++) begin
-      sum_vector += biterr[i];
-    end
-  end
-  endfunction
 
 endmodule
 

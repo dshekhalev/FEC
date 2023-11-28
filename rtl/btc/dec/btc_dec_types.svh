@@ -24,8 +24,6 @@
     logic sop;
     logic eop;
     logic eof;
-    //
-    logic mask; // mask of rows decoder
   } strb_t;
 
   //------------------------------------------------------------------------------------------------------
@@ -43,13 +41,13 @@
   // extrinsic scale types
   //------------------------------------------------------------------------------------------------------
 
-  typedef logic [3 : 0] alpha_t;
+  typedef logic [2 : 0] alpha_t;
 
-  localparam alpha_t cALPHA_0     = 0;//4'b0000;
-  localparam alpha_t cALPHA_0p125 = 1;//4'b0001;
-  localparam alpha_t cALPHA_0p25  = 2;//4'b0010;
-  localparam alpha_t cALPHA_0p5   = 4;//4'b0100;
-  localparam alpha_t cALPHA_1     = 8;//4'b1000;
+  localparam alpha_t cALPHA_0     = 0; // 3'b000;
+  localparam alpha_t cALPHA_0p125 = 1; // 3'b001;
+  localparam alpha_t cALPHA_0p25  = 2; // 3'b010;
+  localparam alpha_t cALPHA_0p5   = 3; // 3'b011;
+  localparam alpha_t cALPHA_1     = 4; // 3'b100;
 
   //------------------------------------------------------------------------------------------------------
   // usefull functions
@@ -59,7 +57,7 @@
     bit mask;
   begin
     do_scale = '0;
-    casex(alpha)
+    case (alpha)
       cALPHA_1      : do_scale = data;
       cALPHA_0p5    : begin
         mask      =  data[0] & data[$high(data)];

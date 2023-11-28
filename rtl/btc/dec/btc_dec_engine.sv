@@ -37,6 +37,7 @@
   logic            [pDEC_NUM-1 : 0] btc_dec_engine__owdat                  ;
   logic              [pTAG_W-1 : 0] btc_dec_engine__owtag                  ;
   logic              [pERR_W-1 : 0] btc_dec_engine__owerr                  ;
+  logic              [pERR_W-1 : 0] btc_dec_engine__owerr_num              ;
   logic                             btc_dec_engine__owdecfail              ;
   //
   btc_code_mode_t                   btc_dec_engine__oxmode                 ;
@@ -84,6 +85,7 @@
     .owdat       ( btc_dec_engine__owdat       ) ,
     .owtag       ( btc_dec_engine__owtag       ) ,
     .owerr       ( btc_dec_engine__owerr       ) ,
+    .owerr_num   ( btc_dec_engine__owerr_num   ) ,
     .owdecfail   ( btc_dec_engine__owdecfail   ) ,
     //
     .oxmode      ( btc_dec_engine__oxmode      ) ,
@@ -141,6 +143,7 @@ module btc_dec_engine
   owdat       ,
   owtag       ,
   owerr       ,
+  owerr_num   ,
   owdecfail   ,
   //
   oxmode      ,
@@ -186,6 +189,7 @@ module btc_dec_engine
   output logic            [pDEC_NUM-1 : 0] owdat                  ;
   output logic              [pTAG_W-1 : 0] owtag                  ;
   output logic              [pERR_W-1 : 0] owerr                  ;
+  output logic              [pERR_W-1 : 0] owerr_num              ;
   output logic                             owdecfail              ;
   //
   output btc_code_mode_t                   oxmode                 ;
@@ -217,9 +221,11 @@ module btc_dec_engine
   logic                     ctrl__idec_busy   ;
   logic    [pDEC_NUM-1 : 0] ctrl__odec_val    ;
   strb_t                    ctrl__odec_strb   ;
+  logic    [pDEC_NUM-1 : 0] ctrl__odec_smask  ;
   alpha_t                   ctrl__odec_alpha  ;
   //
   logic                     ctrl__idecfail    ;
+  logic                     ctrl__ostart      ;
   logic                     ctrl__ostart_iter ;
   logic                     ctrl__olast_iter  ;
 
@@ -229,22 +235,26 @@ module btc_dec_engine
   btc_code_mode_t           code__iymode               ;
   //
   logic                     code__istart               ;
+  logic                     code__istart_iter          ;
   logic                     code__irow_mode            ;
   alpha_t                   code__ialpha               ;
   //
   logic    [pDEC_NUM-1 : 0] code__ival                 ;
   strb_t                    code__istrb                ;
+  logic                     code__ismask    [pDEC_NUM] ;
   llr_t                     code__iLLR      [pDEC_NUM] ;
   extr_t                    code__iLextr    [pDEC_NUM] ;
   //
   logic                     code__oval                 ;
   strb_t                    code__ostrb                ;
   extr_t                    code__oLextr    [pDEC_NUM] ;
+  logic    [pDEC_NUM-1 : 0] code__obitdat              ;
   //
   logic     [pADDR_W-1 : 0] code__owaddr               ;
   //
-  logic    [pDEC_NUM-1 : 0] code__obitdat              ;
   logic      [pERR_W-1 : 0] code__obiterr              ;
+  logic                     code__obiterr_val          ;
+  logic      [pERR_W-1 : 0] code__obiterr_num          ;
   //
   logic                     code__odecfail             ;
 
@@ -290,9 +300,11 @@ module btc_dec_engine
     .idec_busy   ( ctrl__idec_busy   ) ,
     .odec_val    ( ctrl__odec_val    ) ,
     .odec_strb   ( ctrl__odec_strb   ) ,
+    .odec_smask  ( ctrl__odec_smask  ) ,
     .odec_alpha  ( ctrl__odec_alpha  ) ,
     //
     .idecfail    ( ctrl__idecfail    ) ,
+    .ostart      ( ctrl__ostart      ) ,
     .ostart_iter ( ctrl__ostart_iter ) ,
     .olast_iter  ( ctrl__olast_iter  )
   );
@@ -327,16 +339,19 @@ module btc_dec_engine
 
   logic   [pDEC_NUM-1 : 0] dec_val_line   [2] ;
   strb_t                   dec_strb_line  [2] ;
+  logic   [pDEC_NUM-1 : 0] dec_smask_line [2] ;
   alpha_t                  dec_alpha_line [2] ;
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
       dec_val_line  [0] <= ctrl__odec_val;
       dec_strb_line [0] <= ctrl__odec_strb;
+      dec_smask_line[0] <= ctrl__odec_smask;
       dec_alpha_line[0] <= ctrl__odec_alpha;
       //
       dec_val_line  [1] <= dec_val_line   [0];
       dec_strb_line [1] <= dec_strb_line  [0];
+      dec_smask_line[1] <= dec_smask_line [0];
       dec_alpha_line[1] <= dec_alpha_line [0];
     end
   end
@@ -357,32 +372,36 @@ module btc_dec_engine
   )
   code
   (
-    .iclk      ( iclk            ) ,
-    .ireset    ( ireset          ) ,
-    .iclkena   ( iclkena         ) ,
+    .iclk        ( iclk              ) ,
+    .ireset      ( ireset            ) ,
+    .iclkena     ( iclkena           ) ,
     //
-    .ixmode    ( code__ixmode    ) ,
-    .iymode    ( code__iymode    ) ,
+    .ixmode      ( code__ixmode      ) ,
+    .iymode      ( code__iymode      ) ,
     //
-    .istart    ( code__istart    ) ,
-    .irow_mode ( code__irow_mode ) ,
-    .ialpha    ( code__ialpha    ) ,
+    .istart      ( code__istart      ) ,
+    .istart_iter ( code__istart_iter ) ,
+    .irow_mode   ( code__irow_mode   ) ,
+    .ialpha      ( code__ialpha      ) ,
     //
-    .ival      ( code__ival      ) ,
-    .istrb     ( code__istrb     ) ,
-    .iLLR      ( code__iLLR      ) ,
-    .iLextr    ( code__iLextr    ) ,
+    .ival        ( code__ival        ) ,
+    .istrb       ( code__istrb       ) ,
+    .ismask      ( code__ismask      ) ,
+    .iLLR        ( code__iLLR        ) ,
+    .iLextr      ( code__iLextr      ) ,
     //
-    .oval      ( code__oval      ) ,
-    .ostrb     ( code__ostrb     ) ,
-    .oLextr    ( code__oLextr    ) ,
+    .oval        ( code__oval        ) ,
+    .ostrb       ( code__ostrb       ) ,
+    .oLextr      ( code__oLextr      ) ,
+    .obitdat     ( code__obitdat     ) ,
     //
-    .owaddr    ( code__owaddr    ) ,
+    .owaddr      ( code__owaddr      ) ,
     //
-    .obitdat   ( code__obitdat   ) ,
-    .obiterr   ( code__obiterr   ) ,
+    .obiterr     ( code__obiterr     ) ,
+    .obiterr_val ( code__obiterr_val ) ,
+    .obiterr_num ( code__obiterr_num ) ,
     //
-    .odecfail  ( code__odecfail  )
+    .odecfail    ( code__odecfail    )
   );
 
   always_ff @(posedge iclk) begin
@@ -392,15 +411,17 @@ module btc_dec_engine
     end
   end
 
-  assign code__istart    = ctrl__ostart_iter ;
-  assign code__irow_mode = ctrl__orow_mode ;
+  assign code__istart       = ctrl__ostart ;
+  assign code__istart_iter  = ctrl__ostart_iter ;
+  assign code__irow_mode    = ctrl__orow_mode ;
 
-  assign code__ival      = dec_val_line   [1] ;
-  assign code__istrb     = dec_strb_line  [1] ;
-  assign code__ialpha    = dec_alpha_line [1] ;
+  assign code__ival         = dec_val_line   [1] ;
+  assign code__istrb        = dec_strb_line  [1] ;
+  assign code__ialpha       = dec_alpha_line [1] ;
 
   always_comb begin
     for (int i = 0; i < pDEC_NUM; i++) begin
+      code__ismask[i] = dec_smask_line[1][i];
       code__iLLR  [i] = irLLR [i];
       code__iLextr[i] = mem__ordat[i*pEXTR_W +: pEXTR_W] ;
     end
@@ -451,8 +472,8 @@ module btc_dec_engine
       owfull  <= 1'b0;
     end
     else if (iclkena) begin
-      owrite  <= code__oval & ctrl__olast_iter;
-      owfull  <= code__oval & code__ostrb.eof & ctrl__olast_iter;
+      owrite  <= code__oval         & ctrl__olast_iter;
+      owfull  <= code__obiterr_val  & ctrl__olast_iter;
     end
   end
 
@@ -461,9 +482,10 @@ module btc_dec_engine
       owaddr    <= code__owaddr;
       owdat     <= code__obitdat;
       owerr     <= code__obiterr;
+      owerr_num <= code__obiterr_num;
       owdecfail <= code__odecfail;
       //
-      if (ctrl__ostart_iter) begin
+      if (ctrl__ostart) begin
         owtag   <= irtag;
         oxmode  <= ixmode;
         oymode  <= iymode;

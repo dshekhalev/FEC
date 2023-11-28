@@ -29,9 +29,11 @@
   logic                             btc_dec_ctrl__idec_busy   ;
   logic            [pDEC_NUM-1 : 0] btc_dec_ctrl__odec_val    ;
   strb_t                            btc_dec_ctrl__odec_strb   ;
+  logic            [pDEC_NUM-1 : 0] btc_dec_ctrl__odec_smask  ;
   alpha_t                           btc_dec_ctrl__odec_alpha  ;
   //
   logic                             btc_dec_ctrl__idecfail    ;
+  logic                             btc_dec_ctrl__ostart      ;
   logic                             btc_dec_ctrl__ostart_iter ;
   logic                             btc_dec_ctrl__olast_iter  ;
 
@@ -65,9 +67,11 @@
     .idec_busy   ( btc_dec_ctrl__idec_busy   ) ,
     .odec_val    ( btc_dec_ctrl__odec_val    ) ,
     .odec_strb   ( btc_dec_ctrl__odec_strb   ) ,
+    .odec_smask  ( btc_dec_ctrl__odec_smask  ) ,
     .odec_alpha  ( btc_dec_ctrl__odec_alpha  ) ,
     //
     .idecfail    ( btc_dec_ctrl__idecfail    ) ,
+    .ostart      ( btc_dec_ctrl__ostart      ) ,
     .ostart_iter ( btc_dec_ctrl__ostart_iter ) ,
     .olast_iter  ( btc_dec_ctrl__olast_iter  )
   );
@@ -121,9 +125,11 @@ module btc_dec_ctrl
   idec_busy   ,
   odec_val    ,
   odec_strb   ,
+  odec_smask  ,
   odec_alpha  ,
   //
   idecfail    ,
+  ostart      ,
   ostart_iter ,
   olast_iter
 );
@@ -160,9 +166,11 @@ module btc_dec_ctrl
   input  logic                             idec_busy      ;
   output logic            [pDEC_NUM-1 : 0] odec_val       ;
   output strb_t                            odec_strb      ;
+  output logic            [pDEC_NUM-1 : 0] odec_smask     ;
   output alpha_t                           odec_alpha     ;
   //
   input  logic                             idecfail       ;
+  output logic                             ostart         ;
   output logic                             ostart_iter    ;
   output logic                             olast_iter     ;
 
@@ -233,7 +241,7 @@ module btc_dec_ctrl
         fast_stop <= 1'b0;
       end
       else if ((state == cWAIT_ROW_STATE) & !idec_busy) begin
-        fast_stop <= ifmode & !idecfail & (ixmode.code_type != cSPC_CODE) & (iymode.code_type != cSPC_CODE); // spc codes has uncertain decfail
+        fast_stop <= ifmode & !idecfail;
       end
     end
   end
@@ -246,8 +254,8 @@ module btc_dec_ctrl
   wire row_code_done  = col_idx.done & row_idx.code_done; // decode array must used fully
 
   wire do_bypass      = (iNiter == 0);
-  wire outbuf_nrdy    = iter.last & !iwbuf_empty;
   wire do_last        = iter.last | fast_stop;
+  wire outbuf_nrdy    = do_last & !iwbuf_empty;
 
   always_ff @(posedge iclk or posedge ireset) begin
     if (ireset) begin
@@ -265,7 +273,7 @@ module btc_dec_ctrl
         cDO_ROW_STATE   : state <=  row_code_done ? cWAIT_ROW_STATE                                 : cDO_ROW_STATE;
         cWAIT_ROW_STATE : state <= !idec_busy     ? (do_last      ? cDONE_STATE   : cDO_COL_STATE)  : cWAIT_ROW_STATE;
         //
-        cWAIT_O_STATE   : state <= !outbuf_nrdy   ? cDONE_STATE                                     : cDO_ROW_STATE;
+        cWAIT_O_STATE   : state <= !outbuf_nrdy   ? cDO_ROW_STATE                                   : cWAIT_O_STATE;
         //
         cDONE_STATE     : state <= cWAIT_STATE;
       endcase
@@ -383,6 +391,7 @@ module btc_dec_ctrl
   // have more then 2 tick address reading for modes
   always_ff @(posedge iclk) begin
     if (iclkena) begin
+      ostart      <= (state == cWAIT_STATE) & irbuf_full;
       ostart_iter <= (state == cDO_COL_STATE) & row_idx.zero & col_idx.zero;
       olast_iter  <= ((state == cDO_ROW_STATE) | (state == cWAIT_ROW_STATE)) & do_last;
       //
@@ -395,8 +404,10 @@ module btc_dec_ctrl
   //
   // there is register outside
   always_comb begin
-    odec_val  = '0;
-    odec_strb = '0;
+    odec_val    = '0;
+    odec_strb   = '0;
+    odec_smask  = '0;
+    //
     if ((state == cDO_COL_STATE) | (state == cWAIT_COL_STATE)) begin // work in parallel
       odec_val      = (state == cDO_COL_STATE) ? '1 : '0;
       //
@@ -421,10 +432,14 @@ module btc_dec_ctrl
       odec_strb.sop   = col_idx.zero;
       odec_strb.eop   = col_idx.done;
       odec_strb.eof   = row_idx.code_done & col_idx.done & (dec_sel == (pDEC_NUM-1));
-      // mask rows without coding for bits and biterr
-      odec_strb.mask  = (row_idx.value > col_data_length_m1);
       //
       odec_alpha      = (ixmode.code_type == cSPC_CODE) ? cSPC_ROW_ALPHA[iter.cnt] : cE_HAM_ROW_ALPHA[iter.cnt];
+    end
+    //
+    for (int i = 0; i < pDEC_NUM; i++) begin
+      if (row_idx.value > col_data_length_m1) begin // make common
+        odec_smask[i] = (state == cDO_ROW_STATE) | (state == cWAIT_ROW_STATE); // remove unused rows (no row check of checks)
+      end
     end
   end
 

@@ -7,34 +7,42 @@
 
 
 
-  logic                   btc_dec_eham_fchase__iclk              ;
-  logic                   btc_dec_eham_fchase__ireset            ;
-  logic                   btc_dec_eham_fchase__iclkena           ;
+  logic                   btc_dec_eham_fchase__iclk               ;
+  logic                   btc_dec_eham_fchase__ireset             ;
+  logic                   btc_dec_eham_fchase__iclkena            ;
   //
-  btc_code_mode_t         btc_dec_eham_fchase__imode             ;
+  btc_code_mode_t         btc_dec_eham_fchase__imode              ;
   //
-  logic                   btc_dec_eham_fchase__ival              ;
-  strb_t                  btc_dec_eham_fchase__istrb             ;
-  logic                   btc_dec_eham_fchase__iLapri_ptr        ;
-  bit_idx_t               btc_dec_eham_fchase__iLpp_idx      [4] ;
-  extr_t                  btc_dec_eham_fchase__iLpp_value    [4] ;
-  state_t                 btc_dec_eham_fchase__isyndrome         ;
-  logic                   btc_dec_eham_fchase__ieven             ;
-  logic                   btc_dec_eham_fchase__ierr_idx          ;
-  logic                   btc_dec_eham_fchase__idecfail          ;
+  logic                   btc_dec_eham_fchase__ival               ;
+  strb_t                  btc_dec_eham_fchase__istrb              ;
+  logic                   btc_dec_eham_fchase__iLapri_ptr         ;
+  bit_idx_t               btc_dec_eham_fchase__iLpp_idx       [4] ;
+  extr_t                  btc_dec_eham_fchase__iLpp_value     [4] ;
+  state_t                 btc_dec_eham_fchase__isyndrome          ;
+  logic                   btc_dec_eham_fchase__ieven              ;
+  logic                   btc_dec_eham_fchase__ierr_idx           ;
+  logic                   btc_dec_eham_fchase__idecfail           ;
   //
-  extr_t                  btc_dec_eham_fchase__iLapri            ;
-  logic                   btc_dec_eham_fchase__oLapri_rptr       ;
-  bit_idx_t               btc_dec_eham_fchase__oLapri_raddr      ;
+  extr_t                  btc_dec_eham_fchase__iLapri             ;
+  logic                   btc_dec_eham_fchase__oLapri_rptr        ;
+  bit_idx_t               btc_dec_eham_fchase__oLapri_raddr       ;
   //
-  logic                   btc_dec_eham_fchase__odone             ;
-  strb_t                  btc_dec_eham_fchase__ostrb             ;
-  metric_t                btc_dec_eham_fchase__omin0             ;
-  metric_t                btc_dec_eham_fchase__omin1             ;
-  logic           [4 : 0] btc_dec_eham_fchase__oerr_bit_mask     ;
-  bit_idx_t               btc_dec_eham_fchase__oerr_bit_idx  [5] ;
+  logic                   btc_dec_eham_fchase__odone              ;
+  strb_t                  btc_dec_eham_fchase__ostrb              ;
   //
-  logic                   btc_dec_eham_fchase__odecfail          ;
+  metric_t                btc_dec_eham_fchase__omin0              ;
+  logic           [4 : 0] btc_dec_eham_fchase__oerr0_bit_mask     ;
+  bit_idx_t               btc_dec_eham_fchase__oerr0_bit_idx  [5] ;
+  //
+  metric_t                btc_dec_eham_fchase__omin1              ;
+  logic           [4 : 0] btc_dec_eham_fchase__oerr1_bit_mask     ;
+  bit_idx_t               btc_dec_eham_fchase__oerr1_bit_idx  [5] ;
+  //
+  metric_t                btc_dec_eham_fchase__omax               ;
+  logic           [4 : 0] btc_dec_eham_fchase__oerrm_bit_mask     ;
+  bit_idx_t               btc_dec_eham_fchase__oerrm_bit_idx  [5] ;
+  //
+  logic                   btc_dec_eham_fchase__odecfail           ;
 
 
 
@@ -45,34 +53,42 @@
   )
   btc_dec_eham_fchase
   (
-    .iclk          ( btc_dec_eham_fchase__iclk          ) ,
-    .ireset        ( btc_dec_eham_fchase__ireset        ) ,
-    .iclkena       ( btc_dec_eham_fchase__iclkena       ) ,
+    .iclk           ( btc_dec_eham_fchase__iclk           ) ,
+    .ireset         ( btc_dec_eham_fchase__ireset         ) ,
+    .iclkena        ( btc_dec_eham_fchase__iclkena        ) ,
     //
-    .imode         ( btc_dec_eham_fchase__imode         ) ,
+    .imode          ( btc_dec_eham_fchase__imode          ) ,
     //
-    .ival          ( btc_dec_eham_fchase__ival          ) ,
-    .istrb         ( btc_dec_eham_fchase__istrb         ) ,
-    .iLapri_ptr    ( btc_dec_eham_fchase__iLapri_ptr    ) ,
-    .iLpp_idx      ( btc_dec_eham_fchase__iLpp_idx      ) ,
-    .iLpp_value    ( btc_dec_eham_fchase__iLpp_value    ) ,
-    .isyndrome     ( btc_dec_eham_fchase__isyndrome     ) ,
-    .ieven         ( btc_dec_eham_fchase__ieven         ) ,
-    .ierr_idx      ( btc_dec_eham_fchase__ierr_idx      ) ,
-    .idecfail      ( btc_dec_eham_fchase__idecfail      ) ,
+    .ival           ( btc_dec_eham_fchase__ival           ) ,
+    .istrb          ( btc_dec_eham_fchase__istrb          ) ,
+    .iLapri_ptr     ( btc_dec_eham_fchase__iLapri_ptr     ) ,
+    .iLpp_idx       ( btc_dec_eham_fchase__iLpp_idx       ) ,
+    .iLpp_value     ( btc_dec_eham_fchase__iLpp_value     ) ,
+    .isyndrome      ( btc_dec_eham_fchase__isyndrome      ) ,
+    .ieven          ( btc_dec_eham_fchase__ieven          ) ,
+    .ierr_idx       ( btc_dec_eham_fchase__ierr_idx       ) ,
+    .idecfail       ( btc_dec_eham_fchase__idecfail       ) ,
     //
-    .iLapri        ( btc_dec_eham_fchase__iLapri        ) ,
-    .oLapri_rptr   ( btc_dec_eham_fchase__oLapri_rptr   ) ,
-    .oLapri_raddr  ( btc_dec_eham_fchase__oLapri_raddr  ) ,
+    .iLapri         ( btc_dec_eham_fchase__iLapri         ) ,
+    .oLapri_rptr    ( btc_dec_eham_fchase__oLapri_rptr    ) ,
+    .oLapri_raddr   ( btc_dec_eham_fchase__oLapri_raddr   ) ,
     //
-    .odone         ( btc_dec_eham_fchase__odone         ) ,
-    .ostrb         ( btc_dec_eham_fchase__ostrb         ) ,
-    .omin0         ( btc_dec_eham_fchase__omin0         ) ,
-    .omin1         ( btc_dec_eham_fchase__omin1         ) ,
-    .oerr_bit_mask ( btc_dec_eham_fchase__oerr_bit_mask ) ,
-    .oerr_bit_idx  ( btc_dec_eham_fchase__oerr_bit_idx  ) ,
+    .odone          ( btc_dec_eham_fchase__odone          ) ,
+    .ostrb          ( btc_dec_eham_fchase__ostrb          ) ,
     //
-    .odecfail      ( btc_dec_eham_fchase__odecfail      )
+    .omin0          ( btc_dec_eham_fchase__omin0          ) ,
+    .oerr0_bit_mask ( btc_dec_eham_fchase__oerr0_bit_mask ) ,
+    .oerr0_bit_idx  ( btc_dec_eham_fchase__oerr0_bit_idx  ) ,
+    //
+    .omin1          ( btc_dec_eham_fchase__omin1          ) ,
+    .oerr1_bit_mask ( btc_dec_eham_fchase__oerr1_bit_mask ) ,
+    .oerr1_bit_idx  ( btc_dec_eham_fchase__oerr1_bit_idx  ) ,
+    //
+    .omax           ( btc_dec_eham_fchase__omax           ) ,
+    .oerrm_bit_mask ( btc_dec_eham_fchase__oerrm_bit_mask ) ,
+    .oerrm_bit_idx  ( btc_dec_eham_fchase__oerrm_bit_idx  ) ,
+    //
+    .odecfail       ( btc_dec_eham_fchase__odecfail       )
   );
 
 
@@ -105,33 +121,41 @@
 
 module btc_dec_eham_fchase
 (
-  iclk          ,
-  ireset        ,
-  iclkena       ,
+  iclk           ,
+  ireset         ,
+  iclkena        ,
   //
-  imode         ,
+  imode          ,
   //
-  ival          ,
-  istrb         ,
-  iLapri_ptr    ,
-  iLpp_idx      ,
-  iLpp_value    ,
-  isyndrome     ,
-  ieven         ,
-  ierr_idx      ,
-  idecfail      ,
+  ival           ,
+  istrb          ,
+  iLapri_ptr     ,
+  iLpp_idx       ,
+  iLpp_value     ,
+  isyndrome      ,
+  ieven          ,
+  ierr_idx       ,
+  idecfail       ,
   //
-  iLapri        ,
-  oLapri_read   ,
-  oLapri_rptr   ,
-  oLapri_raddr  ,
+  iLapri         ,
+  oLapri_read    ,
+  oLapri_rptr    ,
+  oLapri_raddr   ,
   //
-  odone         ,
-  ostrb         ,
-  omin0         ,
-  omin1         ,
-  oerr_bit_mask ,
-  oerr_bit_idx  ,
+  odone          ,
+  ostrb          ,
+  //
+  omin0          ,
+  oerr0_bit_mask ,
+  oerr0_bit_idx  ,
+  //
+  omin1          ,
+  oerr1_bit_mask ,
+  oerr1_bit_idx  ,
+  //
+  omax           ,
+  oerrm_bit_mask ,
+  oerrm_bit_idx  ,
   //
   odecfail
 );
@@ -143,35 +167,43 @@ module btc_dec_eham_fchase
   //
   //------------------------------------------------------------------------------------------------------
 
-  input  logic                   iclk              ;
-  input  logic                   ireset            ;
-  input  logic                   iclkena           ;
+  input  logic                   iclk               ;
+  input  logic                   ireset             ;
+  input  logic                   iclkena            ;
   //
-  input  btc_code_mode_t         imode             ;
+  input  btc_code_mode_t         imode              ;
+  // chase init search interface
+  input  logic                   ival               ;
+  input  strb_t                  istrb              ;
+  input  logic                   iLapri_ptr         ;
+  input  bit_idx_t               iLpp_idx       [4] ;
+  input  extr_t                  iLpp_value     [4] ;
+  input  state_t                 isyndrome          ;
+  input  logic                   ieven              ;
+  input  bit_idx_t               ierr_idx           ;
+  input  logic                   idecfail           ;
+  // Lapri ram iterfaces
+  input  extr_t                  iLapri             ;
+  output logic                   oLapri_read        ;
+  output logic                   oLapri_rptr        ;
+  output bit_idx_t               oLapri_raddr       ;
+  // decision interface
+  output logic                   odone              ;
+  output strb_t                  ostrb              ;
   //
-  input  logic                   ival              ;
-  input  strb_t                  istrb             ;
-  input  logic                   iLapri_ptr        ;
-  input  bit_idx_t               iLpp_idx      [4] ;
-  input  extr_t                  iLpp_value    [4] ;
-  input  state_t                 isyndrome         ;
-  input  logic                   ieven             ;
-  input  bit_idx_t               ierr_idx          ;
-  input  logic                   idecfail          ;
+  output metric_t                omin0              ;
+  output logic           [4 : 0] oerr0_bit_mask     ;
+  output bit_idx_t               oerr0_bit_idx  [5] ;
   //
-  input  extr_t                  iLapri            ;
-  output logic                   oLapri_read       ;
-  output logic                   oLapri_rptr       ;
-  output bit_idx_t               oLapri_raddr      ;
+  output metric_t                omin1              ;
+  output logic           [4 : 0] oerr1_bit_mask     ;
+  output bit_idx_t               oerr1_bit_idx  [5] ;
   //
-  output logic                   odone             ;
-  output strb_t                  ostrb             ;
-  output metric_t                omin0             ;
-  output metric_t                omin1             ;
-  output logic           [4 : 0] oerr_bit_mask     ;
-  output bit_idx_t               oerr_bit_idx  [5] ;
+  output metric_t                omax               ;
+  output logic           [4 : 0] oerrm_bit_mask     ;
+  output bit_idx_t               oerrm_bit_idx  [5] ;
   //
-  output logic                   odecfail          ;
+  output logic                   odecfail           ;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -246,6 +278,14 @@ module btc_dec_eham_fchase
   logic         min0_err_mask;
 
   metric_t      min1;
+  logic [3 : 0] min1_eras_idx;
+  bit_idx_t     min1_err_idx;
+  logic         min1_err_mask;
+
+  metric_t      max;
+  logic [3 : 0] max_eras_idx;
+  bit_idx_t     max_err_idx;
+  logic         max_err_mask;
 
   logic         sort_val;
   strb_t        sort_strb;
@@ -531,11 +571,18 @@ module btc_dec_eham_fchase
           min0_eras_idx <= code_weigth_eras_idx;
           min0_err_idx  <= code_weigth_err_idx;
           min0_err_mask <= code_weigth_err_mask;
+          //
+          max           <= code_weigth;
+          max_eras_idx  <= code_weigth_eras_idx;
+          max_err_idx   <= code_weigth_err_idx;
+          max_err_mask  <= code_weigth_err_mask;
         end
         else begin
           // set maximim
           min0              <= '1;
           min0[$high(min0)] <= 1'b0;
+          // set minimum
+          max               <= '0;
         end
         // set maximim
         min1              <= '1;
@@ -549,9 +596,22 @@ module btc_dec_eham_fchase
           min0_err_mask <= code_weigth_err_mask;
           //
           min1          <= min0;
+          min1_eras_idx <= min0_eras_idx;
+          min1_err_idx  <= min0_err_idx;
+          min1_err_mask <= min0_err_mask;
         end
         else if (code_weigth < min1) begin
           min1          <= code_weigth;
+          min1_eras_idx <= code_weigth_eras_idx;
+          min1_err_idx  <= code_weigth_err_idx;
+          min1_err_mask <= code_weigth_err_mask;
+        end
+        //
+        if (code_weigth > max) begin
+          max           <= code_weigth;
+          max_eras_idx  <= code_weigth_eras_idx;
+          max_err_idx   <= code_weigth_err_idx;
+          max_err_mask  <= code_weigth_err_mask;
         end
       end // code_weigth_val
     end // iclkena
@@ -563,19 +623,33 @@ module btc_dec_eham_fchase
   // all signals latched inside hamm_decision unit
   //------------------------------------------------------------------------------------------------------
 
-  assign odone                = sort_val;
+  assign odone                 = sort_val;
 
-  assign ostrb                = chase_strb;
+  assign ostrb                 = chase_strb;
 
-  assign omin0                = min0;
-  assign omin1                = min1;
+  //
+  assign omin0                 = min0;
 
-  assign oerr_bit_idx [0 : 3] = chase_Lpp_idx;
-  assign oerr_bit_mask[3 : 0] = (min0_eras_idx >> 1) ^ min0_eras_idx; // bin2gray
+  assign oerr0_bit_idx [0 : 3] = chase_Lpp_idx;
+  assign oerr0_bit_mask[3 : 0] = (min0_eras_idx >> 1) ^ min0_eras_idx; // bin2gray
+  assign oerr0_bit_mask[4]     =  min0_err_mask;
+  assign oerr0_bit_idx [4]     =  min0_err_idx;
 
-  assign oerr_bit_mask[4]     = min0_err_mask;
-  assign oerr_bit_idx [4]     = min0_err_idx;
+  //
+  assign omin1                 = min1;
 
-  assign odecfail             = chase_decfail;
+  assign oerr1_bit_idx [0 : 3] = chase_Lpp_idx;
+  assign oerr1_bit_mask[3 : 0] = (min1_eras_idx >> 1) ^ min1_eras_idx; // bin2gray
+  assign oerr1_bit_mask[4]     =  min1_err_mask;
+  assign oerr1_bit_idx [4]     =  min1_err_idx;
+
+  //
+  assign omax                  = max;
+  assign oerrm_bit_idx [0 : 3] = chase_Lpp_idx;
+  assign oerrm_bit_mask[3 : 0] = (max_eras_idx >> 1) ^ max_eras_idx; // bin2gray
+  assign oerrm_bit_mask[4]     =  max_err_mask;
+  assign oerrm_bit_idx [4]     =  max_err_idx;
+
+  assign odecfail              = chase_decfail;
 
 endmodule

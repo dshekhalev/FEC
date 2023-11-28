@@ -15,12 +15,7 @@
   //
   logic           btc_dec_spc_eham_init__ival               ;
   strb_t          btc_dec_spc_eham_init__istrb              ;
-  llt_r           btc_dec_spc_eham_init__iLLR               ;
-  extr_t          btc_dec_spc_eham_init__iLextr             ;
-  alpha_t         btc_dec_spc_eham_init__ialpha             ;
-  //
-  logic           btc_dec_spc_eham_init__och_hd_val         ;
-  logic           btc_dec_spc_eham_init__och_hd             ;
+  extr_t          btc_dec_spc_eham_init__iLapri             ;
   //
   logic           btc_dec_spc_eham_init__oLapri_hd_val      ;
   logic           btc_dec_spc_eham_init__oLapri_hd          ;
@@ -61,12 +56,7 @@
     //
     .ival           ( btc_dec_spc_eham_init__ival           ) ,
     .istrb          ( btc_dec_spc_eham_init__istrb          ) ,
-    .iLLR           ( btc_dec_spc_eham_init__iLLR           ) ,
-    .iLextr         ( btc_dec_spc_eham_init__iLextr         ) ,
-    .ialpha         ( btc_dec_spc_eham_init__ialpha         ) ,
-    //
-    .och_hd_val     ( btc_dec_spc_eham_init__och_hd_val     ) ,
-    .och_hd         ( btc_dec_spc_eham_init__och_hd         ) ,
+    .iLapri         ( btc_dec_spc_eham_init__iLapri         ) ,
     //
     .oLapri_hd_val  ( btc_dec_spc_eham_init__oLapri_hd_val  ) ,
     .oLapri_hd      ( btc_dec_spc_eham_init__oLapri_hd      ) ,
@@ -98,9 +88,7 @@
   assign btc_dec_spc_eham_init__imode   = '0 ;
   assign btc_dec_spc_eham_init__ival    = '0 ;
   assign btc_dec_spc_eham_init__istrb   = '0 ;
-  assign btc_dec_spc_eham_init__iLLR    = '0 ;
-  assign btc_dec_spc_eham_init__iLextr  = '0 ;
-  assign btc_dec_spc_eham_init__ialpha  = '0 ;
+  assign btc_dec_spc_eham_init__iLapri  = '0 ;
 
 
 
@@ -124,12 +112,7 @@ module btc_dec_spc_eham_init
   //
   ival           ,
   istrb          ,
-  iLLR           ,
-  iLextr         ,
-  ialpha         ,
-  //
-  och_hd_val     ,
-  och_hd         ,
+  iLapri         ,
   //
   oLapri_hd_val  ,
   oLapri_hd      ,
@@ -170,12 +153,7 @@ module btc_dec_spc_eham_init
   //
   input  logic           ival               ;
   input  strb_t          istrb              ;
-  input  llr_t           iLLR               ;
-  input  extr_t          iLextr             ;
-  input  alpha_t         ialpha             ;
-  //
-  output logic           och_hd_val         ;
-  output logic           och_hd             ;
+  input  extr_t          iLapri             ;
   //
   output logic           oLapri_hd_val      ;
   output logic           oLapri_hd          ;
@@ -204,11 +182,6 @@ module btc_dec_spc_eham_init
   //
   //------------------------------------------------------------------------------------------------------
 
-  logic     val;
-  strb_t    strb;
-  extr_p1_t Lapri;
-
-  extr_t    satLapri;
   logic     signLapri;
 
   logic     aLapri2sort_val;
@@ -217,71 +190,26 @@ module btc_dec_spc_eham_init
   extr_t    aLapri;
 
   //------------------------------------------------------------------------------------------------------
-  // get LLR hd for error counting
-  //------------------------------------------------------------------------------------------------------
-
-  always_ff @(posedge iclk or posedge ireset) begin
-    if (ireset) begin
-      och_hd_val <= 1'b0;
-    end
-    else if (iclkena) begin
-      och_hd_val <= ival;
-    end
-  end
-
-  always_ff @(posedge iclk) begin
-    if (iclkena) begin
-      och_hd <= (iLLR >= 0);
-    end
-  end
-
-  //------------------------------------------------------------------------------------------------------
-  // get Lapri
-  //------------------------------------------------------------------------------------------------------
-
-  always_ff @(posedge iclk or posedge ireset) begin
-    if (ireset) begin
-      val <= 1'b0;
-    end
-    else if (iclkena) begin
-      val <= ival;
-    end
-  end
-
-  always_ff @(posedge iclk) begin
-    if (iclkena) begin
-      strb  <= istrb;
-      Lapri <= iLLR + do_scale(iLextr, ialpha);
-    end
-  end
-
-  //------------------------------------------------------------------------------------------------------
-  // saturate to save resources
-  //------------------------------------------------------------------------------------------------------
-
-  assign satLapri = do_saturation(Lapri);
-
-  //------------------------------------------------------------------------------------------------------
   // get abs(Lapri) for sort &
   // save Lapri to decode in special format {signLapri, aLapri} to improve timing
   //------------------------------------------------------------------------------------------------------
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
-      oLapri_write  <= val;
-//    oLapri        <= satLapri;
+      oLapri_write  <= ival;
+//    oLapri        <= iLapri;
       //
-      if (val) begin
-        oLapri_wptr  <= oLapri_wptr ^ strb.sop; // wptr can be any at start
-        oLapri_waddr <= strb.sop ? '0 : (oLapri_waddr + 1'b1);
+      if (ival) begin
+        oLapri_wptr  <= oLapri_wptr ^ istrb.sop; // wptr can be any at start
+        oLapri_waddr <= istrb.sop ? '0 : (oLapri_waddr + 1'b1);
       end
       //
-      aLapri2sort_val   <= val;
-      aLapri2sort_strb  <= strb;
-      aLapri            <= (Lapri >= 0) ? satLapri : -satLapri;
-      signLapri         <= (Lapri  < 0);
-      if (val) begin
-        aLapri2sort_idx <= strb.sop ? '0 : (aLapri2sort_idx + 1'b1);
+      aLapri2sort_val   <= ival;
+      aLapri2sort_strb  <= istrb;
+      aLapri            <= (iLapri >= 0) ? iLapri : -iLapri;
+      signLapri         <= (iLapri  < 0);
+      if (ival) begin
+        aLapri2sort_idx <= istrb.sop ? '0 : (aLapri2sort_idx + 1'b1);
       end
     end
   end
@@ -386,27 +314,27 @@ module btc_dec_spc_eham_init
     endcase
   end
 
-  wire hdLapri = (Lapri >= 0);
+  wire hdLapri = (iLapri >= 0);
 
   always_ff @(posedge iclk or posedge ireset) begin
     if (ireset) begin
       oLapri_hd_val <= 1'b0;
     end
     else if (iclkena) begin
-      oLapri_hd_val <= val;
+      oLapri_hd_val <= ival;
     end
   end
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
       oLapri_hd <= hdLapri;
-      if (val) begin
-        even <= strb.sop ? hdLapri : (even ^ hdLapri);
+      if (ival) begin
+        even <= istrb.sop ? hdLapri : (even ^ hdLapri);
         //
-        if (strb.sop) begin
+        if (istrb.sop) begin
           state <= {7'h0, hdLapri};
         end
-        else if (!strb.eop) begin
+        else if (!istrb.eop) begin
           state <= (state << 1) ^ ({8{used_state_msb}} & used_poly) ^ {7'h0, hdLapri};
         end
       end
@@ -430,26 +358,5 @@ module btc_dec_spc_eham_init
       endcase
     end
   end
-
-  //------------------------------------------------------------------------------------------------------
-  //
-  //------------------------------------------------------------------------------------------------------
-
-  function extr_t do_saturation (input extr_p1_t data);
-    logic poverflow;
-    logic noverflow;
-  begin
-    poverflow     = (data >  (2**(pEXTR_W-1)-1));
-    noverflow     = (data < -(2**(pEXTR_W-1)-1));
-    do_saturation = data[pEXTR_W-1 : 0];
-    //
-    if (poverflow) begin
-      do_saturation =  (2**(pEXTR_W-1)-1);
-    end
-    else if (noverflow) begin
-      do_saturation = -(2**(pEXTR_W-1)-1);
-    end
-  end
-  endfunction
 
 endmodule

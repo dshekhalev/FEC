@@ -1,7 +1,7 @@
 //
 // Project       : wimax BTC
 // Author        : Shekhalev Denis (des00)
-// Workfile      : btc_parameters.sv
+// Workfile      : btc_parameters.svh
 // Description   : wimax 802.16-2012 BTC encoder constants/types and etc.
 //
 
@@ -27,14 +27,14 @@
   } btc_code_mode_t;
 
   //------------------------------------------------------------------------------------------------------
-  // shortening types
+  // shortening types : for 64x64 max matrix
   //------------------------------------------------------------------------------------------------------
 
   typedef struct packed {
-    logic [7 : 0] Ix; // row shortening - remove Ix columns
-    logic [7 : 0] Iy; // col shortening - remove Iy row
-    logic [7 : 0] B;  // remove bits from first data row
-    logic [7 : 0] Q;  // zero-filled bits to allign size to byte at output
+    logic [5 : 0] Ix; // row shortening - remove Ix columns
+    logic [5 : 0] Iy; // col shortening - remove Iy row
+    logic [5 : 0] B;  // remove bits from first data row
+    logic [5 : 0] Q;  // zero-filled bits to allign size to byte at output
   } btc_short_mode_t;
 
   //------------------------------------------------------------------------------------------------------
@@ -139,6 +139,43 @@
         gen_data_err_bit_size_tab[iymode*8 + ixmode] = get_code_bits(xmode) * get_data_bits(ymode);
       end
     end
+  end
+  endfunction
+
+  //------------------------------------------------------------------------------------------------------
+  // simulation only or slow/multicycle logic size functions
+  //------------------------------------------------------------------------------------------------------
+
+  function int get_code_bit_size (btc_code_mode_t xmode, ymode, btc_short_mode_t smode);
+    int xbits;
+    int ybits;
+  begin
+    xbits = get_code_bits(xmode) - smode.Ix;
+    ybits = get_code_bits(ymode) - smode.Iy;
+    //
+    get_code_bit_size = xbits * ybits - smode.B;
+  end
+  endfunction
+
+  function int get_data_bit_size (btc_code_mode_t xmode, ymode, btc_short_mode_t smode);
+    int xbits;
+    int ybits;
+  begin
+    xbits = get_data_bits(xmode) - smode.Ix;
+    ybits = get_data_bits(ymode) - smode.Iy;
+    //
+    get_data_bit_size = xbits * ybits - smode.B - smode.Q;
+  end
+  endfunction
+
+  function int get_data_err_bit_size (btc_code_mode_t xmode, ymode, btc_short_mode_t smode);
+    int xbits;
+    int ybits;
+  begin
+    xbits = get_code_bits(xmode) - smode.Ix;
+    ybits = get_data_bits(ymode) - smode.Iy;
+    //
+    get_data_err_bit_size = xbits * ybits - smode.B - smode.Q;
   end
   endfunction
 

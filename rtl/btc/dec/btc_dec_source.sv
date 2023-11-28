@@ -4,39 +4,41 @@
 
   parameter int pLLR_W   = 8 ;
   parameter int pWADDR_W = 8 ;
+  parameter int pDB_NUM  = 1 ;
 
 
 
-  logic                             btc_dec_source__iclk    ;
-  logic                             btc_dec_source__ireset  ;
-  logic                             btc_dec_source__iclkena ;
+  logic                             btc_dec_source__iclk              ;
+  logic                             btc_dec_source__ireset            ;
+  logic                             btc_dec_source__iclkena           ;
   //
-  btc_code_mode_t                   btc_dec_source__ixmode  ;
-  btc_code_mode_t                   btc_dec_source__iymode  ;
-  btc_short_mode_t                  btc_dec_source__ismode  ;
+  btc_code_mode_t                   btc_dec_source__ixmode            ;
+  btc_code_mode_t                   btc_dec_source__iymode            ;
+  btc_short_mode_t                  btc_dec_source__ismode            ;
   //
-  logic                             btc_dec_source__ival    ;
-  logic                             btc_dec_source__isop    ;
-  logic                             btc_dec_source__ieop    ;
-  logic              [pLLR_W-1 : 0] btc_dec_source__iLLR    ;
+  logic                             btc_dec_source__ival              ;
+  logic                             btc_dec_source__isop              ;
+  logic                             btc_dec_source__ieop              ;
+  logic              [pLLR_W-1 : 0] btc_dec_source__iLLR              ;
   //
-  logic                             btc_dec_source__ordy    ;
-  logic                             btc_dec_source__obusy   ;
+  logic                             btc_dec_source__ordy              ;
+  logic                             btc_dec_source__obusy             ;
   //
-  logic                             btc_dec_source__ifulla  ;
-  logic                             btc_dec_source__iemptya ;
+  logic                             btc_dec_source__ifulla  [pDB_NUM] ;
+  logic                             btc_dec_source__iemptya [pDB_NUM] ;
   //
-  logic                             btc_dec_source__owrite  ;
-  logic                             btc_dec_source__owfull  ;
-  logic            [pWADDR_W-1 : 0] btc_dec_source__owaddr  ;
-  logic              [pLLR_W-1 : 0] btc_dec_source__owLLR   ;
+  logic                             btc_dec_source__owrite  [pDB_NUM] ;
+  logic                             btc_dec_source__owfull  [pDB_NUM] ;
+  logic            [pWADDR_W-1 : 0] btc_dec_source__owaddr            ;
+  logic              [pLLR_W-1 : 0] btc_dec_source__owLLR             ;
 
 
 
   btc_dec_source
   #(
     .pLLR_W   ( pLLR_W   ) ,
-    .pWADDR_W ( pWADDR_W )
+    .pWADDR_W ( pWADDR_W ) ,
+    .pDB_NUM  ( pDB_NUM  )
   )
   btc_dec_source
   (
@@ -93,7 +95,8 @@
 module btc_dec_source
 #(
   parameter int pLLR_W   = 8 ,
-  parameter int pWADDR_W = 8
+  parameter int pWADDR_W = 8 ,
+  parameter int pDB_NUM  = 1  // decoder block number
 )
 (
   iclk    ,
@@ -127,29 +130,35 @@ module btc_dec_source
   //
   //------------------------------------------------------------------------------------------------------
 
-  input  logic                             iclk    ;
-  input  logic                             ireset  ;
-  input  logic                             iclkena ;
+  input  logic                             iclk              ;
+  input  logic                             ireset            ;
+  input  logic                             iclkena           ;
   //
-  input  btc_code_mode_t                   ixmode  ;
-  input  btc_code_mode_t                   iymode  ;
-  input  btc_short_mode_t                  ismode  ;
+  input  btc_code_mode_t                   ixmode            ;
+  input  btc_code_mode_t                   iymode            ;
+  input  btc_short_mode_t                  ismode            ;
   //
-  input  logic                             ival    ;
-  input  logic                             isop    ;
-  input  logic                             ieop    ;
-  input  logic              [pLLR_W-1 : 0] iLLR    ;
+  input  logic                             ival              ;
+  input  logic                             isop              ;
+  input  logic                             ieop              ;
+  input  logic              [pLLR_W-1 : 0] iLLR              ;
   //
-  output logic                             ordy    ;
-  output logic                             obusy   ;
+  output logic                             ordy              ;
+  output logic                             obusy             ;
   //
-  input  logic                             ifulla  ;
-  input  logic                             iemptya ;
+  input  logic                             ifulla  [pDB_NUM] ;
+  input  logic                             iemptya [pDB_NUM] ;
   //
-  output logic                             owrite  ;
-  output logic                             owfull  ;
-  output logic            [pWADDR_W-1 : 0] owaddr  ;
-  output logic              [pLLR_W-1 : 0] owLLR   ;
+  output logic                             owrite  [pDB_NUM] ;
+  output logic                             owfull  [pDB_NUM] ;
+  output logic            [pWADDR_W-1 : 0] owaddr            ;
+  output logic              [pLLR_W-1 : 0] owLLR             ;
+
+  //------------------------------------------------------------------------------------------------------
+  //
+  //------------------------------------------------------------------------------------------------------
+
+  localparam int cLOG2_DB_NUM = $clog2(pDB_NUM);
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -169,18 +178,49 @@ module btc_dec_source
     logic [cLOG2_ROW_MAX-1 : 0] value;
   } col_idx;
 
+  logic [cLOG2_DB_NUM-1 : 0] sel;
+
+  //------------------------------------------------------------------------------------------------------
+  // decoder block select arbiter
+  //------------------------------------------------------------------------------------------------------
+
+  generate
+    if (pDB_NUM <= 1) begin
+      assign sel = 1'b0;
+    end
+    else begin
+      always_ff @(posedge iclk or posedge ireset) begin
+        if (ireset) begin
+          sel <= '0;
+        end
+        else if (iclkena) begin
+          if (ival & ieop) begin
+            if (pDB_NUM == 2**cLOG2_DB_NUM) begin
+              sel <= sel + 1'b1;
+            end
+            else begin
+              sel <= (sel == pDB_NUM-1) ? '0 : (sel + 1'b1);
+            end
+          end
+        end
+      end
+    end
+  endgenerate
+
   //------------------------------------------------------------------------------------------------------
   //
   //------------------------------------------------------------------------------------------------------
 
   always_ff @(posedge iclk or posedge ireset) begin
     if (ireset) begin
-      owrite <= 1'b0;
-      owfull <= 1'b0;
+      owrite <= '{default : 1'b0};
+      owfull <= '{default : 1'b0};
     end
     else if (iclkena) begin
-      owrite <= ival;
-      owfull <= ival & ieop;
+      for (int i = 0; i < pDB_NUM; i++) begin
+        owrite[i] <= ival         & (i == sel);
+        owfull[i] <= ival & ieop  & (i == sel);
+      end
     end
   end
 
@@ -223,15 +263,15 @@ module btc_dec_source
   // synthesis translate_off
   always_ff @(posedge iclk) begin
     if (iclkena) begin
-      if (owrite) begin
-        if (owfull) begin
+      if (owrite[sel]) begin
+        if (owfull[sel]) begin
           assert (row_idx.done & col_idx.done) else begin
             $error("%m ieop vs code mode error");
             $stop;
           end
         end
         if (row_idx.done & col_idx.done) begin
-          assert (owfull) else begin
+          assert (owfull[sel]) else begin
             $error("%m ieop vs code mode error");
             $stop;
           end
@@ -244,7 +284,20 @@ module btc_dec_source
   //
   //------------------------------------------------------------------------------------------------------
 
-  assign ordy  = !owfull & !ifulla;   // not ready if all buffers is full
-  assign obusy =  owfull | !iemptya;  // busy if any buffer is not empty
+  logic wfull;
+  logic emptya;
+
+  always_comb begin
+    wfull   = 1'b0;
+    emptya  = 1'b1;
+    //
+    for (int i = 0; i < pDB_NUM; i++) begin
+      wfull   |= owfull [i];
+      emptya  &= iemptya[i];
+    end
+  end
+
+  assign ordy  = !wfull & !ifulla [sel];  // not ready if all buffers of next decoder is full
+  assign obusy =  wfull | !emptya;        // busy if any buffer is not empty
 
 endmodule

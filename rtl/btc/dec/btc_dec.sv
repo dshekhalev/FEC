@@ -6,6 +6,7 @@
   parameter int pEXTR_W =  8 ;
   parameter int pERR_W  = 16 ;
   parameter int pTAG_W  =  8 ;
+  parameter int pDB_NUM =  1 ;
 
 
 
@@ -49,7 +50,8 @@
     .pLLR_W  ( pLLR_W  ) ,
     .pEXTR_W ( pEXTR_W ) ,
     .pERR_W  ( pERR_W  ) ,
-    .pTAG_W  ( pTAG_W  )
+    .pTAG_W  ( pTAG_W  ) ,
+    .pDB_NUM ( pDB_NUM )
   )
   btc_dec
   (
@@ -154,8 +156,9 @@ module btc_dec
   `include "../btc_parameters.svh"
   `include "btc_dec_types.svh"
 
-  parameter int pERR_W = 16 ;
-  parameter int pTAG_W =  8 ;
+  parameter int pERR_W  = 16 ;
+  parameter int pTAG_W  =  8 ;
+  parameter int pDB_NUM =  1 ;   // decoder block number
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -219,7 +222,7 @@ module btc_dec
   localparam int cOBUF_RADDR_W  = $clog2(cBUF_MAX_BIT) ;
   localparam int cOBUF_RDAT_W   = 1 ;
   //
-  localparam int cOBUF_TAG_W    = $bits(ixmode) + $bits(iymode) + $bits(ismode) + pTAG_W + pERR_W + 1; // + decfail
+  localparam int cOBUF_TAG_W    = $bits(ixmode) + $bits(iymode) + $bits(ismode) + pTAG_W + 2*pERR_W + 1; // + decfail
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -227,108 +230,110 @@ module btc_dec
 
   //
   // source
-  logic                       source__isop    ;
-  logic                       source__ieop    ;
-  logic                       source__ival    ;
-  logic        [pLLR_W-1 : 0] source__iLLR    ;
+  logic                       source__isop              ;
+  logic                       source__ieop              ;
+  logic                       source__ival              ;
+  logic        [pLLR_W-1 : 0] source__iLLR              ;
 
-  logic                       source__ifulla  ;
-  logic                       source__iemptya ;
+  logic                       source__ifulla  [pDB_NUM] ;
+  logic                       source__iemptya [pDB_NUM] ;
   //
-  logic                       source__owrite  ;
-  logic                       source__owfull  ;
-  logic [cIBUF_WADDR_W-1 : 0] source__owaddr  ;
-  logic  [cIBUF_WDAT_W-1 : 0] source__owLLR   ;
+  logic                       source__owrite  [pDB_NUM] ;
+  logic                       source__owfull  [pDB_NUM] ;
+  logic [cIBUF_WADDR_W-1 : 0] source__owaddr            ;
+  logic  [cIBUF_WDAT_W-1 : 0] source__owLLR             ;
 
   //
   // ibuffer
-  logic                       ibuffer__iwrite  ;
-  logic                       ibuffer__iwfull  ;
-  logic [cIBUF_WADDR_W-1 : 0] ibuffer__iwaddr  ;
-  logic  [cIBUF_WDAT_W-1 : 0] ibuffer__iwdat   ;
-  logic   [cIBUF_TAG_W-1 : 0] ibuffer__iwtag   ;
+  logic                       ibuffer__iwrite   [pDB_NUM] ;
+  logic                       ibuffer__iwfull   [pDB_NUM] ;
+  logic [cIBUF_WADDR_W-1 : 0] ibuffer__iwaddr   [pDB_NUM] ;
+  logic  [cIBUF_WDAT_W-1 : 0] ibuffer__iwdat    [pDB_NUM] ;
+  logic   [cIBUF_TAG_W-1 : 0] ibuffer__iwtag    [pDB_NUM] ;
   //
-  logic                       ibuffer__owempty  ;
-  logic                       ibuffer__owemptya ;
-  logic                       ibuffer__owfull   ;
-  logic                       ibuffer__owfulla  ;
+  logic                       ibuffer__owempty  [pDB_NUM] ;
+  logic                       ibuffer__owemptya [pDB_NUM] ;
+  logic                       ibuffer__owfull   [pDB_NUM] ;
+  logic                       ibuffer__owfulla  [pDB_NUM] ;
   //
-  logic                       ibuffer__irempty ;
-  logic [cIBUF_RADDR_W-1 : 0] ibuffer__iraddr  ;
-  logic  [cIBUF_RDAT_W-1 : 0] ibuffer__ordat   ;
-  logic   [cIBUF_TAG_W-1 : 0] ibuffer__ortag   ;
+  logic                       ibuffer__irempty  [pDB_NUM] ;
+  logic [cIBUF_RADDR_W-1 : 0] ibuffer__iraddr   [pDB_NUM] ;
+  logic  [cIBUF_RDAT_W-1 : 0] ibuffer__ordat    [pDB_NUM] ;
+  logic   [cIBUF_TAG_W-1 : 0] ibuffer__ortag    [pDB_NUM] ;
   //
-  logic                       ibuffer__orempty  ;
-  logic                       ibuffer__oremptya ;
-  logic                       ibuffer__orfull   ;
-  logic                       ibuffer__orfulla  ;
+  logic                       ibuffer__orempty  [pDB_NUM] ;
+  logic                       ibuffer__oremptya [pDB_NUM] ;
+  logic                       ibuffer__orfull   [pDB_NUM] ;
+  logic                       ibuffer__orfulla  [pDB_NUM] ;
 
   //
   // engine
-  btc_code_mode_t             engine__ixmode                 ;
-  btc_code_mode_t             engine__iymode                 ;
-  btc_short_mode_t            engine__ismode                 ;
-  logic               [3 : 0] engine__iNiter                 ;
-  logic                       engine__ifmode                 ;
+  btc_code_mode_t             engine__ixmode      [pDB_NUM]           ;
+  btc_code_mode_t             engine__iymode      [pDB_NUM]           ;
+  btc_short_mode_t            engine__ismode      [pDB_NUM]           ;
+  logic               [3 : 0] engine__iNiter      [pDB_NUM]           ;
+  logic                       engine__ifmode      [pDB_NUM]           ;
   //
-  logic                       engine__irbuf_full             ;
-  logic        [pLLR_W-1 : 0] engine__irLLR       [cDEC_NUM] ;
-  logic        [pTAG_W-1 : 0] engine__irtag                  ;
-  logic                       engine__orempty                ;
-  logic [cIBUF_RADDR_W-1 : 0] engine__oraddr                 ;
+  logic                       engine__irbuf_full  [pDB_NUM]           ;
+  logic        [pLLR_W-1 : 0] engine__irLLR       [pDB_NUM][cDEC_NUM] ;
+  logic        [pTAG_W-1 : 0] engine__irtag       [pDB_NUM]           ;
+  logic                       engine__orempty     [pDB_NUM]           ;
+  logic [cIBUF_RADDR_W-1 : 0] engine__oraddr      [pDB_NUM]           ;
   //
-  logic                       engine__iwbuf_empty            ;
+  logic                       engine__iwbuf_empty [pDB_NUM]           ;
   //
-  logic                       engine__owrite                 ;
-  logic                       engine__owfull                 ;
-  logic [cOBUF_WADDR_W-1 : 0] engine__owaddr                 ;
-  logic      [cDEC_NUM-1 : 0] engine__owdat                  ;
-  logic        [pTAG_W-1 : 0] engine__owtag                  ;
-  logic        [pERR_W-1 : 0] engine__owerr                  ;
-  logic                       engine__owdecfail              ;
+  logic                       engine__owrite      [pDB_NUM]           ;
+  logic                       engine__owfull      [pDB_NUM]           ;
+  logic [cOBUF_WADDR_W-1 : 0] engine__owaddr      [pDB_NUM]           ;
+  logic      [cDEC_NUM-1 : 0] engine__owdat       [pDB_NUM]           ;
+  logic        [pTAG_W-1 : 0] engine__owtag       [pDB_NUM]           ;
+  logic        [pERR_W-1 : 0] engine__owerr       [pDB_NUM]           ;
+  logic        [pERR_W-1 : 0] engine__owerr_num   [pDB_NUM]           ;
+  logic                       engine__owdecfail   [pDB_NUM]           ;
   //
-  btc_code_mode_t             engine__oxmode                 ;
-  btc_code_mode_t             engine__oymode                 ;
-  btc_short_mode_t            engine__osmode                 ;
+  btc_code_mode_t             engine__oxmode      [pDB_NUM]           ;
+  btc_code_mode_t             engine__oymode      [pDB_NUM]           ;
+  btc_short_mode_t            engine__osmode      [pDB_NUM]           ;
 
   //
   // obuffer
-  logic                       obuffer__iwrite   ;
-  logic                       obuffer__iwfull   ;
-  logic [cOBUF_WADDR_W-1 : 0] obuffer__iwaddr   ;
-  logic  [cOBUF_WDAT_W-1 : 0] obuffer__iwdat    ;
-  logic   [cOBUF_TAG_W-1 : 0] obuffer__iwtag    ;
+  logic                       obuffer__iwrite   [pDB_NUM] ;
+  logic                       obuffer__iwfull   [pDB_NUM] ;
+  logic [cOBUF_WADDR_W-1 : 0] obuffer__iwaddr   [pDB_NUM] ;
+  logic  [cOBUF_WDAT_W-1 : 0] obuffer__iwdat    [pDB_NUM] ;
+  logic   [cOBUF_TAG_W-1 : 0] obuffer__iwtag    [pDB_NUM] ;
   //
-  logic                       obuffer__owempty  ;
-  logic                       obuffer__owemptya ;
-  logic                       obuffer__owfull   ;
-  logic                       obuffer__owfulla  ;
+  logic                       obuffer__owempty  [pDB_NUM] ;
+  logic                       obuffer__owemptya [pDB_NUM] ;
+  logic                       obuffer__owfull   [pDB_NUM] ;
+  logic                       obuffer__owfulla  [pDB_NUM] ;
   //
-  logic                       obuffer__irempty  ;
-  logic [cOBUF_RADDR_W-1 : 0] obuffer__iraddr   ;
-  logic  [cOBUF_RDAT_W-1 : 0] obuffer__ordat    ;
-  logic   [cOBUF_TAG_W-1 : 0] obuffer__ortag    ;
+  logic                       obuffer__irempty  [pDB_NUM] ;
+  logic [cOBUF_RADDR_W-1 : 0] obuffer__iraddr   [pDB_NUM] ;
+  logic  [cOBUF_RDAT_W-1 : 0] obuffer__ordat    [pDB_NUM] ;
+  logic   [cOBUF_TAG_W-1 : 0] obuffer__ortag    [pDB_NUM] ;
   //
-  logic                       obuffer__orempty  ;
-  logic                       obuffer__oremptya ;
-  logic                       obuffer__orfull   ;
-  logic                       obuffer__orfulla  ;
+  logic                       obuffer__orempty  [pDB_NUM] ;
+  logic                       obuffer__oremptya [pDB_NUM] ;
+  logic                       obuffer__orfull   [pDB_NUM] ;
+  logic                       obuffer__orfulla  [pDB_NUM] ;
 
   //
   // sink
-  btc_code_mode_t             sink__ixmode    ;
-  btc_code_mode_t             sink__iymode    ;
-  btc_short_mode_t            sink__ismode    ;
+  btc_code_mode_t             sink__ixmode    [pDB_NUM] ;
+  btc_code_mode_t             sink__iymode    [pDB_NUM] ;
+  btc_short_mode_t            sink__ismode    [pDB_NUM] ;
   //
-  logic                       sink__irfull    ;
-  logic  [cOBUF_RDAT_W-1 : 0] sink__irdat     ;
-  logic        [pTAG_W-1 : 0] sink__irtag     ;
+  logic                       sink__irfull    [pDB_NUM] ;
+  logic  [cOBUF_RDAT_W-1 : 0] sink__irdat     [pDB_NUM] ;
+  logic        [pTAG_W-1 : 0] sink__irtag     [pDB_NUM] ;
   //
-  logic        [pERR_W-1 : 0] sink__irerr     ;
-  logic                       sink__irdecfail ;
+  logic        [pERR_W-1 : 0] sink__irerr     [pDB_NUM] ;
+  logic        [pERR_W-1 : 0] sink__irerr_num [pDB_NUM] ;
+  logic                       sink__irdecfail [pDB_NUM] ;
   //
-  logic                       sink__orempty   ;
-  logic [cOBUF_RADDR_W-1 : 0] sink__oraddr    ;
+  logic                       sink__orempty   [pDB_NUM] ;
+  logic [cOBUF_RADDR_W-1 : 0] sink__oraddr              ;
 
   //------------------------------------------------------------------------------------------------------
   // reset CDC for all clocks
@@ -363,7 +368,8 @@ module btc_dec
   btc_dec_source
   #(
     .pLLR_W   ( pLLR_W        ) ,
-    .pWADDR_W ( cIBUF_WADDR_W )
+    .pWADDR_W ( cIBUF_WADDR_W ) ,
+    .pDB_NUM  ( pDB_NUM       )
   )
   source
   (
@@ -401,193 +407,204 @@ module btc_dec
   assign source__iemptya  = ibuffer__owemptya ;
 
   //------------------------------------------------------------------------------------------------------
-  // input buffer LLR -> 8 * LLR
+  //
   //------------------------------------------------------------------------------------------------------
 
-  codec_abuffer_dwc
-  #(
-    .pWADDR_W ( cIBUF_WADDR_W ) ,
-    .pWDAT_W  ( cIBUF_WDAT_W  ) ,
-    //
-    .pRADDR_W ( cIBUF_RADDR_W ) ,
-    .pRDAT_W  ( cIBUF_RDAT_W  ) ,
-    //
-    .pTAG_W   ( cIBUF_TAG_W   ) ,
-    .pBNUM_W  ( 1             ) ,
-    //
-    .pPIPE    ( 1             )
-  )
-  ibuffer
-  (
-    .iwclk    ( iclkin            ) ,
-    .iwreset  ( clkin_reset       ) ,
-    //
-    .iwrite   ( ibuffer__iwrite   ) ,
-    .iwfull   ( ibuffer__iwfull   ) ,
-    .iwaddr   ( ibuffer__iwaddr   ) ,
-    .iwdat    ( ibuffer__iwdat    ) ,
-    .iwtag    ( ibuffer__iwtag    ) ,
-    //
-    .owempty  ( ibuffer__owempty  ) ,
-    .owemptya ( ibuffer__owemptya ) ,
-    .owfull   ( ibuffer__owfull   ) ,
-    .owfulla  ( ibuffer__owfulla  ) ,
-    //
-    .irclk    ( iclk              ) ,
-    .irreset  ( clk_reset         ) ,
-    //
-    .irempty  ( ibuffer__irempty  ) ,
-    .iraddr   ( ibuffer__iraddr   ) ,
-    .ordat    ( ibuffer__ordat    ) ,
-    .ortag    ( ibuffer__ortag    ) ,
-    //
-    .orempty  ( ibuffer__orempty  ) ,
-    .oremptya ( ibuffer__oremptya ) ,
-    .orfull   ( ibuffer__orfull   ) ,
-    .orfulla  ( ibuffer__orfulla  )
-  );
+  generate
+    genvar g;
+    for (g = 0; g < pDB_NUM; g++) begin : dec_block_inst
+      //------------------------------------------------------------------------------------------------------
+      // input buffer LLR -> 8 * LLR
+      //------------------------------------------------------------------------------------------------------
 
-  assign ibuffer__iwrite = source__owrite;
-  assign ibuffer__iwfull = source__owfull;
-  assign ibuffer__iwaddr = source__owaddr;
-  assign ibuffer__iwdat  = source__owLLR;
+      codec_abuffer_dwc
+      #(
+        .pWADDR_W ( cIBUF_WADDR_W ) ,
+        .pWDAT_W  ( cIBUF_WDAT_W  ) ,
+        //
+        .pRADDR_W ( cIBUF_RADDR_W ) ,
+        .pRDAT_W  ( cIBUF_RDAT_W  ) ,
+        //
+        .pTAG_W   ( cIBUF_TAG_W   ) ,
+        .pBNUM_W  ( 1             ) ,
+        //
+        .pPIPE    ( 1             )
+      )
+      ibuffer
+      (
+        .iwclk    ( iclkin                ) ,
+        .iwreset  ( clkin_reset           ) ,
+        //
+        .iwrite   ( ibuffer__iwrite   [g] ) ,
+        .iwfull   ( ibuffer__iwfull   [g] ) ,
+        .iwaddr   ( ibuffer__iwaddr   [g] ) ,
+        .iwdat    ( ibuffer__iwdat    [g] ) ,
+        .iwtag    ( ibuffer__iwtag    [g] ) ,
+        //
+        .owempty  ( ibuffer__owempty  [g] ) ,
+        .owemptya ( ibuffer__owemptya [g] ) ,
+        .owfull   ( ibuffer__owfull   [g] ) ,
+        .owfulla  ( ibuffer__owfulla  [g] ) ,
+        //
+        .irclk    ( iclk                  ) ,
+        .irreset  ( clk_reset             ) ,
+        //
+        .irempty  ( ibuffer__irempty  [g] ) ,
+        .iraddr   ( ibuffer__iraddr   [g] ) ,
+        .ordat    ( ibuffer__ordat    [g] ) ,
+        .ortag    ( ibuffer__ortag    [g] ) ,
+        //
+        .orempty  ( ibuffer__orempty  [g] ) ,
+        .oremptya ( ibuffer__oremptya [g] ) ,
+        .orfull   ( ibuffer__orfull   [g] ) ,
+        .orfulla  ( ibuffer__orfulla  [g] )
+      );
 
-  always_ff @(posedge iclkin) begin
-    if (ival & isop) begin
-      ibuffer__iwtag <= {ixmode, iymode, ismode, iNiter, ifmode, itag};
+      assign ibuffer__iwrite [g] = source__owrite [g];
+      assign ibuffer__iwfull [g] = source__owfull [g];
+      assign ibuffer__iwaddr [g] = source__owaddr;
+      assign ibuffer__iwdat  [g] = source__owLLR;
+
+      always_ff @(posedge iclkin) begin
+        if (ival & isop) begin
+          ibuffer__iwtag [g] <= {ixmode, iymode, ismode, iNiter, ifmode, itag};
+        end
+      end
+
+      assign ibuffer__irempty [g] = engine__orempty [g];
+      assign ibuffer__iraddr  [g] = engine__oraddr  [g];
+
+      //------------------------------------------------------------------------------------------------------
+      // engine
+      //------------------------------------------------------------------------------------------------------
+
+      btc_dec_engine
+      #(
+        .pLLR_W   ( pLLR_W        ) ,
+        .pEXTR_W  ( pEXTR_W       ) ,
+        //
+        .pADDR_W  ( cIBUF_RADDR_W ) ,
+        //
+        .pDEC_NUM ( cDEC_NUM      ) ,
+        //
+        .pERR_W   ( pERR_W        ) ,
+        .pTAG_W   ( pTAG_W        )
+      )
+      engine
+      (
+        .iclk        ( iclk                    ) ,
+        .ireset      ( ireset                  ) ,
+        .iclkena     ( 1'b1                    ) ,
+        //
+        .ixmode      ( engine__ixmode      [g] ) ,
+        .iymode      ( engine__iymode      [g] ) ,
+        .ismode      ( engine__ismode      [g] ) ,
+        .iNiter      ( engine__iNiter      [g] ) ,
+        .ifmode      ( engine__ifmode      [g] ) ,
+        //
+        .irbuf_full  ( engine__irbuf_full  [g] ) ,
+        .irLLR       ( engine__irLLR       [g] ) ,
+        .irtag       ( engine__irtag       [g] ) ,
+        .orempty     ( engine__orempty     [g] ) ,
+        .oraddr      ( engine__oraddr      [g] ) ,
+        //
+        .iwbuf_empty ( engine__iwbuf_empty [g] ) ,
+        //
+        .owrite      ( engine__owrite      [g] ) ,
+        .owfull      ( engine__owfull      [g] ) ,
+        .owaddr      ( engine__owaddr      [g] ) ,
+        .owdat       ( engine__owdat       [g] ) ,
+        .owtag       ( engine__owtag       [g] ) ,
+        .owerr       ( engine__owerr       [g] ) ,
+        .owerr_num   ( engine__owerr_num   [g] ) ,
+        .owdecfail   ( engine__owdecfail   [g] ) ,
+        //
+        .oxmode      ( engine__oxmode      [g] ) ,
+        .oymode      ( engine__oymode      [g] ) ,
+        .osmode      ( engine__osmode      [g] )
+      );
+
+      assign engine__irbuf_full [g] = ibuffer__orfull [g];
+
+      assign {engine__ixmode [g],
+              engine__iymode [g],
+              engine__ismode [g],
+              engine__iNiter [g],
+              engine__ifmode [g],
+              engine__irtag  [g]} = ibuffer__ortag [g];
+
+      always_comb begin
+        for (int i = 0; i < cDEC_NUM; i++) begin
+          engine__irLLR [g][i] = ibuffer__ordat [g][i*pLLR_W +: pLLR_W];
+        end
+      end
+
+      assign engine__iwbuf_empty [g] = obuffer__owempty [g];
+
+      //------------------------------------------------------------------------------------------------------
+      // output buffer 8 -> 1
+      //------------------------------------------------------------------------------------------------------
+
+      codec_abuffer_dwc
+      #(
+        .pWADDR_W ( cOBUF_WADDR_W ) ,
+        .pWDAT_W  ( cOBUF_WDAT_W  ) ,
+        //
+        .pRADDR_W ( cOBUF_RADDR_W ) ,
+        .pRDAT_W  ( cOBUF_RDAT_W  ) ,
+        //
+        .pTAG_W   ( cOBUF_TAG_W   ) ,
+        .pBNUM_W  ( 1             ) ,
+        //
+        .pPIPE    ( 1             )
+      )
+      obuffer
+      (
+        .iwclk    ( iclk                  ) ,
+        .iwreset  ( clk_reset             ) ,
+        //
+        .iwrite   ( obuffer__iwrite   [g] ) ,
+        .iwfull   ( obuffer__iwfull   [g] ) ,
+        .iwaddr   ( obuffer__iwaddr   [g] ) ,
+        .iwdat    ( obuffer__iwdat    [g] ) ,
+        .iwtag    ( obuffer__iwtag    [g] ) ,
+        //
+        .owempty  ( obuffer__owempty  [g] ) ,
+        .owemptya ( obuffer__owemptya [g] ) ,
+        .owfull   ( obuffer__owfull   [g] ) ,
+        .owfulla  ( obuffer__owfulla  [g] ) ,
+        //
+        .irclk    ( iclkout               ) ,
+        .irreset  ( clkout_reset          ) ,
+        //
+        .irempty  ( obuffer__irempty  [g] ) ,
+        .iraddr   ( obuffer__iraddr   [g] ) ,
+        .ordat    ( obuffer__ordat    [g] ) ,
+        .ortag    ( obuffer__ortag    [g] ) ,
+        //
+        .orempty  ( obuffer__orempty  [g] ) ,
+        .oremptya ( obuffer__oremptya [g] ) ,
+        .orfull   ( obuffer__orfull   [g] ) ,
+        .orfulla  ( obuffer__orfulla  [g] )
+      );
+
+      assign obuffer__irempty [g] = sink__orempty [g];
+      assign obuffer__iraddr  [g] = sink__oraddr  ;
+
+      assign obuffer__iwrite  [g] = engine__owrite [g];
+      assign obuffer__iwfull  [g] = engine__owfull [g];
+      assign obuffer__iwaddr  [g] = engine__owaddr [g];
+      assign obuffer__iwdat   [g] = engine__owdat  [g];
+
+      assign obuffer__iwtag   [g] = { engine__oxmode    [g],
+                                      engine__oymode    [g],
+                                      engine__osmode    [g],
+                                      engine__owdecfail [g],
+                                      engine__owerr     [g],
+                                      engine__owerr_num [g],
+                                      engine__owtag     [g]};
     end
-  end
-
-  assign ibuffer__irempty = engine__orempty;
-  assign ibuffer__iraddr  = engine__oraddr;
-
-  //------------------------------------------------------------------------------------------------------
-  // engine
-  //------------------------------------------------------------------------------------------------------
-
-  btc_dec_engine
-  #(
-    .pLLR_W   ( pLLR_W        ) ,
-    .pEXTR_W  ( pEXTR_W       ) ,
-    //
-    .pADDR_W  ( cIBUF_RADDR_W ) ,
-    //
-    .pDEC_NUM ( cDEC_NUM      ) ,
-    //
-    .pERR_W   ( pERR_W        ) ,
-    .pTAG_W   ( pTAG_W        )
-  )
-  engine
-  (
-    .iclk        ( iclk                ) ,
-    .ireset      ( ireset              ) ,
-    .iclkena     ( 1'b1                ) ,
-    //
-    .ixmode      ( engine__ixmode      ) ,
-    .iymode      ( engine__iymode      ) ,
-    .ismode      ( engine__ismode      ) ,
-    .iNiter      ( engine__iNiter      ) ,
-    .ifmode      ( engine__ifmode      ) ,
-    //
-    .irbuf_full  ( engine__irbuf_full  ) ,
-    .irLLR       ( engine__irLLR       ) ,
-    .irtag       ( engine__irtag       ) ,
-    .orempty     ( engine__orempty     ) ,
-    .oraddr      ( engine__oraddr      ) ,
-    //
-    .iwbuf_empty ( engine__iwbuf_empty ) ,
-    //
-    .owrite      ( engine__owrite      ) ,
-    .owfull      ( engine__owfull      ) ,
-    .owaddr      ( engine__owaddr      ) ,
-    .owdat       ( engine__owdat       ) ,
-    .owtag       ( engine__owtag       ) ,
-    .owerr       ( engine__owerr       ) ,
-    .owdecfail   ( engine__owdecfail   ) ,
-    //
-    .oxmode      ( engine__oxmode      ) ,
-    .oymode      ( engine__oymode      ) ,
-    .osmode      ( engine__osmode      )
-  );
-
-  assign engine__irbuf_full  = ibuffer__orfull;
-
-  assign {engine__ixmode,
-          engine__iymode,
-          engine__ismode,
-          engine__iNiter,
-          engine__ifmode,
-          engine__irtag} = ibuffer__ortag;
-
-  always_comb begin
-    for (int i = 0; i < cDEC_NUM; i++) begin
-      engine__irLLR[i] = ibuffer__ordat[i*pLLR_W +: pLLR_W];
-    end
-  end
-
-  assign engine__iwbuf_empty = obuffer__owempty;
-
-  //------------------------------------------------------------------------------------------------------
-  // output buffer 8 -> 1
-  //------------------------------------------------------------------------------------------------------
-
-  codec_abuffer_dwc
-  #(
-    .pWADDR_W ( cOBUF_WADDR_W ) ,
-    .pWDAT_W  ( cOBUF_WDAT_W  ) ,
-    //
-    .pRADDR_W ( cOBUF_RADDR_W ) ,
-    .pRDAT_W  ( cOBUF_RDAT_W  ) ,
-    //
-    .pTAG_W   ( cOBUF_TAG_W   ) ,
-    .pBNUM_W  ( 1             ) ,
-    //
-    .pPIPE    ( 1             )
-  )
-  obuffer
-  (
-    .iwclk    ( iclk              ) ,
-    .iwreset  ( clk_reset         ) ,
-    //
-    .iwrite   ( obuffer__iwrite   ) ,
-    .iwfull   ( obuffer__iwfull   ) ,
-    .iwaddr   ( obuffer__iwaddr   ) ,
-    .iwdat    ( obuffer__iwdat    ) ,
-    .iwtag    ( obuffer__iwtag    ) ,
-    //
-    .owempty  ( obuffer__owempty  ) ,
-    .owemptya ( obuffer__owemptya ) ,
-    .owfull   ( obuffer__owfull   ) ,
-    .owfulla  ( obuffer__owfulla  ) ,
-    //
-    .irclk    ( iclkout           ) ,
-    .irreset  ( clkout_reset      ) ,
-    //
-    .irempty  ( obuffer__irempty  ) ,
-    .iraddr   ( obuffer__iraddr   ) ,
-    .ordat    ( obuffer__ordat    ) ,
-    .ortag    ( obuffer__ortag    ) ,
-    //
-    .orempty  ( obuffer__orempty  ) ,
-    .oremptya ( obuffer__oremptya ) ,
-    .orfull   ( obuffer__orfull   ) ,
-    .orfulla  ( obuffer__orfulla  )
-  );
-
-  assign obuffer__irempty = sink__orempty;
-  assign obuffer__iraddr  = sink__oraddr;
-
-  assign obuffer__iwrite  = engine__owrite;
-  assign obuffer__iwfull  = engine__owfull;
-  assign obuffer__iwaddr  = engine__owaddr;
-  assign obuffer__iwdat   = engine__owdat;
-
-  assign obuffer__iwtag   = { engine__oxmode    ,
-                              engine__oymode    ,
-                              engine__osmode    ,
-                              engine__owdecfail ,
-                              engine__owerr     ,
-                              engine__owtag};
+  endgenerate
 
   //------------------------------------------------------------------------------------------------------
   // sink
@@ -600,7 +617,9 @@ module btc_dec
     //
     .pTAG_W   ( pTAG_W        ) ,
     //
-    .pERR_W   ( pERR_W        )
+    .pERR_W   ( pERR_W        ) ,
+    //
+    .pDB_NUM  ( pDB_NUM       )
   )
   sink
   (
@@ -617,6 +636,7 @@ module btc_dec
     .irtag     ( sink__irtag     ) ,
     //
     .irerr     ( sink__irerr     ) ,
+    .irerr_num ( sink__irerr_num ) ,
     .irdecfail ( sink__irdecfail ) ,
     //
     .orempty   ( sink__orempty   ) ,
@@ -639,11 +659,15 @@ module btc_dec
   assign sink__irfull = obuffer__orfull;
   assign sink__irdat  = obuffer__ordat;
 
-  assign {sink__ixmode    ,
-          sink__iymode    ,
-          sink__ismode    ,
-          sink__irdecfail ,
-          sink__irerr     ,
-          sink__irtag     } = obuffer__ortag;
-
+  always_comb begin
+    for (int i = 0; i < pDB_NUM; i++) begin
+     {sink__ixmode    [i],
+      sink__iymode    [i],
+      sink__ismode    [i],
+      sink__irdecfail [i],
+      sink__irerr     [i],
+      sink__irerr_num [i],
+      sink__irtag     [i]} = obuffer__ortag [i];
+    end
+  end
 endmodule

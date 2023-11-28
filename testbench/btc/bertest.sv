@@ -219,7 +219,8 @@ module bertest ;
 
   btc_dec
   #(
-    .pLLR_W  ( pLLR_W   )
+    .pLLR_W  ( pLLR_W ) ,
+    .pDB_NUM ( 2      )
   )
   dec
   (

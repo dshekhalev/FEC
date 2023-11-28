@@ -7,29 +7,26 @@
 
 
 
-  logic           btc_dec_comp_code__iclk      ;
-  logic           btc_dec_comp_code__ireset    ;
-  logic           btc_dec_comp_code__iclkena   ;
+  logic           btc_dec_comp_code__iclk         ;
+  logic           btc_dec_comp_code__ireset       ;
+  logic           btc_dec_comp_code__iclkena      ;
   //
-  logic           btc_dec_comp_code__istart    ;
-  btc_code_mode_t btc_dec_comp_code__imode     ;
+  logic           btc_dec_comp_code__istart       ;
+  btc_code_mode_t btc_dec_comp_code__imode        ;
   //
-  logic           btc_dec_comp_code__ival      ;
-  strb_t          btc_dec_comp_code__istrb     ;
-  llr_t           btc_dec_comp_code__iLLR      ;
-  extr_t          btc_dec_comp_code__iLextr    ;
-  alpha_t         btc_dec_comp_code__ialpha    ;
+  logic           btc_dec_comp_code__ival         ;
+  strb_t          btc_dec_comp_code__istrb        ;
+  logic           btc_dec_comp_code__ich_hd       ;
+  extr_t          btc_dec_comp_code__iLapri       ;
   //
-  logic           btc_dec_comp_code__oval      ;
-  strb_t          btc_dec_comp_code__ostrb     ;
-  extr_t          btc_dec_comp_code__oLextr    ;
+  logic           btc_dec_comp_code__oval         ;
+  strb_t          btc_dec_comp_code__ostrb        ;
+  extr_t          btc_dec_comp_code__oLextr       ;
+  logic           btc_dec_comp_code__obitdat      ;
+  logic           btc_dec_comp_code__obiterr      ;
   //
-  logic           btc_dec_comp_code__obit_val  ;
-  strb_t          btc_dec_comp_code__obit_strb ;
-  logic           btc_dec_comp_code__obit_dat  ;
-  logic           btc_dec_comp_code__obit_err  ;
-  //
-  logic           btc_dec_comp_code__odecfail  ;
+  logic           btc_dec_comp_code__odecfail     ;
+  logic           btc_dec_comp_code__odecfail_val ;
 
 
 
@@ -40,29 +37,26 @@
   )
   btc_dec_comp_code
   (
-    .iclk      ( btc_dec_comp_code__iclk      ) ,
-    .ireset    ( btc_dec_comp_code__ireset    ) ,
-    .iclkena   ( btc_dec_comp_code__iclkena   ) ,
+    .iclk         ( btc_dec_comp_code__iclk         ) ,
+    .ireset       ( btc_dec_comp_code__ireset       ) ,
+    .iclkena      ( btc_dec_comp_code__iclkena      ) ,
     //
-    .istart    ( btc_dec_comp_code__istart    ) ,
-    .imode     ( btc_dec_comp_code__imode     ) ,
+    .istart       ( btc_dec_comp_code__istart       ) ,
+    .imode        ( btc_dec_comp_code__imode        ) ,
     //
-    .ival      ( btc_dec_comp_code__ival      ) ,
-    .istrb     ( btc_dec_comp_code__istrb     ) ,
-    .iLLR      ( btc_dec_comp_code__iLLR      ) ,
-    .iLextr    ( btc_dec_comp_code__iLextr    ) ,
-    .ialpha    ( btc_dec_comp_code__ialpha    ) ,
+    .ival         ( btc_dec_comp_code__ival         ) ,
+    .istrb        ( btc_dec_comp_code__istrb        ) ,
+    .ich_hd       ( btc_dec_comp_code__ich_hd       ) ,
+    .iLapri       ( btc_dec_comp_code__iLapri       ) ,
     //
-    .oval      ( btc_dec_comp_code__oval      ) ,
-    .ostrb     ( btc_dec_comp_code__ostrb     ) ,
-    .oLextr    ( btc_dec_comp_code__oLextr    ) ,
+    .oval         ( btc_dec_comp_code__oval         ) ,
+    .ostrb        ( btc_dec_comp_code__ostrb        ) ,
+    .oLextr       ( btc_dec_comp_code__oLextr       ) ,
+    .obitdat      ( btc_dec_comp_code__obitdat      ) ,
+    .obiterr      ( btc_dec_comp_code__obiterr      ) ,
     //
-    .obit_val  ( btc_dec_comp_code__obit_val  ) ,
-    .obit_strb ( btc_dec_comp_code__obit_strb ) ,
-    .obit_dat  ( btc_dec_comp_code__obit_dat  ) ,
-    .obit_err  ( btc_dec_comp_code__obit_err  ) ,
-    //
-    .odecfail  ( btc_dec_comp_code__odecfail  )
+    .odecfail     ( btc_dec_comp_code__odecfail     ) ,
+    .odecfail_val ( btc_dec_comp_code__odecfail_val )
   );
 
 
@@ -73,9 +67,8 @@
   assign btc_dec_comp_code__imode   = '0 ;
   assign btc_dec_comp_code__ival    = '0 ;
   assign btc_dec_comp_code__istrb   = '0 ;
-  assign btc_dec_comp_code__iLLR    = '0 ;
-  assign btc_dec_comp_code__iLextr  = '0 ;
-  assign btc_dec_comp_code__ialpha  = '0 ;
+  assign btc_dec_comp_code__ich_hd  = '0 ;
+  assign btc_dec_comp_code__iLapri  = '0 ;
 
 
 
@@ -90,26 +83,26 @@
 
 module btc_dec_comp_code_engine
 (
-  iclk     ,
-  ireset   ,
-  iclkena  ,
+  iclk         ,
+  ireset       ,
+  iclkena      ,
   //
-  istart   ,
-  imode    ,
-  ialpha   ,
+  istart       ,
+  imode        ,
   //
-  ival     ,
-  istrb    ,
-  iLLR     ,
-  iLextr   ,
+  ival         ,
+  istrb        ,
+  ich_hd       ,
+  iLapri       ,
   //
-  oval     ,
-  ostrb    ,
-  oLextr   ,
-  obitdat  ,
-  obiterr  ,
+  oval         ,
+  ostrb        ,
+  oLextr       ,
+  obitdat      ,
+  obiterr      ,
   //
-  odecfail
+  odecfail     ,
+  odecfail_val
 );
 
   `include "../btc_parameters.svh"
@@ -119,26 +112,26 @@ module btc_dec_comp_code_engine
   //
   //------------------------------------------------------------------------------------------------------
 
-  input  logic           iclk     ;
-  input  logic           ireset   ;
-  input  logic           iclkena  ;
+  input  logic           iclk         ;
+  input  logic           ireset       ;
+  input  logic           iclkena      ;
   // control interface
-  input  logic           istart   ;
-  input  btc_code_mode_t imode    ;
-  input  alpha_t         ialpha   ;
+  input  logic           istart       ;
+  input  btc_code_mode_t imode        ;
   // data interace
-  input  logic           ival     ;
-  input  strb_t          istrb    ;
-  input  llr_t           iLLR     ;
-  input  extr_t          iLextr   ;
+  input  logic           ival         ;
+  input  strb_t          istrb        ;
+  input  logic           ich_hd       ;
+  input  extr_t          iLapri       ;
   // output lextr/bit decision interface
-  output logic           oval     ;
-  output strb_t          ostrb    ;
-  output extr_t          oLextr   ;
-  output logic           obitdat  ;
-  output logic           obiterr  ;
+  output logic           oval         ;
+  output strb_t          ostrb        ;
+  output extr_t          oLextr       ;
+  output logic           obitdat      ;
+  output logic           obiterr      ;
   //
-  output logic           odecfail ;
+  output logic           odecfail     ;
+  output logic           odecfail_val ;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -155,10 +148,7 @@ module btc_dec_comp_code_engine
   //------------------------------------------------------------------------------------------------------
 
   //
-  // insort
-  logic                           init__och_hd_val         ;
-  logic                           init__och_hd             ;
-  //
+  // init sort
   logic                           init__oLapri_hd_val      ;
   logic                           init__oLapri_hd          ;
   //
@@ -196,15 +186,15 @@ module btc_dec_comp_code_engine
 
   //
   // Lapri hd fifo
-  logic                           Lapri_hd_fifo__iwrite  ;
-  logic    [cHD_FIFO_DAT_W-1 : 0] Lapri_hd_fifo__iwdat   ;
+  logic                           Lapri_fifo__iwrite  ;
+  logic  [cLAPRI_MEM_DAT_W-1 : 0] Lapri_fifo__iwdat   ;
   //
-  logic                           Lapri_hd_fifo__iread   ;
-  logic                           Lapri_hd_fifo__orval   ;
-  logic    [cHD_FIFO_DAT_W-1 : 0] Lapri_hd_fifo__ordat   ;
+  logic                           Lapri_fifo__iread   ;
+  logic                           Lapri_fifo__orval   ;
+  logic  [cLAPRI_MEM_DAT_W-1 : 0] Lapri_fifo__ordat   ;
   //
-  logic                           Lapri_hd_fifo__oempty  ;
-  logic                           Lapri_hd_fifo__ofull   ;
+  logic                           Lapri_fifo__oempty  ;
+  logic                           Lapri_fifo__ofull   ;
 
   //
   // Lapri mem
@@ -238,55 +228,74 @@ module btc_dec_comp_code_engine
   logic                           spc_dec__obitdat      ;
   //
   logic                           spc_dec__odecfail     ;
+  logic                           spc_dec__odecfail_val ;
 
   //
   // haming fase chase
-  logic                           eham_dec__ival              ;
-  strb_t                          eham_dec__istrb             ;
-  logic                           eham_dec__iLapri_ptr        ;
-  bit_idx_t                       eham_dec__iLpp_idx      [4] ;
-  extr_t                          eham_dec__iLpp_value    [4] ;
-  state_t                         eham_dec__isyndrome         ;
-  logic                           eham_dec__ieven             ;
-  bit_idx_t                       eham_dec__ierr_idx          ;
-  logic                           eham_dec__idecfail          ;
+  logic                           eham_dec__ival               ;
+  strb_t                          eham_dec__istrb              ;
+  logic                           eham_dec__iLapri_ptr         ;
+  bit_idx_t                       eham_dec__iLpp_idx       [4] ;
+  extr_t                          eham_dec__iLpp_value     [4] ;
+  state_t                         eham_dec__isyndrome          ;
+  logic                           eham_dec__ieven              ;
+  bit_idx_t                       eham_dec__ierr_idx           ;
+  logic                           eham_dec__idecfail           ;
   //
-  extr_t                          eham_dec__iLapri            ;
-  logic                           eham_dec__oLapri_read       ;
-  logic                           eham_dec__oLapri_rptr       ;
-  bit_idx_t                       eham_dec__oLapri_raddr      ;
+  extr_t                          eham_dec__iLapri             ;
+  logic                           eham_dec__oLapri_read        ;
+  logic                           eham_dec__oLapri_rptr        ;
+  bit_idx_t                       eham_dec__oLapri_raddr       ;
   //
-  logic                           eham_dec__odone             ;
-  strb_t                          eham_dec__ostrb             ;
-  metric_t                        eham_dec__omin0             ;
-  metric_t                        eham_dec__omin1             ;
-  logic                   [4 : 0] eham_dec__oerr_bit_mask     ;
-  bit_idx_t                       eham_dec__oerr_bit_idx  [5] ;
+  logic                           eham_dec__odone              ;
+  strb_t                          eham_dec__ostrb              ;
   //
-  logic                           eham_dec__odecfail          ;
+  metric_t                        eham_dec__omin0              ;
+  logic                   [4 : 0] eham_dec__oerr0_bit_mask     ;
+  bit_idx_t                       eham_dec__oerr0_bit_idx  [5] ;
+  //
+  metric_t                        eham_dec__omin1              ;
+  logic                   [4 : 0] eham_dec__oerr1_bit_mask     ;
+  bit_idx_t                       eham_dec__oerr1_bit_idx  [5] ;
+  //
+  metric_t                        eham_dec__omax               ;
+  logic                   [4 : 0] eham_dec__oerrm_bit_mask     ;
+  bit_idx_t                       eham_dec__oerrm_bit_idx  [5] ;
+  //
+  logic                           eham_dec__odecfail           ;
 
   //
   // haming decision
-  btc_code_mode_t                 eham_decision__imode             ;
-  logic                           eham_decision__ival              ;
-  strb_t                          eham_decision__istrb             ;
-  metric_t                        eham_decision__imin0             ;
-  metric_t                        eham_decision__imin1             ;
-  logic                   [4 : 0] eham_decision__ierr_bit_mask     ;
-  bit_idx_t                       eham_decision__ierr_bit_idx  [5] ;
-  logic                           eham_decision__idecfail          ;
+  btc_code_mode_t                 eham_decision__imode              ;
+  logic                           eham_decision__ival               ;
+  strb_t                          eham_decision__istrb              ;
   //
-  logic                           eham_decision__ihd               ;
-  logic                           eham_decision__ohd_read          ;
+  metric_t                        eham_decision__imin0              ;
+  logic                   [4 : 0] eham_decision__ierr0_bit_mask     ;
+  bit_idx_t                       eham_decision__ierr0_bit_idx  [5] ;
   //
-  logic                           eham_decision__opre_val          ;
+  metric_t                        eham_decision__imin1              ;
+  logic                   [4 : 0] eham_decision__ierr1_bit_mask     ;
+  bit_idx_t                       eham_decision__ierr1_bit_idx  [5] ;
   //
-  logic                           eham_decision__oval              ;
-  strb_t                          eham_decision__ostrb             ;
-  extr_t                          eham_decision__oLextr            ;
-  logic                           eham_decision__obitdat           ;
+  metric_t                        eham_decision__imax               ;
+  logic                   [4 : 0] eham_decision__ierrm_bit_mask     ;
+  bit_idx_t                       eham_decision__ierrm_bit_idx  [5] ;
   //
-  logic                           eham_decision__odecfail          ;
+  logic                           eham_decision__idecfail           ;
+  //
+  extr_t                          eham_decision__iLapri             ;
+  logic                           eham_decision__oLapri_read        ;
+  //
+  logic                           eham_decision__opre_val           ;
+  //
+  logic                           eham_decision__oval               ;
+  strb_t                          eham_decision__ostrb              ;
+  extr_t                          eham_decision__oLextr             ;
+  logic                           eham_decision__obitdat            ;
+  //
+  logic                           eham_decision__odecfail           ;
+  logic                           eham_decision__odecfail_val       ;
 
   //------------------------------------------------------------------------------------------------------
   // input sort and pre decode unit
@@ -307,12 +316,7 @@ module btc_dec_comp_code_engine
     //
     .ival           ( ival                 ) ,
     .istrb          ( istrb                ) ,
-    .iLLR           ( iLLR                 ) ,
-    .iLextr         ( iLextr               ) ,
-    .ialpha         ( ialpha               ) ,
-    //
-    .och_hd_val     ( init__och_hd_val     ) ,
-    .och_hd         ( init__och_hd         ) ,
+    .iLapri         ( iLapri               ) ,
     //
     .oLapri_hd_val  ( init__oLapri_hd_val  ) ,
     .oLapri_hd      ( init__oLapri_hd      ) ,
@@ -367,8 +371,8 @@ module btc_dec_comp_code_engine
     .ofull   ( hd_fifo__ofull   )
   );
 
-  assign hd_fifo__iwrite  = init__och_hd_val ;
-  assign hd_fifo__iwdat   = init__och_hd ;
+  assign hd_fifo__iwrite  = ival;
+  assign hd_fifo__iwdat   = ich_hd;
 
   //------------------------------------------------------------------------------------------------------
   // Lapri hard decision FIFO
@@ -377,30 +381,30 @@ module btc_dec_comp_code_engine
   codec_srl_fifo
   #(
     .pDEPTH_W ( cHD_FIFO_DEPTH_W ) ,
-    .pDAT_W   ( cHD_FIFO_DAT_W   ) ,
+    .pDAT_W   ( cLAPRI_MEM_DAT_W ) ,
     .pNO_REG  ( 0                )
   )
-  Lapri_hd_fifo
+  Lapri_fifo
   (
-    .iclk    ( iclk                   ) ,
-    .ireset  ( ireset                 ) ,
-    .iclkena ( iclkena                ) ,
+    .iclk    ( iclk                ) ,
+    .ireset  ( ireset              ) ,
+    .iclkena ( iclkena             ) ,
     //
-    .iclear  ( istart                 ) ,
+    .iclear  ( istart              ) ,
     //
-    .iwrite  ( Lapri_hd_fifo__iwrite  ) ,
-    .iwdat   ( Lapri_hd_fifo__iwdat   ) ,
+    .iwrite  ( Lapri_fifo__iwrite  ) ,
+    .iwdat   ( Lapri_fifo__iwdat   ) ,
     //
-    .iread   ( Lapri_hd_fifo__iread   ) ,
-    .orval   ( Lapri_hd_fifo__orval   ) ,
-    .ordat   ( Lapri_hd_fifo__ordat   ) ,
+    .iread   ( Lapri_fifo__iread   ) ,
+    .orval   ( Lapri_fifo__orval   ) ,
+    .ordat   ( Lapri_fifo__ordat   ) ,
     //
-    .oempty  ( Lapri_hd_fifo__oempty  ) ,
-    .ofull   ( Lapri_hd_fifo__ofull   )
+    .oempty  ( Lapri_fifo__oempty  ) ,
+    .ofull   ( Lapri_fifo__ofull   )
   );
 
-  assign Lapri_hd_fifo__iwrite  = init__oLapri_hd_val & (imode.code_type == cE_HAM_CODE);
-  assign Lapri_hd_fifo__iwdat   = init__oLapri_hd ;
+  assign Lapri_fifo__iwrite  = ival & (imode.code_type == cE_HAM_CODE);
+  assign Lapri_fifo__iwdat   = iLapri ;
 
   //------------------------------------------------------------------------------------------------------
   // Lapri mem
@@ -470,7 +474,8 @@ module btc_dec_comp_code_engine
     .oLextr       ( spc_dec__oLextr       ) ,
     .obitdat      ( spc_dec__obitdat      ) ,
     //
-    .odecfail     ( spc_dec__odecfail     )
+    .odecfail     ( spc_dec__odecfail     ) ,
+    .odecfail_val ( spc_dec__odecfail_val )
   );
 
   assign spc_dec__ival       = init__odone & (imode.code_type == cSPC_CODE);
@@ -496,35 +501,43 @@ module btc_dec_comp_code_engine
   )
   eham_dec
   (
-    .iclk          ( iclk                   ) ,
-    .ireset        ( ireset                 ) ,
-    .iclkena       ( iclkena                ) ,
+    .iclk           ( iclk                     ) ,
+    .ireset         ( ireset                   ) ,
+    .iclkena        ( iclkena                  ) ,
     //
-    .imode         ( imode                  ) ,
+    .imode          ( imode                    ) ,
     //
-    .ival          ( eham_dec__ival          ) ,
-    .istrb         ( eham_dec__istrb         ) ,
-    .iLapri_ptr    ( eham_dec__iLapri_ptr    ) ,
-    .iLpp_idx      ( eham_dec__iLpp_idx      ) ,
-    .iLpp_value    ( eham_dec__iLpp_value    ) ,
-    .isyndrome     ( eham_dec__isyndrome     ) ,
-    .ieven         ( eham_dec__ieven         ) ,
-    .ierr_idx      ( eham_dec__ierr_idx      ) ,
-    .idecfail      ( eham_dec__idecfail      ) ,
+    .ival           ( eham_dec__ival           ) ,
+    .istrb          ( eham_dec__istrb          ) ,
+    .iLapri_ptr     ( eham_dec__iLapri_ptr     ) ,
+    .iLpp_idx       ( eham_dec__iLpp_idx       ) ,
+    .iLpp_value     ( eham_dec__iLpp_value     ) ,
+    .isyndrome      ( eham_dec__isyndrome      ) ,
+    .ieven          ( eham_dec__ieven          ) ,
+    .ierr_idx       ( eham_dec__ierr_idx       ) ,
+    .idecfail       ( eham_dec__idecfail       ) ,
     //
-    .iLapri        ( eham_dec__iLapri        ) ,
-    .oLapri_read   ( eham_dec__oLapri_read   ) ,
-    .oLapri_rptr   ( eham_dec__oLapri_rptr   ) ,
-    .oLapri_raddr  ( eham_dec__oLapri_raddr  ) ,
+    .iLapri         ( eham_dec__iLapri         ) ,
+    .oLapri_read    ( eham_dec__oLapri_read    ) ,
+    .oLapri_rptr    ( eham_dec__oLapri_rptr    ) ,
+    .oLapri_raddr   ( eham_dec__oLapri_raddr   ) ,
     //
-    .odone         ( eham_dec__odone         ) ,
-    .ostrb         ( eham_dec__ostrb         ) ,
-    .omin0         ( eham_dec__omin0         ) ,
-    .omin1         ( eham_dec__omin1         ) ,
-    .oerr_bit_mask ( eham_dec__oerr_bit_mask ) ,
-    .oerr_bit_idx  ( eham_dec__oerr_bit_idx  ) ,
+    .odone          ( eham_dec__odone          ) ,
+    .ostrb          ( eham_dec__ostrb          ) ,
     //
-    .odecfail      ( eham_dec__odecfail      )
+    .omin0          ( eham_dec__omin0          ) ,
+    .oerr0_bit_mask ( eham_dec__oerr0_bit_mask ) ,
+    .oerr0_bit_idx  ( eham_dec__oerr0_bit_idx  ) ,
+    //
+    .omin1          ( eham_dec__omin1          ) ,
+    .oerr1_bit_mask ( eham_dec__oerr1_bit_mask ) ,
+    .oerr1_bit_idx  ( eham_dec__oerr1_bit_idx  ) ,
+    //
+    .omax           ( eham_dec__omax           ) ,
+    .oerrm_bit_mask ( eham_dec__oerrm_bit_mask ) ,
+    .oerrm_bit_idx  ( eham_dec__oerrm_bit_idx  ) ,
+    //
+    .odecfail       ( eham_dec__odecfail       )
   );
 
   assign eham_dec__ival       = init__odone & (imode.code_type == cE_HAM_CODE);
@@ -552,44 +565,63 @@ module btc_dec_comp_code_engine
   )
   eham_decision
   (
-    .iclk          ( iclk                         ) ,
-    .ireset        ( ireset                       ) ,
-    .iclkena       ( iclkena                      ) ,
+    .iclk           ( iclk                          ) ,
+    .ireset         ( ireset                        ) ,
+    .iclkena        ( iclkena                       ) ,
     //
-    .imode         ( imode                        ) ,
+    .imode          ( imode                         ) ,
     //
-    .ival          ( eham_decision__ival          ) ,
-    .istrb         ( eham_decision__istrb         ) ,
-    .imin0         ( eham_decision__imin0         ) ,
-    .imin1         ( eham_decision__imin1         ) ,
-    .ierr_bit_mask ( eham_decision__ierr_bit_mask ) ,
-    .ierr_bit_idx  ( eham_decision__ierr_bit_idx  ) ,
-    .idecfail      ( eham_decision__idecfail      ) ,
+    .ival           ( eham_decision__ival           ) ,
+    .istrb          ( eham_decision__istrb          ) ,
     //
-    .ihd           ( eham_decision__ihd           ) ,
-    .ohd_read      ( eham_decision__ohd_read      ) ,
+    .imin0          ( eham_decision__imin0          ) ,
+    .ierr0_bit_mask ( eham_decision__ierr0_bit_mask ) ,
+    .ierr0_bit_idx  ( eham_decision__ierr0_bit_idx  ) ,
     //
-    .opre_val      ( eham_decision__opre_val      ) ,
+    .imin1          ( eham_decision__imin1          ) ,
+    .ierr1_bit_mask ( eham_decision__ierr1_bit_mask ) ,
+    .ierr1_bit_idx  ( eham_decision__ierr1_bit_idx  ) ,
     //
-    .oval          ( eham_decision__oval          ) ,
-    .ostrb         ( eham_decision__ostrb         ) ,
-    .oLextr        ( eham_decision__oLextr        ) ,
-    .obitdat       ( eham_decision__obitdat       ) ,
+    .imax           ( eham_decision__imax           ) ,
+    .ierrm_bit_mask ( eham_decision__ierrm_bit_mask ) ,
+    .ierrm_bit_idx  ( eham_decision__ierrm_bit_idx  ) ,
     //
-    .odecfail      ( eham_decision__odecfail      )
+    .idecfail       ( eham_decision__idecfail       ) ,
+    //
+    .iLapri         ( eham_decision__iLapri         ) ,
+    .oLapri_read    ( eham_decision__oLapri_read    ) ,
+    //
+    .opre_val       ( eham_decision__opre_val       ) ,
+    //
+    .oval           ( eham_decision__oval           ) ,
+    .ostrb          ( eham_decision__ostrb          ) ,
+    .oLextr         ( eham_decision__oLextr         ) ,
+    .obitdat        ( eham_decision__obitdat        ) ,
+    //
+    .odecfail       ( eham_decision__odecfail       ) ,
+    .odecfail_val   ( eham_decision__odecfail_val   )
   );
 
-  assign eham_decision__ival          = eham_dec__odone         ;
-  assign eham_decision__istrb         = eham_dec__ostrb         ;
-  assign eham_decision__imin0         = eham_dec__omin0         ;
-  assign eham_decision__imin1         = eham_dec__omin1         ;
-  assign eham_decision__ierr_bit_mask = eham_dec__oerr_bit_mask ;
-  assign eham_decision__ierr_bit_idx  = eham_dec__oerr_bit_idx  ;
-  assign eham_decision__idecfail      = eham_dec__odecfail      ;
+  assign eham_decision__ival           = eham_dec__odone          ;
+  assign eham_decision__istrb          = eham_dec__ostrb          ;
 
-  assign eham_decision__ihd           = Lapri_hd_fifo__ordat;
+  assign eham_decision__imin0          = eham_dec__omin0          ;
+  assign eham_decision__ierr0_bit_mask = eham_dec__oerr0_bit_mask ;
+  assign eham_decision__ierr0_bit_idx  = eham_dec__oerr0_bit_idx  ;
 
-  assign Lapri_hd_fifo__iread         = eham_decision__ohd_read;
+  assign eham_decision__imin1          = eham_dec__omin1          ;
+  assign eham_decision__ierr1_bit_mask = eham_dec__oerr1_bit_mask ;
+  assign eham_decision__ierr1_bit_idx  = eham_dec__oerr1_bit_idx  ;
+
+  assign eham_decision__imax           = eham_dec__omax           ;
+  assign eham_decision__ierrm_bit_mask = eham_dec__oerrm_bit_mask ;
+  assign eham_decision__ierrm_bit_idx  = eham_dec__oerrm_bit_idx  ;
+
+  assign eham_decision__idecfail       = eham_dec__odecfail       ;
+
+  assign eham_decision__iLapri         = Lapri_fifo__ordat;
+
+  assign Lapri_fifo__iread             = eham_decision__oLapri_read;
 
   //------------------------------------------------------------------------------------------------------
   // output mapping. hd FIFO read latency is 1 tick (!!!)
@@ -597,10 +629,12 @@ module btc_dec_comp_code_engine
 
   always_ff @(posedge iclk or posedge ireset) begin
     if (ireset) begin
-      oval <= 1'b0;
+      oval          <= 1'b0;
+      odecfail_val  <= 1'b0;
     end
     else if (iclkena) begin
-      oval <= (imode.code_type == cSPC_CODE) ? spc_dec__oval : eham_decision__oval;
+      oval          <= (imode.code_type == cSPC_CODE) ? spc_dec__oval         : eham_decision__oval;
+      odecfail_val  <= (imode.code_type == cSPC_CODE) ? spc_dec__odecfail_val : eham_decision__odecfail_val;
     end
   end
 
