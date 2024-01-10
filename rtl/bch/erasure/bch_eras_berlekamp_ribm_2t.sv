@@ -176,7 +176,7 @@ module bch_eras_berlekamp_ribm_2t
       // cycle counter for count [1 : t2] cycles
       if (state == cWAIT_STATE || state == cRELOAD_STATE) begin
         cnt       <= t; // easy to create dynamic variable check
-        cnt_done  <= 1'b0;
+        cnt_done  <= (t < 2);
       end
       else if (state == cSTEP2_STATE || state == cSTEP12_STATE) begin
         cnt       <= cnt - 1'b1;

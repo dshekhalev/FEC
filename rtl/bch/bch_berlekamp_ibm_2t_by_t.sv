@@ -181,7 +181,7 @@ module bch_berlekamp_ibm_2t_by_t
       // cycle counter for count [1 : t] cycles
       if (state == cWAIT_STATE) begin
         cnt       <= t;
-        cnt_done  <= '0;
+        cnt_done  <= (t < 2);
       end
       //else if (state == cSTEP5_STATE) begin
       else if (state == cSTEP4_STATE & t_cnt_done) begin

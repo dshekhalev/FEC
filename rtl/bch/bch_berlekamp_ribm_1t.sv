@@ -103,6 +103,29 @@ module bch_berlekamp_ribm_1t
   output ptr_t   oloc_poly_ptr           ;
   output logic   oloc_decfail            ;
 
+  bch_berlekamp_sribm2_sm
+  #(
+    .m        ( m        ) ,
+    .k_max    ( k_max    ) ,
+    .d        ( d        ) ,
+    .n        ( n        ) ,
+    .irrpol   ( irrpol   )
+  )
+  bch_berlekamp_sibm_beh
+  (
+    .iclk          ( iclk          ) ,
+    .ireset        ( ireset        ) ,
+    .iclkena       ( 1'b1          ) ,
+    .isyndrome_val ( isyndrome_val ) ,
+    .isyndrome_ptr ( isyndrome_ptr ) ,
+    .isyndrome     ( isyndrome     ) ,
+    .oloc_poly_val (  ) ,
+    .oloc_poly     (  ) ,
+    .oloc_poly_deg (  ) ,
+    .oloc_poly_ptr (  ) ,
+    .oloc_decfail  (  )
+  );
+
   //------------------------------------------------------------------------------------------------------
   //
   //------------------------------------------------------------------------------------------------------
@@ -158,7 +181,7 @@ module bch_berlekamp_ribm_1t
       // cycle counter for count [1 : t2] cycles
       if (state == cWAIT_STATE) begin
         cnt       <= t; // easy to create dynamic variable check
-        cnt_done  <= 1'b0;
+        cnt_done  <= (t < 2);
       end
       else if (state == cSTEP1_STATE) begin
         cnt       <= cnt - 1'b1;
