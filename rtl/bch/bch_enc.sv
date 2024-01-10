@@ -153,15 +153,15 @@ module bch_enc
 
   always_ff @(posedge iclk or posedge ireset) begin
     if (ireset) begin
-      data_n_code <= 1'b1;
-      state       <= ZERO;
-      odat        <= 1'b0;
-      oval        <= 1'b0;
-      osop        <= 1'b0;
-      oeop        <= 1'b0;
+      oval <= 1'b0;
     end
     else if (iclkena) begin
       oval <= ival;
+    end
+  end
+
+  always_ff @(posedge iclk) begin
+    if (iclkena) begin
       osop <= isop;
       oeop <= ieof; // output end of packet is the input end of frame
       if (ival) begin
@@ -179,7 +179,7 @@ module bch_enc
     end
   end
 
-  assign dat2mult = (isop | data_n_code) ? (idat ^ state[$high(state)]) : 1'b0;
+  assign dat2mult = (isop | data_n_code) ? (idat ^ (!isop & state[$high(state)])) : 1'b0;
 
   always_comb begin
     for (int i = 0; i < $size(state); i++) begin
@@ -187,7 +187,7 @@ module bch_enc
         state_next[i] = (GPOLY[i] & dat2mult);
       end
       else begin
-        state_next[i] = (GPOLY[i] & dat2mult) ^ state[i-1];
+        state_next[i] = (GPOLY[i] & dat2mult) ^ (state[i-1] & !isop);
       end
     end
   end
