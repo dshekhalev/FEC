@@ -103,29 +103,6 @@ module bch_berlekamp_ribm_1t
   output ptr_t   oloc_poly_ptr           ;
   output logic   oloc_decfail            ;
 
-  bch_berlekamp_sribm2_sm
-  #(
-    .m        ( m        ) ,
-    .k_max    ( k_max    ) ,
-    .d        ( d        ) ,
-    .n        ( n        ) ,
-    .irrpol   ( irrpol   )
-  )
-  bch_berlekamp_sibm_beh
-  (
-    .iclk          ( iclk          ) ,
-    .ireset        ( ireset        ) ,
-    .iclkena       ( 1'b1          ) ,
-    .isyndrome_val ( isyndrome_val ) ,
-    .isyndrome_ptr ( isyndrome_ptr ) ,
-    .isyndrome     ( isyndrome     ) ,
-    .oloc_poly_val (  ) ,
-    .oloc_poly     (  ) ,
-    .oloc_poly_deg (  ) ,
-    .oloc_poly_ptr (  ) ,
-    .oloc_decfail  (  )
-  );
-
   //------------------------------------------------------------------------------------------------------
   //
   //------------------------------------------------------------------------------------------------------
