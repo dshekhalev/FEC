@@ -13,9 +13,11 @@
   logic   bch_berlekamp__iclk                     ;
   logic   bch_berlekamp__ireset                   ;
   logic   bch_berlekamp__iclkena                  ;
+  //
   logic   bch_berlekamp__isyndrome_val            ;
   ptr_t   bch_berlekamp__isyndrome_ptr            ;
   data_t  bch_berlekamp__isyndrome       [1 : t2] ;
+  //
   logic   bch_berlekamp__oloc_poly_val            ;
   data_t  bch_berlekamp__oloc_poly        [0 : t] ;
   ptr_t   bch_berlekamp__oloc_poly_ptr            ;
@@ -34,14 +36,15 @@
   bch_berlekamp
   (
     .iclk          ( bch_berlekamp__iclk          ) ,
-    .iclkena       ( bch_berlekamp__iclkena       ) ,
     .ireset        ( bch_berlekamp__ireset        ) ,
+    .iclkena       ( bch_berlekamp__iclkena       ) ,
+    //
     .isyndrome_val ( bch_berlekamp__isyndrome_val ) ,
     .isyndrome_ptr ( bch_berlekamp__isyndrome_ptr ) ,
     .isyndrome     ( bch_berlekamp__isyndrome     ) ,
+    //
     .oloc_poly_val ( bch_berlekamp__oloc_poly_val ) ,
     .oloc_poly     ( bch_berlekamp__oloc_poly     ) ,
-    .oomega_poly   ( bch_berlekamp__oomega_poly   ) ,
     .oloc_poly_ptr ( bch_berlekamp__oloc_poly_ptr ) ,
     .oloc_decfail  ( bch_berlekamp__oloc_decfail  )
   );
@@ -67,16 +70,16 @@
 //                 module use t+1 GF(2^m) mult modules
 //
 
-`include "define.vh"
-
 module bch_berlekamp_ribm_2t
 (
   iclk          ,
-  iclkena       ,
   ireset        ,
+  iclkena       ,
+  //
   isyndrome_val ,
   isyndrome_ptr ,
   isyndrome     ,
+  //
   oloc_poly_val ,
   oloc_poly     ,
   oloc_poly_ptr ,
@@ -118,7 +121,7 @@ module bch_berlekamp_ribm_2t
   data_t sigma;
   data_t kv;
 
-  localparam int cCNT_W = clogb2(t + 1);
+  localparam int cCNT_W = $clog2(t + 1);
 
   logic [cCNT_W-1 : 0]  cnt;
   logic                 cnt_done;

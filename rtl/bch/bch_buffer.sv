@@ -12,10 +12,12 @@
   logic                 bch_buffer__iclk    ;
   logic                 bch_buffer__ireset  ;
   logic                 bch_buffer__iclkena ;
+  //
   logic                 bch_buffer__iwrite  ;
   logic [pADDR_W-1 : 0] bch_buffer__iwaddr  ;
   logic [pBNUM_W-1 : 0] bch_buffer__iwptr   ;
   logic [pDATA_W-1 : 0] bch_buffer__iwdata  ;
+  //
   logic                 bch_buffer__iread   ;
   logic [pADDR_W-1 : 0] bch_buffer__iraddr  ;
   logic [pBNUM_W-1 : 0] bch_buffer__irptr   ;
@@ -35,10 +37,12 @@
     .iclk    ( bch_buffer__iclk    ) ,
     .ireset  ( bch_buffer__ireset  ) ,
     .iclkena ( bch_buffer__iclkena ) ,
+    //
     .iwrite  ( bch_buffer__iwrite  ) ,
     .iwaddr  ( bch_buffer__iwaddr  ) ,
     .iwptr   ( bch_buffer__iwptr   ) ,
     .iwdata  ( bch_buffer__iwdata  ) ,
+    //
     .iread   ( bch_buffer__iread   ) ,
     .iraddr  ( bch_buffer__iraddr  ) ,
     .irptr   ( bch_buffer__irptr   ) ,
@@ -80,10 +84,12 @@ module bch_buffer
   iclk    ,
   ireset  ,
   iclkena ,
+  //
   iwrite  ,
   iwaddr  ,
   iwptr   ,
   iwdata  ,
+  //
   iread   ,
   iraddr  ,
   irptr   ,
@@ -97,10 +103,12 @@ module bch_buffer
   input  logic                 iclk    ;
   input  logic                 ireset  ;
   input  logic                 iclkena ;
+  //
   input  logic                 iwrite  ;
   input  logic [pADDR_W-1 : 0] iwaddr  ;
   input  logic [pBNUM_W-1 : 0] iwptr   ;
   input  logic [pDATA_W-1 : 0] iwdata  ;
+  //
   input  logic                 iread   ;
   input  logic [pADDR_W-1 : 0] iraddr  ;
   input  logic [pBNUM_W-1 : 0] irptr   ;
