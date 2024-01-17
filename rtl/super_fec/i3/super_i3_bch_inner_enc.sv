@@ -176,17 +176,9 @@ module super_i3_bch_inner_enc
   always_comb begin
     state_next = isop ? '0 : state;
     //
-    if (!isop & eop) begin
-      for (int b = 0; b < 2; b++) begin
-        dat2mult    = (isop | data_n_code) ? (idat[b] ^ state_next[0]) : 1'b0;
-        state_next  = encode_bit (dat2mult, state_next);
-      end
-    end
-    else begin
-      for (int b = 0; b < cDAT_W; b++) begin
-        dat2mult    = (isop | data_n_code) ? (idat[b] ^ state_next[0]) : 1'b0;
-        state_next  = encode_bit (dat2mult, state_next);
-      end
+    for (int b = 0; b < cDAT_W; b++) begin
+      dat2mult    = (isop | data_n_code) ? (idat[b] ^ state_next[0]) : 1'b0;
+      state_next  = (!isop & eop & (b >= 2)) ? state_next : encode_bit (dat2mult, state_next);
     end
   end
 

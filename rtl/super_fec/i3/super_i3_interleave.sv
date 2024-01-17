@@ -139,33 +139,6 @@ module super_i3_interleave
   end
 
   //------------------------------------------------------------------------------------------------------
-  // valid frame for
-  //------------------------------------------------------------------------------------------------------
-
-  logic                    ram_full;
-  logic [cBLOCK_NUM_W : 0] blocks_in_ram;
-
-  generate
-    if (pDEINT_MODE) begin
-      assign ram_full = blocks_in_ram[cBLOCK_NUM_W];  // need wait for 8 frames
-
-      always_ff @(posedge iclk or posedge ireset) begin
-        if (ireset) begin
-          blocks_in_ram <= '0;
-        end
-        else if (iclkena) begin
-          if (ival & isop) begin
-            blocks_in_ram <= blocks_in_ram + !ram_full;
-          end
-        end
-      end
-    end
-    else begin
-      assign ram_full = 1'b1;
-    end
-  endgenerate
-
-  //------------------------------------------------------------------------------------------------------
   // read work at write rate
   // pDEINT_MODE ? get last : get first
   //------------------------------------------------------------------------------------------------------
@@ -208,8 +181,8 @@ module super_i3_interleave
       rsop <= '0;
     end
     else if (iclkena) begin
-      rval <= (rval << 1) | (pDEINT_MODE ? (ram_full & write) : write);
-      rsop <= (rsop << 1) | (pDEINT_MODE ? (ram_full & wsop)  : wsop);
+      rval <= (rval << 1) | write;
+      rsop <= (rsop << 1) | wsop;
     end
   end
 

@@ -53,7 +53,7 @@
 // Project       : super fec (G.975.1)
 // Author        : Shekhalev Denis (des00)
 // Workfile      : super_i3_bch_outer_enc.sv
-// Description   : I.3 outer BCH(3860,3824) encoder with 16 bit data interface
+// Description   : I.3 outer BCH (3860,3824) encoder with 16 bit data interface
 //
 
 module super_i3_bch_outer_enc
@@ -147,8 +147,8 @@ module super_i3_bch_outer_enc
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
-      osop <= isop;
-      oeop <= eof;
+      osop <= ival & isop;
+      oeop <= ival & !isop & eof;
       //
       if (ival) begin
         cnt <=  isop ? 1'b1 : (cnt + 1'b1);   // look ahead count input data
