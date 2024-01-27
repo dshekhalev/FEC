@@ -178,6 +178,7 @@ module btc_dec_source
     logic [cLOG2_ROW_MAX-1 : 0] value;
   } col_idx;
 
+  logic                      wfull;
   logic [cLOG2_DB_NUM-1 : 0] sel;
 
   //------------------------------------------------------------------------------------------------------
@@ -213,10 +214,12 @@ module btc_dec_source
 
   always_ff @(posedge iclk or posedge ireset) begin
     if (ireset) begin
+      wfull  <= 1'b0;
       owrite <= '{default : 1'b0};
       owfull <= '{default : 1'b0};
     end
     else if (iclkena) begin
+      wfull <= ival & ieop;
       for (int i = 0; i < pDB_NUM; i++) begin
         owrite[i] <= ival         & (i == sel);
         owfull[i] <= ival & ieop  & (i == sel);
@@ -284,20 +287,7 @@ module btc_dec_source
   //
   //------------------------------------------------------------------------------------------------------
 
-  logic wfull;
-  logic emptya;
-
-  always_comb begin
-    wfull   = 1'b0;
-    emptya  = 1'b1;
-    //
-    for (int i = 0; i < pDB_NUM; i++) begin
-      wfull   |= owfull [i];
-      emptya  &= iemptya[i];
-    end
-  end
-
   assign ordy  = !wfull & !ifulla [sel];  // not ready if all buffers of next decoder is full
-  assign obusy =  wfull | !emptya;        // busy if any buffer is not empty
+  assign obusy =  wfull | !iemptya[sel];  // busy if any buffer of next decoder is not empty
 
 endmodule
