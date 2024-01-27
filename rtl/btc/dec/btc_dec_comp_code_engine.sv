@@ -2,73 +2,73 @@
 
 
 
-  parameter int pLLR_W  = 5 ;
-  parameter int pEXTR_W = 6 ;
+  parameter int pLLR_W           = 5 ;
+  parameter int pEXTR_W          = 6 ;
 
 
 
-  logic           btc_dec_comp_code__iclk         ;
-  logic           btc_dec_comp_code__ireset       ;
-  logic           btc_dec_comp_code__iclkena      ;
+  logic           btc_dec_comp_code_engine__iclk         ;
+  logic           btc_dec_comp_code_engine__ireset       ;
+  logic           btc_dec_comp_code_engine__iclkena      ;
   //
-  logic           btc_dec_comp_code__istart       ;
-  btc_code_mode_t btc_dec_comp_code__imode        ;
+  logic           btc_dec_comp_code_engine__istart       ;
+  btc_code_mode_t btc_dec_comp_code_engine__imode        ;
   //
-  logic           btc_dec_comp_code__ival         ;
-  strb_t          btc_dec_comp_code__istrb        ;
-  logic           btc_dec_comp_code__ich_hd       ;
-  extr_t          btc_dec_comp_code__iLapri       ;
+  logic           btc_dec_comp_code_engine__ival         ;
+  strb_t          btc_dec_comp_code_engine__istrb        ;
+  logic           btc_dec_comp_code_engine__ich_hd       ;
+  extr_t          btc_dec_comp_code_engine__iLapri       ;
   //
-  logic           btc_dec_comp_code__oval         ;
-  strb_t          btc_dec_comp_code__ostrb        ;
-  extr_t          btc_dec_comp_code__oLextr       ;
-  logic           btc_dec_comp_code__obitdat      ;
-  logic           btc_dec_comp_code__obiterr      ;
+  logic           btc_dec_comp_code_engine__oval         ;
+  strb_t          btc_dec_comp_code_engine__ostrb        ;
+  extr_t          btc_dec_comp_code_engine__oLextr       ;
+  logic           btc_dec_comp_code_engine__obitdat      ;
+  logic           btc_dec_comp_code_engine__obiterr      ;
   //
-  logic           btc_dec_comp_code__odecfail     ;
-  logic           btc_dec_comp_code__odecfail_val ;
+  logic           btc_dec_comp_code_engine__odecfail     ;
+  logic           btc_dec_comp_code_engine__odecfail_val ;
 
 
 
-  btc_dec_comp_code
+  btc_dec_comp_code_engibe
   #(
     .pLLR_W  ( pLLR_W  ) ,
     .pEXTR_W ( pEXTR_W )
   )
-  btc_dec_comp_code
+  btc_dec_comp_code_engine
   (
-    .iclk         ( btc_dec_comp_code__iclk         ) ,
-    .ireset       ( btc_dec_comp_code__ireset       ) ,
-    .iclkena      ( btc_dec_comp_code__iclkena      ) ,
+    .iclk         ( btc_dec_comp_code_engine__iclk         ) ,
+    .ireset       ( btc_dec_comp_code_engine__ireset       ) ,
+    .iclkena      ( btc_dec_comp_code_engine__iclkena      ) ,
     //
-    .istart       ( btc_dec_comp_code__istart       ) ,
-    .imode        ( btc_dec_comp_code__imode        ) ,
+    .istart       ( btc_dec_comp_code_engine__istart       ) ,
+    .imode        ( btc_dec_comp_code_engine__imode        ) ,
     //
-    .ival         ( btc_dec_comp_code__ival         ) ,
-    .istrb        ( btc_dec_comp_code__istrb        ) ,
-    .ich_hd       ( btc_dec_comp_code__ich_hd       ) ,
-    .iLapri       ( btc_dec_comp_code__iLapri       ) ,
+    .ival         ( btc_dec_comp_code_engine__ival         ) ,
+    .istrb        ( btc_dec_comp_code_engine__istrb        ) ,
+    .ich_hd       ( btc_dec_comp_code_engine__ich_hd       ) ,
+    .iLapri       ( btc_dec_comp_code_engine__iLapri       ) ,
     //
-    .oval         ( btc_dec_comp_code__oval         ) ,
-    .ostrb        ( btc_dec_comp_code__ostrb        ) ,
-    .oLextr       ( btc_dec_comp_code__oLextr       ) ,
-    .obitdat      ( btc_dec_comp_code__obitdat      ) ,
-    .obiterr      ( btc_dec_comp_code__obiterr      ) ,
+    .oval         ( btc_dec_comp_code_engine__oval         ) ,
+    .ostrb        ( btc_dec_comp_code_engine__ostrb        ) ,
+    .oLextr       ( btc_dec_comp_code_engine__oLextr       ) ,
+    .obitdat      ( btc_dec_comp_code_engine__obitdat      ) ,
+    .obiterr      ( btc_dec_comp_code_engine__obiterr      ) ,
     //
-    .odecfail     ( btc_dec_comp_code__odecfail     ) ,
-    .odecfail_val ( btc_dec_comp_code__odecfail_val )
+    .odecfail     ( btc_dec_comp_code_engine__odecfail     ) ,
+    .odecfail_val ( btc_dec_comp_code_engine__odecfail_val )
   );
 
 
-  assign btc_dec_comp_code__iclk    = '0 ;
-  assign btc_dec_comp_code__ireset  = '0 ;
-  assign btc_dec_comp_code__iclkena = '0 ;
-  assign btc_dec_comp_code__istart  = '0 ;
-  assign btc_dec_comp_code__imode   = '0 ;
-  assign btc_dec_comp_code__ival    = '0 ;
-  assign btc_dec_comp_code__istrb   = '0 ;
-  assign btc_dec_comp_code__ich_hd  = '0 ;
-  assign btc_dec_comp_code__iLapri  = '0 ;
+  assign btc_dec_comp_code_engine__iclk    = '0 ;
+  assign btc_dec_comp_code_engine__ireset  = '0 ;
+  assign btc_dec_comp_code_engine__iclkena = '0 ;
+  assign btc_dec_comp_code_engine__istart  = '0 ;
+  assign btc_dec_comp_code_engine__imode   = '0 ;
+  assign btc_dec_comp_code_engine__ival    = '0 ;
+  assign btc_dec_comp_code_engine__istrb   = '0 ;
+  assign btc_dec_comp_code_engine__ich_hd  = '0 ;
+  assign btc_dec_comp_code_engine__iLapri  = '0 ;
 
 
 
