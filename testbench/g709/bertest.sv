@@ -2,7 +2,7 @@
 // Project       : super fec (G.975.1)
 // Author        : Shekhalev Denis (des00)
 // Workfile      : bertest.sv
-// Description   : testbench for (G.975.1) I.3 codec for QPSK AWGN
+// Description   : testbench for (G.709) 16-byte interleaved RS(255,239) codec for QPSK AWGN
 //
 
 `timescale 1ns/1ns

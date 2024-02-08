@@ -22,5 +22,6 @@ The library contain:
 16. DVB-S2/S2X BCH code 
 17. Wimax BTC (TPC) turbo code
 18. Super FEC (G.975.1) I.3 Concatenated BCH code 
+19. G.709 16-byte interleaved RS(255,239) code 
 
 All FEC IP Cores has static configuration and constrained performance. Call me if you need any IP core extension 
