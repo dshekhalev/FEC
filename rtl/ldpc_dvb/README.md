@@ -12,7 +12,7 @@ Codec input/core/output work in different clock domains.
 
 vivado 2019.1 Kintex 7 - 2 (artix worked but has timings routing problem)
 
-Encoder settings : DVB-S2 coderate = 5/6, block length = 64800 bits, interface 8 bits per tick
+Encoder settings : DVB-S2 coderate = 5/6, block length = 64800 bits, interface 8 bits per tick, no internal parity bits transponse
 
 Encoder 	: LUT/REG/RAMB 	3.7k/3.5k/15 	iface >250MHz(1.65Gbps -> 2Gbps), core >250MHz (~25.5Gbps at output) 
 
@@ -30,4 +30,6 @@ pNODE_W = 4 bits (worst codegain for 4 bit LLR)
 
 Decoder 	: LUT/REG/RAMB 	41k/49k/87.5 	iface >250MHz, core >250MHz (480Mbps -> 240Mbps)
 
-Attention: The coder and decoder correspond each other but can have different bit order with standard codes. Strongly speaking it's not DVB-S2 codec, because there is no parity bits reorder inside. It should be done external of codec during bit interleaving procedure !!! 
+Attention: The coder and decoder correspond each other but can have different bit order with standard codes. Strongly speaking it's not DVB-S2 codec by default, because there is no parity bits reorder inside. It should be done external of codec during bit interleaving procedure !!!
+
+PS. There is optinal parity bits transpose unit inside encoder? this unit don't have opponent inside decoder. That's why use it only for encoder aplications. 

@@ -8,39 +8,40 @@
   parameter int pTAG_W    = 4 ;
   //
   parameter int pCODEGR   = 1 ;
+  parameter int pCODERATE = 0 ;
   parameter bit pXMODE    = 0 ;
-  parameter bit pFIX_MODE = 1 ;
 
 
 
-  logic                       ldpc_dvb_enc_engine__iclk        ;
-  logic                       ldpc_dvb_enc_engine__ireset      ;
-  logic                       ldpc_dvb_enc_engine__iclkena     ;
+  logic                       ldpc_dvb_enc_engine_fix__iclk        ;
+  logic                       ldpc_dvb_enc_engine_fix__ireset      ;
+  logic                       ldpc_dvb_enc_engine_fix__iclkena     ;
   //
-  logic                       ldpc_dvb_enc_engine__irbuf_full  ;
+  logic                       ldpc_dvb_enc_engine_fix__irbuf_full  ;
   //
-  code_ctx_t                  ldpc_dvb_enc_engine__icode_ctx   ;
+  logic       [cZC_MAX-1 : 0] ldpc_dvb_enc_engine_fix__irdat       ;
+  logic        [pTAG_W-1 : 0] ldpc_dvb_enc_engine_fix__irtag       ;
+  logic                       ldpc_dvb_enc_engine_fix__orempty     ;
+  logic      [pRADDR_W-1 : 0] ldpc_dvb_enc_engine_fix__oraddr      ;
   //
-  logic       [cZC_MAX-1 : 0] ldpc_dvb_enc_engine__irdat       ;
-  logic        [pTAG_W-1 : 0] ldpc_dvb_enc_engine__irtag       ;
-  logic                       ldpc_dvb_enc_engine__orempty     ;
-  logic      [pRADDR_W-1 : 0] ldpc_dvb_enc_engine__oraddr      ;
+  logic                       ldpc_dvb_enc_engine_fix__iwbuf_empty ;
   //
-  logic                       ldpc_dvb_enc_engine__iwbuf_empty ;
+  logic      [pWADDR_W-1 : 0] ldpc_dvb_enc_engine_fix__owcol       ;
+  logic      [pWADDR_W-1 : 0] ldpc_dvb_enc_engine_fix__owdata_col  ;
+  logic      [pWADDR_W-1 : 0] ldpc_dvb_enc_engine_fix__owrow       ;
   //
-  logic      [pWADDR_W-1 : 0] ldpc_dvb_enc_engine__owcol       ;
-  logic      [pWADDR_W-1 : 0] ldpc_dvb_enc_engine__owdata_col  ;
-  logic      [pWADDR_W-1 : 0] ldpc_dvb_enc_engine__owrow       ;
+  logic                       ldpc_dvb_enc_engine_fix__owrite      ;
+  logic                       ldpc_dvb_enc_engine_fix__owfull      ;
+  logic      [pWADDR_W-1 : 0] ldpc_dvb_enc_engine_fix__owaddr      ;
+  logic       [cZC_MAX-1 : 0] ldpc_dvb_enc_engine_fix__owdat       ;
+  logic        [pTAG_W-1 : 0] ldpc_dvb_enc_engine_fix__owtag       ;
   //
-  logic                       ldpc_dvb_enc_engine__owrite      ;
-  logic                       ldpc_dvb_enc_engine__owfull      ;
-  logic      [pWADDR_W-1 : 0] ldpc_dvb_enc_engine__owaddr      ;
-  logic       [cZC_MAX-1 : 0] ldpc_dvb_enc_engine__owdat       ;
-  logic        [pTAG_W-1 : 0] ldpc_dvb_enc_engine__owtag       ;
+  logic                       ldpc_dvb_enc_engine_fix__opwrite     ;
+  logic      [pWADDR_W-1 : 0] ldpc_dvb_enc_engine_fix__opwaddr     ;
 
 
 
-  ldpc_dvb_enc_engine
+  ldpc_dvb_enc_engine_fix
   #(
     .pRADDR_W  ( pRADDR_W  ) ,
     .pWADDR_W  ( pWADDR_W  ) ,
@@ -48,46 +49,46 @@
     .pTAG_W    ( pTAG_W    ) ,
     //
     .pCODEGR   ( pCODEGR   ) ,
-    .pXMODE    ( pXMODE    ) ,
-    .pFIX_MODE ( pFIX_MODE )
+    .pCODRATE  ( pCODERATE ) ,
+    .pXMODE    ( pXMODE    )
   )
-  ldpc_dvb_enc_engine
+  ldpc_dvb_enc_engine_fix
   (
-    .iclk        ( ldpc_dvb_enc_engine__iclk        ) ,
-    .ireset      ( ldpc_dvb_enc_engine__ireset      ) ,
-    .iclkena     ( ldpc_dvb_enc_engine__iclkena     ) ,
+    .iclk        ( ldpc_dvb_enc_engine_fix__iclk        ) ,
+    .ireset      ( ldpc_dvb_enc_engine_fix__ireset      ) ,
+    .iclkena     ( ldpc_dvb_enc_engine_fix__iclkena     ) ,
     //
-    .irbuf_full  ( ldpc_dvb_enc_engine__irbuf_full  ) ,
+    .irbuf_full  ( ldpc_dvb_enc_engine_fix__irbuf_full  ) ,
     //
-    .icode_ctx   ( ldpc_dvb_enc_engine__icode_ctx   ) ,
+    .irdat       ( ldpc_dvb_enc_engine_fix__irdat       ) ,
+    .irtag       ( ldpc_dvb_enc_engine_fix__irtag       ) ,
+    .orempty     ( ldpc_dvb_enc_engine_fix__orempty     ) ,
+    .oraddr      ( ldpc_dvb_enc_engine_fix__oraddr      ) ,
     //
-    .irdat       ( ldpc_dvb_enc_engine__irdat       ) ,
-    .irtag       ( ldpc_dvb_enc_engine__irtag       ) ,
-    .orempty     ( ldpc_dvb_enc_engine__orempty     ) ,
-    .oraddr      ( ldpc_dvb_enc_engine__oraddr      ) ,
+    .iwbuf_empty ( ldpc_dvb_enc_engine_fix__iwbuf_empty ) ,
     //
-    .iwbuf_empty ( ldpc_dvb_enc_engine__iwbuf_empty ) ,
+    .owcol       ( ldpc_dvb_enc_engine_fix__owcol       ) ,
+    .owdata_col  ( ldpc_dvb_enc_engine_fix__owdata_col  ) ,
+    .owrow       ( ldpc_dvb_enc_engine_fix__owrow       ) ,
     //
-    .owcol       ( ldpc_dvb_enc_engine__owcol       ) ,
-    .owdata_col  ( ldpc_dvb_enc_engine__owdata_col  ) ,
-    .owrow       ( ldpc_dvb_enc_engine__owrow       ) ,
+    .owrite      ( ldpc_dvb_enc_engine_fix__owrite      ) ,
+    .owfull      ( ldpc_dvb_enc_engine_fix__owfull      ) ,
+    .owaddr      ( ldpc_dvb_enc_engine_fix__owaddr      ) ,
+    .owdat       ( ldpc_dvb_enc_engine_fix__owdat       ) ,
+    .owtag       ( ldpc_dvb_enc_engine_fix__owtag       )
     //
-    .owrite      ( ldpc_dvb_enc_engine__owrite      ) ,
-    .owfull      ( ldpc_dvb_enc_engine__owfull      ) ,
-    .owaddr      ( ldpc_dvb_enc_engine__owaddr      ) ,
-    .owdat       ( ldpc_dvb_enc_engine__owdat       ) ,
-    .owtag       ( ldpc_dvb_enc_engine__owtag       )
+    .opwrite     ( ldpc_dvb_enc_engine_fix__opwrite     ) ,
+    .opwaddr     ( ldpc_dvb_enc_engine_fix__opwaddr     )
   );
 
 
-  assign ldpc_dvb_enc_engine__iclk        = '0 ;
-  assign ldpc_dvb_enc_engine__ireset      = '0 ;
-  assign ldpc_dvb_enc_engine__iclkena     = '0 ;
-  assign ldpc_dvb_enc_engine__irbuf_full  = '0 ;
-  assign ldpc_dvb_enc_engine__icode_ctx   = '0 ;
-  assign ldpc_dvb_enc_engine__irdat       = '0 ;
-  assign ldpc_dvb_enc_engine__irtag       = '0 ;
-  assign ldpc_dvb_enc_engine__iwbuf_empty = '0 ;
+  assign ldpc_dvb_enc_engine_fix__iclk        = '0 ;
+  assign ldpc_dvb_enc_engine_fix__ireset      = '0 ;
+  assign ldpc_dvb_enc_engine_fix__iclkena     = '0 ;
+  assign ldpc_dvb_enc_engine_fix__irbuf_full  = '0 ;
+  assign ldpc_dvb_enc_engine_fix__irdat       = '0 ;
+  assign ldpc_dvb_enc_engine_fix__irtag       = '0 ;
+  assign ldpc_dvb_enc_engine_fix__iwbuf_empty = '0 ;
 
 
 
@@ -96,20 +97,20 @@
 //
 // Project       : ldpc DVB-S2
 // Author        : Shekhalev Denis (des00)
-// Workfile      : ldpc_dvb_enc_engine.sv
+// Workfile      : ldpc_dvb_enc_engine_fix.sv
 // Description   : variable mode DVB LDPC RTL encoder engine
 //
 
-module ldpc_dvb_enc_engine
+module ldpc_dvb_enc_engine_fix
 #(
   parameter int pRADDR_W  = 8 ,
   parameter int pWADDR_W  = 8 ,
   //
   parameter int pTAG_W    = 4 ,
   //
-  parameter bit pCODEGR   = 1 , // maximum used graph short(0)/large(1)
-  parameter bit pXMODE    = 0 , // DVB-S2X code tables using
-  parameter bit pFIX_MODE = 0   // use fixed mode encoder or not
+  parameter int pCODEGR   = 1 , // short(0)/large(1)/medium(2) graph
+  parameter int pCODERATE = 1 , // coderate table see in ldpc_dvb_constants.svh
+  parameter bit pXMODE    = 0   // DVB-S2X code tables using
 )
 (
   iclk        ,
@@ -117,8 +118,6 @@ module ldpc_dvb_enc_engine
   iclkena     ,
   //
   irbuf_full  ,
-  //
-  icode_ctx   ,
   //
   irdat       ,
   irtag       ,
@@ -135,7 +134,10 @@ module ldpc_dvb_enc_engine
   owfull      ,
   owaddr      ,
   owdat       ,
-  owtag
+  owtag       ,
+  //
+  opwrite     ,
+  opwaddr
 );
 
   `include "../ldpc_dvb_constants.svh"
@@ -150,8 +152,6 @@ module ldpc_dvb_enc_engine
   input  logic                       iclkena     ;
   // input ram interface
   input  logic                       irbuf_full  ;
-  //
-  input  code_ctx_t                  icode_ctx   ;
   //
   input  logic       [cZC_MAX-1 : 0] irdat       ;
   input  logic        [pTAG_W-1 : 0] irtag       ;
@@ -169,6 +169,9 @@ module ldpc_dvb_enc_engine
   output logic      [pWADDR_W-1 : 0] owaddr      ;
   output logic       [cZC_MAX-1 : 0] owdat       ;
   output logic        [pTAG_W-1 : 0] owtag       ;
+  //
+  output logic                       opwrite     ;
+  output logic      [pWADDR_W-1 : 0] opwaddr     ;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -180,7 +183,7 @@ module ldpc_dvb_enc_engine
   localparam                   int cBS_DELAY     = 3 + cRDAT_DELAY;  // barrel shifter delay
 
   // parity bit RAM settings
-  localparam int cPRAM_ADDR_W = pCODEGR ? cLOG2_ROW_MAX : cLOG2_ROW_SHORT_MAX;
+  localparam int cPRAM_ADDR_W = (pCODEGR == cCODEGR_LARGE) ? cLOG2_ROW_MAX : ((pCODEGR == cCODEGR_MEDIUM) ? cLOG2_ROW_MEDIUM_MAX :  cLOG2_ROW_SHORT_MAX);
   localparam int cPRAM_DAT_W  = cZC_MAX;
 
   //------------------------------------------------------------------------------------------------------
@@ -276,71 +279,42 @@ module ldpc_dvb_enc_engine
   logic                       mux__owrite         ;
   col_t                       mux__owaddr         ;
   zdat_t                      mux__owdat          ;
+  //
+  logic                       mux__opwrite        ;
+  col_t                       mux__opwaddr        ;
 
   //------------------------------------------------------------------------------------------------------
   // Hs "generator"
   //------------------------------------------------------------------------------------------------------
 
-  generate
-    if (pFIX_MODE) begin : hs_inst_gen
-      ldpc_dvb_enc_hs
-      #(
-      .pXMODE ( pXMODE ) ,
-      .pPIPE  ( 1      )  // 2 tick latency
-      )
-      hs
-      (
-        .iclk           ( iclk                   ) ,
-        .ireset         ( ireset                 ) ,
-        .iclkena        ( iclkena                ) ,
-        //
-        .icode_ctx      ( hs_gen__icode_ctx      ) ,
-        //
-        .oused_col      ( hs_gen__oused_col      ) ,
-        .oused_data_col ( hs_gen__oused_data_col ) ,
-        .oused_row      ( hs_gen__oused_row      ) ,
-        .ocycle_max_num ( hs_gen__ocycle_max_num ) ,
-        //
-        .icycle_read    ( hs_gen__icycle_read    ) ,
-        .icycle_idx     ( hs_gen__icycle_idx     ) ,
-        //
-        .ocycle_read    ( hs_gen__ocycle_read    ) ,
-        .ocycle_strb    ( hs_gen__ocycle_strb    ) ,
-        .ocycle_col_idx ( hs_gen__ocycle_col_idx ) ,
-        .ocycle_shift   ( hs_gen__ocycle_shift   )
-      );
-    end
-    else begin
-      ldpc_dvb_enc_hs_gen
-      #(
-        .pXMODE ( pXMODE ) ,
-        .pPIPE  ( 1      )  // 2 tick latency
-      )
-      hs_gen
-      (
-        .iclk           ( iclk                   ) ,
-        .ireset         ( ireset                 ) ,
-        .iclkena        ( iclkena                ) ,
-        //
-        .icode_ctx      ( hs_gen__icode_ctx      ) ,
-        //
-        .oused_col      ( hs_gen__oused_col      ) ,
-        .oused_data_col ( hs_gen__oused_data_col ) ,
-        .oused_row      ( hs_gen__oused_row      ) ,
-        .ocycle_max_num ( hs_gen__ocycle_max_num ) ,
-        //
-        .icycle_read    ( hs_gen__icycle_read    ) ,
-        .icycle_idx     ( hs_gen__icycle_idx     ) ,
-        //
-        .ocycle_read    ( hs_gen__ocycle_read    ) ,
-        .ocycle_strb    ( hs_gen__ocycle_strb    ) ,
-        .ocycle_col_idx ( hs_gen__ocycle_col_idx ) ,
-        .ocycle_shift   ( hs_gen__ocycle_shift   )
-      );
-    end
-  endgenerate
+  ldpc_dvb_enc_hs
+  #(
+    .pXMODE ( pXMODE ) ,
+    .pPIPE  ( 1      )  // 2 tick latency
+  )
+  hs
+  (
+    .iclk           ( iclk                   ) ,
+    .ireset         ( ireset                 ) ,
+    .iclkena        ( iclkena                ) ,
+    //
+    .icode_ctx      ( hs_gen__icode_ctx      ) ,
+    //
+    .oused_col      ( hs_gen__oused_col      ) ,
+    .oused_data_col ( hs_gen__oused_data_col ) ,
+    .oused_row      ( hs_gen__oused_row      ) ,
+    .ocycle_max_num ( hs_gen__ocycle_max_num ) ,
+    //
+    .icycle_read    ( hs_gen__icycle_read    ) ,
+    .icycle_idx     ( hs_gen__icycle_idx     ) ,
+    //
+    .ocycle_read    ( hs_gen__ocycle_read    ) ,
+    .ocycle_strb    ( hs_gen__ocycle_strb    ) ,
+    .ocycle_col_idx ( hs_gen__ocycle_col_idx ) ,
+    .ocycle_shift   ( hs_gen__ocycle_shift   )
+  );
 
-  assign hs_gen__icode_ctx    = icode_ctx;
+  assign hs_gen__icode_ctx    = '{xmode : pXMODE, gr : pCODEGR, coderate : pCODERATE};
 
   assign hs_gen__icycle_read  = ctrl__ocycle_read;
   assign hs_gen__icycle_idx   = ctrl__ocycle_idx;
@@ -570,7 +544,10 @@ module ldpc_dvb_enc_engine
     .owfull         ( mux__owfull         ) ,
     .owrite         ( mux__owrite         ) ,
     .owaddr         ( mux__owaddr         ) ,
-    .owdat          ( mux__owdat          )
+    .owdat          ( mux__owdat          ) ,
+    //
+    .opwrite        ( mux__opwrite        ) ,
+    .opwaddr        ( mux__opwaddr        )
   );
 
   always_ff @(posedge iclk) begin
@@ -598,6 +575,9 @@ module ldpc_dvb_enc_engine
   assign owrite = mux__owrite;
   assign owaddr = mux__owaddr[pWADDR_W-1 : 0];
   assign owdat  = mux__owdat;
+
+  assign opwrite  = mux__opwrite;
+  assign opwaddr  = mux__opwaddr[pWADDR_W-1 : 0];
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin

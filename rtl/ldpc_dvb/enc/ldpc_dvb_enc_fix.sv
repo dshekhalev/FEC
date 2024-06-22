@@ -5,8 +5,8 @@
   parameter int pDAT_W         = 8 ;
   parameter int pTAG_W         = 4 ;
   parameter bit pDO_TRANSPONSE = 0 ;
-
-  parameter bit pCODEGR        = 0 ;
+  parameter int pTR_DAT_W      = 8 ;
+  parameter int pCODEGR        = 0 ;
   parameter int pCODERATE      = 9 ;
   parameter bit pXMODE         = 0 ;
 
@@ -42,6 +42,7 @@
     .pDAT_W         ( pDAT_W         ) ,
     .pTAG_W         ( pTAG_W         ) ,
     .pDO_TRANSPONSE ( pDO_TRANSPONSE ) ,
+    .pTR_DAT_W      ( pTR_DAT_W      ) ,
     .pCODEGR        ( pCODEGR        ) ,
     .pCODERATE      ( pCODERATE      ) ,
     .pXMODE         ( pXMODE         )
@@ -99,7 +100,6 @@
 // Description   : fixed mode DVB RTL encoder with asynchronus input/output/core clocks
 //
 
-
 module ldpc_dvb_enc_fix
 (
   iclk      ,
@@ -130,11 +130,12 @@ module ldpc_dvb_enc_fix
   parameter int pDAT_W         = 8 ;  // must be multiply of cZC_MAX (360)
   parameter int pTAG_W         = 4 ;
   parameter bit pDO_TRANSPONSE = 0 ;  // do output transponse to be like DVB-S standart or not
+  parameter int pTR_DAT_W      = 8 ;  // transponce engine internal data bitwidth. only 4/8/16 support
 
   `include "../ldpc_dvb_constants.svh"
   `include "ldpc_dvb_enc_types.svh"
 
-  parameter bit pCODEGR        = cCODEGR_LARGE  ; // short(0)/large(1) graph
+  parameter int pCODEGR        = cCODEGR_LARGE  ; // short(0)/large(1)/medium(2) graph
   parameter int pCODERATE      = cCODERATE_5by6 ; // coderate table see in ldpc_dvb_constants.svh
   parameter bit pXMODE         = 0              ; // DVB-S2X code tables using
 
@@ -191,7 +192,7 @@ module ldpc_dvb_enc_fix
   localparam int cOB_DAT_W      = cZC_MAX;
   localparam int cOB_TAG_W      = pTAG_W + cOB_ADDR_W;
 
-  localparam int cZC_FACTOR  = cIB_RDAT_W/cIB_WDAT_W;
+  localparam int cZC_FACTOR     = cIB_RDAT_W/cIB_WDAT_W;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -235,7 +236,6 @@ module ldpc_dvb_enc_fix
   //
   // engine
   logic                     engine__irbuf_full  ;
-  code_ctx_t                engine__icode_ctx   ;
   //
   logic     [cZC_MAX-1 : 0] engine__irdat       ;
   logic      [pTAG_W-1 : 0] engine__irtag       ;
@@ -253,6 +253,27 @@ module ldpc_dvb_enc_fix
   logic  [cOB_ADDR_W-1 : 0] engine__owaddr      ;
   logic     [cZC_MAX-1 : 0] engine__owdat       ;
   logic      [pTAG_W-1 : 0] engine__owtag       ;
+  //
+  logic                     engine__opwrite     ;
+  logic  [cOB_ADDR_W-1 : 0] engine__opwaddr     ;
+
+  //
+  // optional transponse
+  logic [cOB_ADDR_W-1 : 0] transponse__iwrow      ;
+  logic [cOB_ADDR_W-1 : 0] transponse__iwdata_col ;
+  //
+  logic                    transponse__iwrite     ;
+  logic                    transponse__iwfull     ;
+  logic [cOB_ADDR_W-1 : 0] transponse__iwaddr     ;
+  logic    [cZC_MAX-1 : 0] transponse__iwdat      ;
+  logic                    transponse__ipwrite    ;
+  logic [cOB_ADDR_W-1 : 0] transponse__ipwaddr    ;
+  logic                    transponse__ordy       ;
+  //
+  logic                    transponse__owrite     ;
+  logic                    transponse__owfull     ;
+  logic [cOB_ADDR_W-1 : 0] transponse__owaddr     ;
+  logic    [cZC_MAX-1 : 0] transponse__owdat      ;
 
   //
   // output buffer
@@ -417,7 +438,7 @@ module ldpc_dvb_enc_fix
   // engine
   //------------------------------------------------------------------------------------------------------
 
-  ldpc_dvb_enc_engine
+  ldpc_dvb_enc_engine_fix
   #(
     .pRADDR_W  ( cIB_RADDR_W ) ,
     .pWADDR_W  ( cOB_ADDR_W  ) ,
@@ -425,8 +446,8 @@ module ldpc_dvb_enc_fix
     .pTAG_W    ( pTAG_W      ) ,
     //
     .pCODEGR   ( pCODEGR     ) ,
-    .pXMODE    ( pXMODE      ) ,
-    .pFIX_MODE ( 1           )
+    .pCODERATE ( pCODERATE   ) ,
+    .pXMODE    ( pXMODE      )
   )
   engine
   (
@@ -435,7 +456,6 @@ module ldpc_dvb_enc_fix
     .iclkena     ( 1'b1                ) ,
     //
     .irbuf_full  ( engine__irbuf_full  ) ,
-    .icode_ctx   ( engine__icode_ctx   ) ,
     //
     .irdat       ( engine__irdat       ) ,
     .irtag       ( engine__irtag       ) ,
@@ -452,12 +472,14 @@ module ldpc_dvb_enc_fix
     .owfull      ( engine__owfull      ) ,
     .owaddr      ( engine__owaddr      ) ,
     .owdat       ( engine__owdat       ) ,
-    .owtag       ( engine__owtag       )
+    .owtag       ( engine__owtag       ) ,
+    //
+    .opwrite     ( engine__opwrite     ) ,
+    .opwaddr     ( engine__opwaddr     )
   );
 
   assign engine__irbuf_full   = ibuffer__orfull;
 
-  assign engine__icode_ctx    = '{xmode : pXMODE, gr : pCODEGR, coderate : pCODERATE};
   assign engine__irtag        = ibuffer__ortag;
 
   assign engine__irdat        = ibuffer__ordat;
@@ -468,7 +490,47 @@ module ldpc_dvb_enc_fix
 
   generate
     if (pDO_TRANSPONSE) begin : transponse_inst_gen
-      assign engine__iwbuf_empty  = '0;
+      ldpc_dvb_enc_transponse
+      #(
+        .pADDR_W   ( cOB_ADDR_W ) ,
+        .pDAT_W    ( cZC_MAX    ) ,
+        .pTR_DAT_W ( pTR_DAT_W  )
+      )
+      transponse
+      (
+        .iclk       ( iclk                   ) ,
+        .ireset     ( ireset                 ) ,
+        .iclkena    ( 1'b1                   ) ,
+        //
+        .iwrow      ( transponse__iwrow      ) ,
+        .iwdata_col ( transponse__iwdata_col ) ,
+        //
+        .iwrite     ( transponse__iwrite     ) ,
+        .iwfull     ( transponse__iwfull     ) ,
+        .iwaddr     ( transponse__iwaddr     ) ,
+        .iwdat      ( transponse__iwdat      ) ,
+        .ipwrite    ( transponse__ipwrite    ) ,
+        .ipwaddr    ( transponse__ipwaddr    ) ,
+        .ordy       ( transponse__ordy       ) ,
+        //
+        .owrite     ( transponse__owrite     ) ,
+        .owfull     ( transponse__owfull     ) ,
+        .owaddr     ( transponse__owaddr     ) ,
+        .owdat      ( transponse__owdat      )
+      );
+
+      assign transponse__iwrow      = engine__owrow ;
+      assign transponse__iwdata_col = engine__owdata_col;
+
+      assign transponse__iwrite     = engine__owrite ;
+      assign transponse__iwfull     = engine__owfull ;
+      assign transponse__iwaddr     = engine__owaddr ;
+      assign transponse__iwdat      = engine__owdat  ;
+      //
+      assign transponse__ipwrite    = engine__opwrite ;
+      assign transponse__ipwaddr    = engine__opwaddr ;
+      //
+      assign engine__iwbuf_empty    = transponse__ordy & obuffer__owempty;
     end
     else begin
       assign engine__iwbuf_empty  = obuffer__owempty;
@@ -520,12 +582,13 @@ module ldpc_dvb_enc_fix
   generate
     if (pDO_TRANSPONSE) begin : transponse_path_gen
 
-      assign obuffer__iwrite  = '0;
-      assign obuffer__iwfull  = '0;
-      assign obuffer__iwaddr  = '0;
-      assign obuffer__iwdat   = '0;
+      assign obuffer__iwrite  = transponse__owrite;
+      assign obuffer__iwfull  = transponse__owfull;
+      assign obuffer__iwaddr  = transponse__owaddr;
+      assign obuffer__iwdat   = transponse__owdat ;
 
-      assign obuffer__iwtag   = '0;
+      // can make so because engine wait for transponse end
+      assign obuffer__iwtag   = {engine__owcol, engine__owtag};
 
     end
     else begin : no_transponse_path_gen
