@@ -25,3 +25,7 @@ The library contain:
 19. G.709 16-byte interleaved RS(255,239) code 
 
 All FEC IP Cores has static configuration and constrained performance. Call me if you need any IP core extension 
+
+New feature added: full-featured netlists with limited operating modes support. No any time limit, free to use, example included. 
+
+1. DVB-S2/S2X compliant codec up to 1.5Gpbs.  
