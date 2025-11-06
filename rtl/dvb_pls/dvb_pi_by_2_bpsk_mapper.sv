@@ -1,13 +1,15 @@
 /*
 
 
-  parameter bit pONE_IS_PLUS = 1 ;
+  parameter int pDAT_W = 2;
 
 
 
   logic dvb_pi_by_2_bpsk_mapper__iclk    ;
   logic dvb_pi_by_2_bpsk_mapper__ireset  ;
   logic dvb_pi_by_2_bpsk_mapper__iclkena ;
+  //
+  logic dvb_pi_by_2_bpsk_mapper__irotate ;
   //
   logic dvb_pi_by_2_bpsk_mapper__isop    ;
   logic dvb_pi_by_2_bpsk_mapper__ival    ;
@@ -24,13 +26,15 @@
 
   dvb_pi_by_2_bpsk_mapper
   #(
-    .pONE_IS_PLUS ( pONE_IS_PLUS )
+    .pDAT_W ( pDAT_W )
   )
   dvb_pi_by_2_bpsk_mapper
   (
     .iclk    ( dvb_pi_by_2_bpsk_mapper__iclk    ) ,
     .ireset  ( dvb_pi_by_2_bpsk_mapper__ireset  ) ,
     .iclkena ( dvb_pi_by_2_bpsk_mapper__iclkena ) ,
+    //
+    .irotate ( dvb_pi_by_2_bpsk_mapper__irotate ) ,
     //
     .isop    ( dvb_pi_by_2_bpsk_mapper__isop    ) ,
     .ival    ( dvb_pi_by_2_bpsk_mapper__ival    ) ,
@@ -48,6 +52,7 @@
   assign dvb_pi_by_2_bpsk_mapper__iclk    = '0 ;
   assign dvb_pi_by_2_bpsk_mapper__ireset  = '0 ;
   assign dvb_pi_by_2_bpsk_mapper__iclkena = '0 ;
+  assign dvb_pi_by_2_bpsk_mapper__irotate = '0 ;
   assign dvb_pi_by_2_bpsk_mapper__isop    = '0 ;
   assign dvb_pi_by_2_bpsk_mapper__ival    = '0 ;
   assign dvb_pi_by_2_bpsk_mapper__ieop    = '0 ;
@@ -61,18 +66,19 @@
 // Project       : FEC library
 // Author        : Shekhalev Denis (des00)
 // Workfile      : dvb_pi_by_2_bpsk_mapper.sv
-// Description   : DVB pi/2 mapper with negative/posive polarity
-//                 odat = pONE_IS_PLUS ? (0/1 == -1/1) : (0/1 == 1/-1)
+// Description   : DVB pi/2 mapper with phase rotation for PLS
 //
 
 module dvb_pi_by_2_bpsk_mapper
 #(
-  parameter bit pONE_IS_PLUS = 1  // default DVB-PLS
+  parameter int pDAT_W = 2
 )
 (
   iclk    ,
   ireset  ,
   iclkena ,
+  //
+  irotate ,
   //
   isop    ,
   ival    ,
@@ -90,20 +96,29 @@ module dvb_pi_by_2_bpsk_mapper
   //
   //------------------------------------------------------------------------------------------------------
 
-  input  logic iclk    ;
-  input  logic ireset  ;
-  input  logic iclkena ;
+  input  logic                iclk    ;
+  input  logic                ireset  ;
+  input  logic                iclkena ;
   //
-  input  logic isop    ;
-  input  logic ival    ;
-  input  logic ieop    ;
-  input  logic idat    ;
+  input  logic                irotate ;  // rotate phase to pi/2 for PLS if b0 = 1
   //
-  output logic osop    ;
-  output logic oval    ;
-  output logic oeop    ;
-  output logic odat_re ;  // 1/0 -> +1/-1
-  output logic odat_im ;  // 1/0 -> +1/-1
+  input  logic                isop    ;
+  input  logic                ival    ;
+  input  logic                ieop    ;
+  input  logic                idat    ;
+  //
+  output logic                osop    ;
+  output logic                oval    ;
+  output logic                oeop    ;
+  output logic [pDAT_W-1 : 0] odat_re ;
+  output logic [pDAT_W-1 : 0] odat_im ;
+
+  //------------------------------------------------------------------------------------------------------
+  //
+  //------------------------------------------------------------------------------------------------------
+
+  localparam int cP_ONE = 2**(pDAT_W-1) - 1;
+  localparam int cM_ONE = -cP_ONE;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -111,11 +126,20 @@ module dvb_pi_by_2_bpsk_mapper
 
   logic even_ff;
 
+  logic signed [pDAT_W-1 : 0] dat;
+
   //------------------------------------------------------------------------------------------------------
-  //
+  // irotate = 0 :
+  //    even symbols  :   (1 - 2*idat) + 1i*(1 - 2*idat)
+  //    odd symbols      -(1 - 2*idat) + 1i*(1 - 2*idat)
+  // irotate = 1 :
+  //    even symbols  :  -(1 - 2*idat) + 1i*(1 - 2*idat)
+  //    odd symbols   :  -(1 - 2*idat) - 1i*(1 - 2*idat)
   //------------------------------------------------------------------------------------------------------
 
   wire even = isop ? 1'b1 : !even_ff;
+
+  assign dat = idat ? cM_ONE : cP_ONE;
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
@@ -125,13 +149,13 @@ module dvb_pi_by_2_bpsk_mapper
       if (ival) begin
         even_ff <= even;
         //
-        if (even) begin // DBV-S2 :: (1 - 2*idat) + 1i*(1 - 2*idat)
-          odat_re <= pONE_IS_PLUS ? !idat : idat;
-          odat_im <= pONE_IS_PLUS ? !idat : idat;
+        if (irotate) begin  // pi/2 rotation
+          odat_re <= -dat;
+          odat_im <= even ? dat : -dat;
         end
-        else begin // DBV-S2 :: -(1 - 2*idat) + 1i*(1 - 2*idat)
-          odat_re <= pONE_IS_PLUS ?  idat : !idat;
-          odat_im <= pONE_IS_PLUS ? !idat :  idat;
+        else begin
+          odat_re <= even ? dat : -dat;
+          odat_im <=        dat;
         end
       end
     end

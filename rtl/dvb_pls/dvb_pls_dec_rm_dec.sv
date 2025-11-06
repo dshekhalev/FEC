@@ -2,7 +2,8 @@
 
 
 
-  parameter int pDAT_W = 4 ;
+  parameter int pDAT_W      = 4 ;
+  parameter bit pBIT0_VALUE = 0 ;
 
 
 
@@ -23,17 +24,16 @@
   logic                dvb_pls_dec_rm_dec__isort_eop        ;
   logic                dvb_pls_dec_rm_dec__ohadamard_done   ;
   //
-  logic                dvb_pls_dec_rm_dec__obit6_metric_val ;
-  metric_sum_t         dvb_pls_dec_rm_dec__obit6_metric     ;
-  //
   logic                dvb_pls_dec_rm_dec__oval             ;
-  logic        [5 : 0] dvb_pls_dec_rm_dec__odat             ;
+  logic        [0 : 7] dvb_pls_dec_rm_dec__odat             ;
+  metric_sum_t         dvb_pls_dec_rm_dec__odat_metric      ;
 
 
 
   dvb_pls_dec_rm_dec
   #(
-    .pDAT_W ( pDAT_W )
+    .pDAT_W       ( pDAT_W      ) ,
+    .pBIT0_VALUE  ( pBIT0_VALUE )
   )
   dvb_pls_dec_rm_dec
   (
@@ -53,11 +53,10 @@
     .isort_eop         ( dvb_pls_dec_rm_dec__isort_eop         ) ,
     .ohadamard_done    ( dvb_pls_dec_rm_dec__ohadamard_done    ) ,
     //
-    .obit6_metric_oval ( dvb_pls_dec_rm_dec__obit6_metric_oval ) ,
-    .obit6_metric      ( dvb_pls_dec_rm_dec__obit6_metric      ) ,
-    //
     .oval              ( dvb_pls_dec_rm_dec__oval              ) ,
-    .odat              ( dvb_pls_dec_rm_dec__odat              )
+    .odat              ( dvb_pls_dec_rm_dec__odat              ) ,
+    .odat_metric       ( dvb_pls_dec_rm_dec__odat_metric       )
+
   );
 
 
@@ -83,33 +82,33 @@
 // Author        : Shekhalev Denis (des00)
 // Workfile      : dvb_pls_dec_rm_dec.sv
 // Description   : Read-Muller 1 order decoder based upon Hadamard32 transform with maximum likelihood metric
+//                 and bit7 decoder
 //
-
 
 module dvb_pls_dec_rm_dec
 (
-  iclk             ,
-  ireset           ,
-  iclkena          ,
+  iclk           ,
+  ireset         ,
+  iclkena        ,
   //
-  isop             ,
-  ival             ,
-  ieop             ,
-  iadd_n_sub       ,
-  iidx             ,
-  idat             ,
+  isop           ,
+  ival           ,
+  ieop           ,
+  iadd_n_sub     ,
+  iidx           ,
+  idat           ,
   //
-  isort_sop        ,
-  isort_val        ,
-  isort_eop        ,
-  ohadamard_done   ,
+  isort_sop      ,
+  isort_val      ,
+  isort_eop      ,
+  ohadamard_done ,
   //
-  obit6_metric_val ,
-  obit6_metric     ,
-  //
-  oval             ,
-  odat
+  oval           ,
+  odat           ,
+  odat_metric
 );
+
+  parameter bit pBIT0_VALUE = 0;  // b0 hypothesis
 
   `include "dvb_pls_dec_types.svh"
   `include "dvb_pls_constants.svh"
@@ -133,12 +132,10 @@ module dvb_pls_dec_rm_dec
   input  logic                isort_val        ;
   input  logic                isort_eop        ;
   output logic                ohadamard_done   ;
-  // bit 6 soft decision interface
-  output logic                obit6_metric_val ;
-  output metric_sum_t         obit6_metric     ;
-  // bit [5 : 0] hard decision interface
+  // bit [0 : 7] hard decision interface
   output logic                oval             ;
-  output logic        [5 : 0] odat             ;
+  output logic        [0 : 7] odat             ;
+  output metric_sum_t         odat_metric      ;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -183,6 +180,9 @@ module dvb_pls_dec_rm_dec
   metric_idx_t  max_idx_sub;
   logic         max_sign_sub;
 
+  //
+  metric_sum_t bit7_metric;
+
   //------------------------------------------------------------------------------------------------------
   // mult by hadamard32 row
   //------------------------------------------------------------------------------------------------------
@@ -205,7 +205,7 @@ module dvb_pls_dec_rm_dec
       mult2add        <=  idat;
       mult2sub        <= -idat;
       for (int w = 0; w < 32; w++) begin
-        mult_sel_add_n_sub[w] <= cHADAMARD32[w][iidx];
+        mult_sel_add_n_sub[w] <= cHADAMARD32[w][iidx] ^ (pBIT0_VALUE & cGMATRIX[0][iidx]);
       end
     end
   end
@@ -298,28 +298,22 @@ module dvb_pls_dec_rm_dec
   end
 
   //------------------------------------------------------------------------------------------------------
-  // bit 6 path 1 metric
+  // do decode must be 2 tick to allign external bit7 logic
   //------------------------------------------------------------------------------------------------------
 
-  always_ff @(posedge iclk) begin
-    if (iclkena) begin
-      obit6_metric_val <= max_val;
-      obit6_metric     <= max_sub - max_add;
-    end
-  end
-
-  //------------------------------------------------------------------------------------------------------
-  // do decode must be 3 tick to allign external bi6 logic
-  //------------------------------------------------------------------------------------------------------
-
-  logic  [2 : 0] val;
+  logic  [1 : 0] val;
 
   logic          decode_add_n_sum;
   logic [31 : 0] decode_bits_add;
   logic [31 : 0] decode_bits_sub;
+  metric_sum_t   decode_max_add;
+  metric_sum_t   decode_max_sub;
+  logic          decode_sign_add;
+  logic          decode_sign_sub;
 
   logic [31 : 0] decode_bits;
   logic          decode_sign;
+  metric_sum_t   decode_metric;
 
   always_ff @(posedge iclk or posedge ireset) begin
     if (ireset) begin
@@ -332,23 +326,44 @@ module dvb_pls_dec_rm_dec
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
+      // max_ val
       decode_add_n_sum  <= (max_add >= max_sub);
+      //
       decode_bits_add   <= cHADAMARD32[max_idx_add];
       decode_bits_sub   <= cHADAMARD32[max_idx_sub];
       //
-      decode_bits       <= decode_add_n_sum ? decode_bits_add : decode_bits_sub;
-      decode_sign       <= decode_add_n_sum ? max_sign_add    : max_sign_sub;
+      decode_sign_add   <= max_sign_add;
+      decode_sign_sub   <= max_sign_sub;
       //
-      odat[0]           <= decode_bits[0] ^ decode_sign;
-      odat[5]           <= decode_bits[0] ^ decode_bits[1];
-      odat[4]           <= decode_bits[0] ^ decode_bits[2];
-      odat[3]           <= decode_bits[0] ^ decode_bits[4];
-      odat[2]           <= decode_bits[0] ^ decode_bits[8];
-      odat[1]           <= decode_bits[0] ^ decode_bits[16];
+      decode_max_add    <= max_add;
+      decode_max_sub    <= max_sub;
+      //
+      bit7_metric       <= max_sub - max_add;
     end
   end
 
-  assign oval = val[2];
+  assign decode_bits    = decode_add_n_sum ? decode_bits_add : decode_bits_sub;
+  assign decode_sign    = decode_add_n_sum ? decode_sign_add : decode_sign_sub;
+  assign decode_metric  = decode_add_n_sum ? decode_max_add  : decode_max_sub;
+
+  always_ff @(posedge iclk) begin
+    if (iclkena) begin
+      odat[0]     <= pBIT0_VALUE;
+      // val[0]
+      odat[1]     <= decode_bits[0] ^ decode_bits[1];
+      odat[2]     <= decode_bits[0] ^ decode_bits[2];
+      odat[3]     <= decode_bits[0] ^ decode_bits[4];
+      odat[4]     <= decode_bits[0] ^ decode_bits[8];
+      odat[5]     <= decode_bits[0] ^ decode_bits[16];
+      odat[6]     <= decode_bits[0] ^ decode_sign;
+      //
+      odat[7]     <= (bit7_metric >= 0);
+      //
+      odat_metric <= decode_metric;
+    end
+  end
+
+  assign oval = val[1];
 
 endmodule
 

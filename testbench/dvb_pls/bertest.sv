@@ -1,5 +1,5 @@
 //
-// Project       : ldpc DVB-S2
+// Project       : pls DVB-S2
 // Author        : Shekhalev Denis (des00)
 // Workfile      : bertest.sv
 // Description   : testbench for DVB-S2 PLS codec for BPSK AWGN
@@ -15,6 +15,7 @@ module bertest;
 
   parameter int pTAG_W  = 4;
   parameter int pDAT_W  = 8;
+  parameter bit pXMODE  = 1;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -24,23 +25,21 @@ module bertest;
   logic                    ireset         ;
   logic                    iclkena        ;
 
-  logic            [7 : 0] iNiter         ;
-  logic                    ifmode         ;
-
   //
   // encoder
   logic                    enc__ival      ;
-  logic            [6 : 0] enc__idat      ;
+  logic            [7 : 0] enc__idat      ;
   logic     [pTAG_W-1 : 0] enc__itag      ;
   logic                    enc__ordy      ;
   //
-  logic                    enc__ireq      ;
-  //
+  logic                    enc__irdy      ;
   logic                    enc__osop      ;
   logic                    enc__oval      ;
   logic                    enc__oeop      ;
   logic                    enc__odat      ;
   logic     [pTAG_W-1 : 0] enc__otag      ;
+  //
+  logic                    enc__orotate   ;
 
   //
   // decoder
@@ -48,11 +47,12 @@ module bertest;
   logic                    dec__ival      ;
   logic                    dec__ieop      ;
   logic     [pTAG_W-1 : 0] dec__itag      ;
-  logic     [pDAT_W-1 : 0] dec__idat      ;
+  logic     [pDAT_W-1 : 0] dec__idat_re   ;
+  logic     [pDAT_W-1 : 0] dec__idat_im   ;
   logic                    dec__ordy      ;
 
   logic                    dec__oval      ;
-  logic            [6 : 0] dec__odat      ;
+  logic            [7 : 0] dec__odat      ;
   logic     [pTAG_W-1 : 0] dec__otag      ;
 
   //------------------------------------------------------------------------------------------------------
@@ -61,32 +61,34 @@ module bertest;
 
   dvb_pls_enc
   #(
-    .pTAG_W ( pTAG_W )
+    .pTAG_W ( pTAG_W ) ,
+    .pXMODE ( pXMODE )
   )
   enc
   (
-    .iclk    ( iclk      ) ,
-    .ireset  ( ireset    ) ,
-    .iclkena ( iclkena   ) ,
+    .iclk    ( iclk         ) ,
+    .ireset  ( ireset       ) ,
+    .iclkena ( iclkena      ) ,
     //
-    .ival    ( enc__ival ) ,
-    .idat    ( enc__idat ) ,
-    .itag    ( enc__itag ) ,
-    .ordy    ( enc__ordy ) ,
+    .ival    ( enc__ival    ) ,
+    .idat    ( enc__idat    ) ,
+    .itag    ( enc__itag    ) ,
+    .ordy    ( enc__ordy    ) ,
     //
-    .ireq    ( enc__ireq ) ,
-    //
-    .osop    ( enc__osop ) ,
-    .oval    ( enc__oval ) ,
-    .oeop    ( enc__oeop ) ,
-    .odat    ( enc__odat ) ,
-    .otag    ( enc__otag ) ,
+    .irdy    ( enc__irdy    ) ,
+    .osop    ( enc__osop    ) ,
+    .oval    ( enc__oval    ) ,
+    .oeop    ( enc__oeop    ) ,
+    .odat    ( enc__odat    ) ,
+    .otag    ( enc__otag    ) ,
     //
     .owval   ( ) ,
-    .owdat   ( )
+    .owdat   ( ) ,
+    //
+    .orotate ( enc__orotate )
   );
 
-  assign enc__ireq = 1'b1;
+  assign enc__irdy = 1'b1;
 
   //------------------------------------------------------------------------------------------------------
   // pi/2 BPSK mapper. Power is 2
@@ -94,8 +96,8 @@ module bertest;
 
   const real cBPSK_POW = 2.0;
 
-  logic             mapper__odat_re ;
-  logic             mapper__odat_im ;
+  logic signed [1 : 0] mapper__odat_re ;
+  logic signed [1 : 0] mapper__odat_im ;
 
   bit               bpsk_sop  ;
   bit               bpsk_val  ;
@@ -104,13 +106,15 @@ module bertest;
 
   dvb_pi_by_2_bpsk_mapper
   #(
-    .pONE_IS_PLUS ( 1 )
+    .pDAT_W ( 2 )
   )
   mapper
   (
     .iclk    ( iclk            ) ,
     .ireset  ( ireset          ) ,
     .iclkena ( iclkena         ) ,
+    //
+    .irotate ( enc__orotate    ) ,
     //
     .isop    ( enc__osop       ) ,
     .ival    ( enc__oval       ) ,
@@ -124,8 +128,8 @@ module bertest;
     .odat_im ( mapper__odat_im )
   );
 
-  assign bpsk.re = mapper__odat_re ? 1 : -1;
-  assign bpsk.im = mapper__odat_im ? 1 : -1;
+  assign bpsk.re = mapper__odat_re;
+  assign bpsk.im = mapper__odat_im;
 
   //------------------------------------------------------------------------------------------------------
   // awgn channel
@@ -150,11 +154,11 @@ module bertest;
   end
 
   //------------------------------------------------------------------------------------------------------
-  // scale data: set QPSK ref point to -+1024 point and saturate canstellation to -2047 : + 2047 point
+  // scale data: set QPSK ref point [-8:8)
   //------------------------------------------------------------------------------------------------------
 
-  localparam int NGC_MAX = 2047;
-  localparam int NGC_REF = 1024;
+  localparam int NGC_MAX = 2**(pDAT_W-1)-1;
+  localparam int NGC_REF = 2**(pDAT_W-4);
 
   bit                 ch_sop  ;
   bit                 ch_val  ;
@@ -186,51 +190,14 @@ module bertest;
   end
 
   //------------------------------------------------------------------------------------------------------
-  // pi/2 BPSK demapper
-  //------------------------------------------------------------------------------------------------------
-
-  logic signed [pDAT_W-2 : 0] demapper__idat_re ; // -1 bit don't use saturation
-  logic signed [pDAT_W-2 : 0] demapper__idat_im ;
-  //
-  logic                       demapper__osop    ;
-  logic                       demapper__oval    ;
-  logic                       demapper__oeop    ;
-  logic signed [pDAT_W-1 : 0] demapper__odat    ;
-
-  dvb_pi_by_2_bpsk_demapper
-  #(
-    .pIDAT_W ( pDAT_W-1 ) ,
-    .pODAT_W ( pDAT_W   )
-  )
-  demapper
-  (
-    .iclk    ( iclk              ) ,
-    .ireset  ( ireset            ) ,
-    .iclkena ( iclkena           ) ,
-    //
-    .isop    ( awgn_sop          ) ,
-    .ival    ( awgn_val          ) ,
-    .ieop    ( awgn_eop          ) ,
-    .idat_re ( demapper__idat_re ) ,
-    .idat_im ( demapper__idat_im ) ,
-    //
-    .osop    ( demapper__osop    ) ,
-    .oval    ( demapper__oval    ) ,
-    .oeop    ( demapper__oeop    ) ,
-    .odat    ( demapper__odat    )
-  );
-
-  assign demapper__idat_re = ch_dat_re[11 : 12 - (pDAT_W-1)]; // -1 bit
-  assign demapper__idat_im = ch_dat_im[11 : 12 - (pDAT_W-1)];
-
-  //------------------------------------------------------------------------------------------------------
   //
   //------------------------------------------------------------------------------------------------------
 
-  assign dec__isop = demapper__osop;
-  assign dec__ival = demapper__oval;
-  assign dec__ieop = demapper__oeop;
-  assign dec__idat = demapper__odat;
+  assign dec__isop    = ch_sop;
+  assign dec__ival    = ch_val;
+  assign dec__ieop    = ch_eop;
+  assign dec__idat_re = ch_dat_re;
+  assign dec__idat_im = ch_dat_im;
 
   //------------------------------------------------------------------------------------------------------
   // decoder
@@ -239,24 +206,26 @@ module bertest;
   dvb_pls_dec
   #(
     .pDAT_W ( pDAT_W ) ,
-    .pTAG_W ( pTAG_W )
+    .pTAG_W ( pTAG_W ) ,
+    .pXMODE ( pXMODE )
   )
   uut
   (
-    .iclk    ( iclk      ) ,
-    .ireset  ( ireset    ) ,
-    .iclkena ( iclkena   ) ,
+    .iclk    ( iclk         ) ,
+    .ireset  ( ireset       ) ,
+    .iclkena ( iclkena      ) ,
     //
-    .isop    ( dec__isop ) ,
-    .ival    ( dec__ival ) ,
-    .ieop    ( dec__ieop ) ,
-    .idat    ( dec__idat ) ,
-    .itag    ( dec__itag ) ,
-    .ordy    ( dec__ordy ) ,
+    .isop    ( dec__isop    ) ,
+    .ival    ( dec__ival    ) ,
+    .ieop    ( dec__ieop    ) ,
+    .idat_re ( dec__idat_re ) ,
+    .idat_im ( dec__idat_im ) ,
+    .itag    ( dec__itag    ) ,
+    .ordy    ( dec__ordy    ) ,
     //
-    .oval    ( dec__oval ) ,
-    .odat    ( dec__odat ) ,
-    .otag    ( dec__otag )
+    .oval    ( dec__oval    ) ,
+    .odat    ( dec__odat    ) ,
+    .otag    ( dec__otag    )
   );
 
   //------------------------------------------------------------------------------------------------------
@@ -309,8 +278,8 @@ module bertest;
     //
     @(posedge iclk iff !ireset);
     //
-    data_bit_length = 7;
-    coderate        = 7*1.0/64;
+    data_bit_length = (pXMODE ? 8 : 7);
+    coderate        = data_bit_length * 1.0/64;
 
     Npkt = B/data_bit_length;
 
@@ -342,7 +311,7 @@ module bertest;
         @(posedge iclk iff enc__ordy);
         repeat (16) @(posedge iclk);  // true hack
         @(posedge iclk iff dec__ordy);
-        if ((n % 128) == 0) begin
+        if ((n % 512) == 0) begin
           $display("sent %0d packets", n);
         end
       end
@@ -355,7 +324,7 @@ module bertest;
   // data reciver & checker
   //------------------------------------------------------------------------------------------------------
 
-  int numerr      [];
+  int numerr [];
 
   initial begin
     real coderate;
@@ -370,18 +339,18 @@ module bertest;
     int n;
     string s;
     //
-    numerr      = new[SNR.size()];
+    numerr = new[SNR.size()];
     foreach (numerr[k]) begin
-      numerr[k]     = 0;
+      numerr[k]  = 0;
     end
     //
     //
     @(posedge iclk iff !ireset);
     repeat (2) @(posedge iclk);
     //
-    data_bit_length = 7;
+    data_bit_length = (pXMODE ? 8 : 7);
     code_bit_length = 64;
-    coderate        = 7*1.0/64;
+    coderate        = data_bit_length * 1.0/64;
     //
     foreach (SNR[k]) begin
       n = 0;
@@ -395,18 +364,19 @@ module bertest;
           end
           //
           n++;
-          code    = code_queue.pop_front();
+          code = code_queue.pop_front();
 
-          err     = code.do_compare(decode);
+          err  = code.do_compare(decode);
           //
-          numerr[k]     += err;
+          numerr[k] += err;
           //
-          if ((n % 128) == 0) begin
+          if ((n % 512) == 0) begin
             $display("%0t decode done %0d. err = %0d", $time, n, numerr[k]);
           end
         end
       end
       while (n < Npkt);
+      repeat(20) @(posedge iclk);
       -> test_done;
 
       // intermediate results

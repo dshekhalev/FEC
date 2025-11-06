@@ -13,7 +13,7 @@
   logic        dvb_pls_dec_symb_metric__isop        ;
   logic        dvb_pls_dec_symb_metric__ival        ;
   logic        dvb_pls_dec_symb_metric__ieop        ;
-  dat_t        dvb_pls_dec_symb_metric__idat        ;
+  bdat_t       dvb_pls_dec_symb_metric__idat        ;
   //
   logic        dvb_pls_dec_symb_metric__osop        ;
   logic        dvb_pls_dec_symb_metric__oval        ;
@@ -101,7 +101,7 @@ module dvb_pls_dec_symb_metric
   input  logic        isop        ;
   input  logic        ival        ;
   input  logic        ieop        ;
-  input  dat_t        idat        ;
+  input  bdat_t       idat        ; // pi/2 BPSK
   //
   output logic        osop        ;
   output logic        oval        ;

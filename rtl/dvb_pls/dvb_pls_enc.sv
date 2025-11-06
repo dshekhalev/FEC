@@ -3,6 +3,7 @@
 
 
   parameter int pTAG_W = 4 ;
+  parameter bit pXMODE = 0 ;
 
 
 
@@ -11,12 +12,11 @@
   logic                dvb_pls_enc__iclkena ;
   //
   logic                dvb_pls_enc__ival    ;
-  logic        [6 : 0] dvb_pls_enc__idat    ;
+  logic        [7 : 0] dvb_pls_enc__idat    ;
   logic [pTAG_W-1 : 0] dvb_pls_enc__itag    ;
   logic                dvb_pls_enc__ordy    ;
   //
-  logic                dvb_pls_enc__ireq    ;
-  //
+  logic                dvb_pls_enc__irdy    ;
   logic                dvb_pls_enc__osop    ;
   logic                dvb_pls_enc__oval    ;
   logic                dvb_pls_enc__oeop    ;
@@ -25,12 +25,15 @@
   //
   logic                dvb_pls_enc__owval   ;
   logic       [63 : 0] dvb_pls_enc__owdat   ;
+  //
+  logic                dvb_pls_enc__orotate ;
 
 
 
   dvb_pls_enc
   #(
-    .pTAG_W ( pTAG_W )
+    .pTAG_W ( pTAG_W ) ,
+    .pXMODE ( pXMODE )
   )
   dvb_pls_enc
   (
@@ -43,8 +46,7 @@
     .itag    ( dvb_pls_enc__itag    ) ,
     .ordy    ( dvb_pls_enc__ordy    ) ,
     //
-    .ireq    ( dvb_pls_enc__ireq    ) ,
-    //
+    .irdy    ( dvb_pls_enc__irdy    ) ,
     .osop    ( dvb_pls_enc__osop    ) ,
     .oval    ( dvb_pls_enc__oval    ) ,
     .oeop    ( dvb_pls_enc__oeop    ) ,
@@ -52,7 +54,9 @@
     .otag    ( dvb_pls_enc__otag    ) ,
     //
     .owval   ( dvb_pls_enc__owval   ) ,
-    .owdat   ( dvb_pls_enc__owdat   )
+    .owdat   ( dvb_pls_enc__owdat   ) ,
+    //
+    .orotate ( dvb_pls_enc__orotate )
   );
 
 
@@ -62,7 +66,7 @@
   assign dvb_pls_enc__ival    = '0 ;
   assign dvb_pls_enc__idat    = '0 ;
   assign dvb_pls_enc__itag    = '0 ;
-  assign dvb_pls_enc__ireq    = '0 ;
+  assign dvb_pls_enc__irdy    = '0 ;
 
 
 
@@ -78,7 +82,8 @@
 
 module dvb_pls_enc
 #(
-  parameter int pTAG_W = 4
+  parameter int pTAG_W = 4 ,
+  parameter bit pXMODE = 0
 )
 (
   iclk    ,
@@ -90,8 +95,7 @@ module dvb_pls_enc
   itag    ,
   ordy    ,
   //
-  ireq    ,
-  //
+  irdy    ,
   osop    ,
   oval    ,
   oeop    ,
@@ -99,7 +103,9 @@ module dvb_pls_enc
   otag    ,
   //
   owval   ,
-  owdat
+  owdat   ,
+  //
+  orotate
 );
 
   //------------------------------------------------------------------------------------------------------
@@ -111,12 +117,11 @@ module dvb_pls_enc
   input  logic                iclkena ;
   //
   input  logic                ival    ;
-  input  logic        [6 : 0] idat    ;
+  input  logic        [7 : 0] idat    ; // PLS_CODE = {modcode, ptype}
   input  logic [pTAG_W-1 : 0] itag    ;
   output logic                ordy    ;
   //
-  input  logic                ireq    ; // used only for bit output
-  //
+  input  logic                irdy    ; // used only for bit output
   output logic                osop    ;
   output logic                oval    ;
   output logic                oeop    ;
@@ -125,6 +130,8 @@ module dvb_pls_enc
   //
   output logic                owval   ;
   output logic       [63 : 0] owdat   ;
+  //
+  output logic                orotate ; // b0 == 1 a phase jump of 1/2 is introduced after the SOF field
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -164,8 +171,8 @@ module dvb_pls_enc
     end
     else if (iclkena) begin
       case (state)
-        cRESET_STATE : state <= ival      ? cDO_STATE     : cRESET_STATE;
-        cDO_STATE    : state <= ireq & cnt.done  ? cRESET_STATE  : cDO_STATE;
+        cRESET_STATE : state <=  ival             ? cDO_STATE     : cRESET_STATE;
+        cDO_STATE    : state <= (irdy & cnt.done) ? cRESET_STATE  : cDO_STATE;
       endcase
     end
   end
@@ -173,6 +180,8 @@ module dvb_pls_enc
   assign ordy = (state == cRESET_STATE);
 
   always_ff @(posedge iclk) begin
+    logic trotate;
+    //
     if (iclkena) begin
       case (state)
         cRESET_STATE : begin
@@ -182,11 +191,13 @@ module dvb_pls_enc
           if (ival) begin
             otag       <= itag;
             //
-            coded_data <= do_encode(idat);
+            coded_data <= do_encode(idat, pXMODE, trotate);
+            //
+            orotate    <= trotate;
           end
         end
         cDO_STATE : begin
-          if (ireq) begin
+          if (irdy) begin
             cnt.value  <=  cnt.value + 1'b1;
             cnt.done   <= (cnt.value == (cCNT_MAX-2));
             cnt.zero   <= 1'b0;
@@ -218,7 +229,7 @@ module dvb_pls_enc
   //------------------------------------------------------------------------------------------------------
 
   assign osop = cnt.zero;
-  assign oval = (state == cDO_STATE) & ireq;
+  assign oval = (state == cDO_STATE);
   assign oeop = cnt.done;
   assign odat = coded_data[0];
 
@@ -226,19 +237,24 @@ module dvb_pls_enc
   // usefull functions
   //------------------------------------------------------------------------------------------------------
 
-  function dat_t do_encode (input bit [6 : 0] dat);
+  function dat_t do_encode (input bit [7 : 0] dat, bit xmode = 0, output bit rotate);
+    bit  [0 : 7] dat2code;
     bit [31 : 0] rm_code;
   begin
-    rm_code = '0;
+    rm_code   = '0;
+    dat2code  = xmode ? dat : (dat & 8'h7F);
+    //
+    rotate    = dat2code[0];
+    //
     for (int i = 0; i < 32; i++) begin
-      for (int b = 0; b < 6; b++) begin
-        rm_code[i] ^= dat[b] & cGMATRIX[b][i];
+      for (int b = 0; b <= 6; b++) begin
+        rm_code[i] ^= dat2code[b] & cGMATRIX[b][i];
       end
     end
     //
     for (int i = 0; i < 32; i++) begin
       do_encode[2*i + 0] = rm_code[i];
-      do_encode[2*i + 1] = rm_code[i] ^ dat[6];
+      do_encode[2*i + 1] = rm_code[i] ^ dat2code[7];
     end
     //
     for (int i = 0; i < 64; i++) begin

@@ -18,7 +18,7 @@ The library contain:
 12. 4D-8PSK TCM code 
 13. Hamming code 
 14. QAM LLR demappers 
-15. DVB-S2 PLS code 
+15. DVB-S2/S2X PLS code 
 16. DVB-S2/S2X BCH code 
 17. Wimax BTC (TPC) turbo code
 18. Super FEC (G.975.1) I.3 Concatenated BCH code 
@@ -28,4 +28,4 @@ All FEC IP Cores has static configuration and constrained performance. Call me i
 
 New feature added: full-featured netlists with limited operating modes support. No any time limit, free to use, example included. 
 
-1. DVB-S2/S2X compliant codec up to 1.5Gpbs.  
+1. DVB-S2/S2X compliant codec up to 1.5Gpbs at decoder input.

@@ -16,6 +16,6 @@ DVB-S2X VL-SNR
 
 	VL-SNR set 2 all modes  
 
-Other modes will not working (!!!)
+Other modes will not working, it is not inside netlist (!!!)
 
-There is demo example with reference QPSK/BSPK mapper. The expected resuls is inside expected_results.png file. 
+Demo example with reference QPSK/BSPK mapper inside. The expected resuls is inside "expected_results.png" file. 

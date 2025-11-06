@@ -7,7 +7,9 @@
 
   parameter int pDAT_W          = 8 ;
 
-  localparam int cMETRIC_W      = pDAT_W + 1;     // pair sum
+  localparam int cBDAT_W        = pDAT_W + 1;     // BPSK demodulated
+
+  localparam int cMETRIC_W      = cBDAT_W + 1;    // pair sum
 
   localparam int cMETRIC_SUM_W  = cMETRIC_W + 5;  // hadamard32 sum
 
@@ -18,6 +20,7 @@
   //------------------------------------------------------------------------------------------------------
 
   typedef logic signed        [pDAT_W-1 : 0] dat_t;
+  typedef logic signed       [cBDAT_W-1 : 0] bdat_t;
   typedef logic signed     [cMETRIC_W-1 : 0] metric_t;
   typedef logic signed [cMETRIC_SUM_W-1 : 0] metric_sum_t;
 
