@@ -1,13 +1,13 @@
 //
 // Project       : DVB-S2
 // Author        : Shekhalev Denis (des00)
-// Workfile      : dvb_demo_test.sv
-// Description   : simple testbench for demo DVB-S2 codec
+// Workfile      : dvb_s2x_demo_test.sv
+// Description   : simple testbench for demo DVB-S2/S2x codec
 //
 
 `timescale 1ns/1ns
 
-module dvb_demo_test;
+module dvb_s2x_demo_test;
 
   `include "dvb_s2_tb_frame_size.svh"
 
@@ -402,7 +402,7 @@ module dvb_demo_test;
   function bit check_data (input int frame_bit_length);
     int frame_length;
   begin
-    frame_length = frame_bit_length;
+    frame_length = frame_bit_length/8 + ((frame_bit_length % 8) != 0);
     //
     check_data = 0;
     for (int i = 0; i < frame_length/8; i++) begin
