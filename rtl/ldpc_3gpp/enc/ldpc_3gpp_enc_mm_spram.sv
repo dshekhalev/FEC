@@ -92,8 +92,6 @@
 //                  read  latency  pPIPE (0/1) = 3/4 tick
 //
 
-`include "define.vh"
-
 module ldpc_3gpp_enc_mm_spram
 (
   iclk     ,

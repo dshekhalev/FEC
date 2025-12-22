@@ -103,8 +103,6 @@
 // Description   : parity matrix coding
 //
 
-`include "define.vh"
-
 module ldpc_3gpp_enc_p3
 (
   iclk        ,

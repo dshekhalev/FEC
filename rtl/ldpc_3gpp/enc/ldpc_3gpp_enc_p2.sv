@@ -128,8 +128,6 @@
 // Description   : p2 = (T^-1)*(A*u'+B*p1') matrix multiply.
 //
 
-`include "define.vh"
-
 module ldpc_3gpp_enc_p2
 (
   iclk          ,

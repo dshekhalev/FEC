@@ -78,8 +78,6 @@
 // Description   : fixed mode 3GPP LDPC RTL encoder tables
 //
 
-`include "define.vh"
-
 module ldpc_3gpp_enc_hb
 (
   iclk         ,

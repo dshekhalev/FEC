@@ -105,8 +105,6 @@
 // Description   : inv(-E*T^-1*B+D) matrix multiply of (E*(T^-1)*A*u' + C*u') matrix multiply.
 //
 
-`include "define.vh"
-
 module ldpc_3gpp_enc_p1
 (
   iclk        ,

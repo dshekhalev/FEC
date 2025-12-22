@@ -53,13 +53,14 @@
 
 */
 
-`include "define.vh"
+//
+// Project       : ldpc 3gpp TS 38.212 v15.7.0
+// Author        : Shekhalev Denis (des00)
+// Workfile      : ldpc_3gpp_enc_raddr_gen.sv
+// Description   : encoder data read address generator
+//
 
 module ldpc_3gpp_enc_raddr_gen
-#(
-  parameter int pADDR_W        = 8 ,
-  parameter bit pUSE_VAR_DAT_W = 0
-)
 (
   iclk        ,
   ireset      ,
@@ -73,6 +74,9 @@ module ldpc_3gpp_enc_raddr_gen
   oraddr      ,
   orval
 );
+
+  parameter int pADDR_W        = 8 ;
+  parameter bit pUSE_VAR_DAT_W = 0 ;
 
   `include "../ldpc_3gpp_constants.svh"
   `include "ldpc_3gpp_enc_types.svh"

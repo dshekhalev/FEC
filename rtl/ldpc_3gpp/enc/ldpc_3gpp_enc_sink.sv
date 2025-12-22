@@ -8,26 +8,26 @@
 
 
 
-  logic                 ldpc_3gpp_enc_sink__iclk      ;
-  logic                 ldpc_3gpp_enc_sink__ireset    ;
-  logic                 ldpc_3gpp_enc_sink__iclkena   ;
+  logic                 ldpc_3gpp_enc_sink__iclk    ;
+  logic                 ldpc_3gpp_enc_sink__ireset  ;
+  logic                 ldpc_3gpp_enc_sink__iclkena ;
   //
-  logic [pADDR_W-1 : 0] ldpc_3gpp_enc_sink__inum_m1   ;
+  logic [pADDR_W-1 : 0] ldpc_3gpp_enc_sink__inum_m1 ;
   //
-  logic                 ldpc_3gpp_enc_sink__ifull     ;
-  logic  [pDAT_W-1 : 0] ldpc_3gpp_enc_sink__irdat     ;
-  logic  [pTAG_W-1 : 0] ldpc_3gpp_enc_sink__irtag     ;
-  logic                 ldpc_3gpp_enc_sink__orempty   ;
-  logic [pADDR_W-1 : 0] ldpc_3gpp_enc_sink__oraddr    ;
+  logic                 ldpc_3gpp_enc_sink__irfull  ;
+  logic  [pDAT_W-1 : 0] ldpc_3gpp_enc_sink__irdat   ;
+  logic  [pTAG_W-1 : 0] ldpc_3gpp_enc_sink__irtag   ;
+  logic                 ldpc_3gpp_enc_sink__orempty ;
+  logic [pADDR_W-1 : 0] ldpc_3gpp_enc_sink__oraddr  ;
   //
-  logic                 ldpc_3gpp_enc_sink__ireq      ;
-  logic                 ldpc_3gpp_enc_sink__ofull     ;
+  logic                 ldpc_3gpp_enc_sink__ireq    ;
+  logic                 ldpc_3gpp_enc_sink__ofull   ;
   //
-  logic                 ldpc_3gpp_enc_sink__osop      ;
-  logic                 ldpc_3gpp_enc_sink__oeop      ;
-  logic                 ldpc_3gpp_enc_sink__oval      ;
-  logic  [pDAT_W-1 : 0] ldpc_3gpp_enc_sink__odat      ;
-  logic  [pTAG_W-1 : 0] ldpc_3gpp_enc_sink__otag      ;
+  logic                 ldpc_3gpp_enc_sink__osop    ;
+  logic                 ldpc_3gpp_enc_sink__oeop    ;
+  logic                 ldpc_3gpp_enc_sink__oval    ;
+  logic  [pDAT_W-1 : 0] ldpc_3gpp_enc_sink__odat    ;
+  logic  [pTAG_W-1 : 0] ldpc_3gpp_enc_sink__otag    ;
 
 
 
@@ -39,39 +39,39 @@
   )
   ldpc_3gpp_enc_sink
   (
-    .iclk      ( ldpc_3gpp_enc_sink__iclk      ) ,
-    .ireset    ( ldpc_3gpp_enc_sink__ireset    ) ,
-    .iclkena   ( ldpc_3gpp_enc_sink__iclkena   ) ,
+    .iclk    ( ldpc_3gpp_enc_sink__iclk    ) ,
+    .ireset  ( ldpc_3gpp_enc_sink__ireset  ) ,
+    .iclkena ( ldpc_3gpp_enc_sink__iclkena ) ,
     //
-    .inum_m1   ( ldpc_3gpp_enc_sink__inum_m1   ) ,
+    .inum_m1 ( ldpc_3gpp_enc_sink__inum_m1 ) ,
     //
-    .ifull     ( ldpc_3gpp_enc_sink__ifull     ) ,
-    .irdat     ( ldpc_3gpp_enc_sink__irdat     ) ,
-    .irtag     ( ldpc_3gpp_enc_sink__irtag     ) ,
-    .orempty   ( ldpc_3gpp_enc_sink__orempty   ) ,
-    .oraddr    ( ldpc_3gpp_enc_sink__oraddr    ) ,
+    .irfull  ( ldpc_3gpp_enc_sink__irfull  ) ,
+    .irdat   ( ldpc_3gpp_enc_sink__irdat   ) ,
+    .irtag   ( ldpc_3gpp_enc_sink__irtag   ) ,
+    .orempty ( ldpc_3gpp_enc_sink__orempty ) ,
+    .oraddr  ( ldpc_3gpp_enc_sink__oraddr  ) ,
     //
-    .ireq      ( ldpc_3gpp_enc_sink__ireq      ) ,
-    .ofull     ( ldpc_3gpp_enc_sink__ofull     ) ,
+    .ireq    ( ldpc_3gpp_enc_sink__ireq    ) ,
+    .ofull   ( ldpc_3gpp_enc_sink__ofull   ) ,
     //
-    .osop      ( ldpc_3gpp_enc_sink__osop      ) ,
-    .oeop      ( ldpc_3gpp_enc_sink__oeop      ) ,
-    .oval      ( ldpc_3gpp_enc_sink__oval      ) ,
-    .odat      ( ldpc_3gpp_enc_sink__odat      ) ,
-    .otag      ( ldpc_3gpp_enc_sink__otag      )
+    .osop    ( ldpc_3gpp_enc_sink__osop    ) ,
+    .oeop    ( ldpc_3gpp_enc_sink__oeop    ) ,
+    .oval    ( ldpc_3gpp_enc_sink__oval    ) ,
+    .odat    ( ldpc_3gpp_enc_sink__odat    ) ,
+    .otag    ( ldpc_3gpp_enc_sink__otag    )
   );
 
 
-  assign ldpc_3gpp_enc_sink__iclk     = '0 ;
-  assign ldpc_3gpp_enc_sink__ireset   = '0 ;
-  assign ldpc_3gpp_enc_sink__iclkena  = '0 ;
+  assign ldpc_3gpp_enc_sink__iclk    = '0 ;
+  assign ldpc_3gpp_enc_sink__ireset  = '0 ;
+  assign ldpc_3gpp_enc_sink__iclkena = '0 ;
   //
-  assign ldpc_3gpp_enc_sink__inum_m1  = '0 ;
+  assign ldpc_3gpp_enc_sink__inum_m1 = '0 ;
   //
-  assign ldpc_3gpp_enc_sink__ifull    = '0 ;
-  assign ldpc_3gpp_enc_sink__irdat    = '0 ;
-  assign ldpc_3gpp_enc_sink__irtag    = '0 ;
-  assign ldpc_3gpp_enc_sink__ireq     = '0 ;
+  assign ldpc_3gpp_enc_sink__irfull  = '0 ;
+  assign ldpc_3gpp_enc_sink__irdat   = '0 ;
+  assign ldpc_3gpp_enc_sink__irtag   = '0 ;
+  assign ldpc_3gpp_enc_sink__ireq    = '0 ;
 
 
 
@@ -84,7 +84,6 @@
 // Description   : ouput encoder interface module
 //
 
-
 module ldpc_3gpp_enc_sink
 #(
   parameter int pADDR_W = 1 ,
@@ -93,25 +92,25 @@ module ldpc_3gpp_enc_sink
   parameter int pTAG_W  = 4
 )
 (
-  iclk      ,
-  ireset    ,
-  iclkena   ,
+  iclk    ,
+  ireset  ,
+  iclkena ,
   //
-  inum_m1   ,
+  inum_m1 ,
   //
-  ifull     ,
-  irdat     ,
-  irtag     ,
-  orempty   ,
-  oraddr    ,
+  irfull  ,
+  irdat   ,
+  irtag   ,
+  orempty ,
+  oraddr  ,
   //
-  ireq      ,
-  ofull     ,
+  ireq    ,
+  ofull   ,
   //
-  osop      ,
-  oeop      ,
-  oval      ,
-  odat      ,
+  osop    ,
+  oeop    ,
+  oval    ,
+  odat    ,
   otag
 );
 
@@ -119,26 +118,26 @@ module ldpc_3gpp_enc_sink
   //
   //------------------------------------------------------------------------------------------------------
 
-  input  logic                   iclk     ;
-  input  logic                   ireset   ;
-  input  logic                   iclkena  ;
+  input  logic                 iclk    ;
+  input  logic                 ireset  ;
+  input  logic                 iclkena ;
   //
-  input  logic   [pADDR_W-1 : 0] inum_m1  ;
+  input  logic [pADDR_W-1 : 0] inum_m1 ;
   //
-  input  logic                   ifull    ;
-  input  logic    [pDAT_W-1 : 0] irdat    ;
-  input  logic    [pTAG_W-1 : 0] irtag    ;
-  output logic                   orempty  ;
-  output logic   [pADDR_W-1 : 0] oraddr   ;
+  input  logic                 irfull  ;
+  input  logic  [pDAT_W-1 : 0] irdat   ;
+  input  logic  [pTAG_W-1 : 0] irtag   ;
+  output logic                 orempty ;
+  output logic [pADDR_W-1 : 0] oraddr  ;
   //
-  input  logic                   ireq     ;
-  output logic                   ofull    ;
+  input  logic                 ireq    ;
+  output logic                 ofull   ;
   //
-  output logic                   osop     ;
-  output logic                   oeop     ;
-  output logic                   oval     ;
-  output logic    [pDAT_W-1 : 0] odat     ;
-  output logic    [pTAG_W-1 : 0] otag     ;
+  output logic                 osop    ;
+  output logic                 oeop    ;
+  output logic                 oval    ;
+  output logic  [pDAT_W-1 : 0] odat    ;
+  output logic  [pTAG_W-1 : 0] otag    ;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -172,7 +171,7 @@ module ldpc_3gpp_enc_sink
     end
     else if (iclkena) begin
       case (state)
-        cRESET_STATE : state <=  ifull            ? cDO_STATE    : cRESET_STATE;
+        cRESET_STATE : state <=  irfull           ? cDO_STATE    : cRESET_STATE;
         cDO_STATE    : state <= (ireq & cnt.done) ? cRESET_STATE : cDO_STATE;
       endcase
     end
@@ -200,7 +199,7 @@ module ldpc_3gpp_enc_sink
 
   assign oraddr = cnt.value;
 
-  wire start = (state == cRESET_STATE & ifull);
+  wire start = (state == cRESET_STATE & irfull);
 
   always_ff @(posedge iclk or posedge ireset) begin
     if (ireset) begin

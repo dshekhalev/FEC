@@ -142,8 +142,6 @@
 //                 A*u' for p3
 //
 
-`include "define.vh"
-
 module ldpc_3gpp_enc_acu
 (
   iclk        ,

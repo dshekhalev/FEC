@@ -25,7 +25,7 @@
   //
   //------------------------------------------------------------------------------------------------------
 
-  localparam int cLOG2_DAT_W = (pDAT_W == 1) ? 1 : clogb2(pDAT_W);
+  localparam int cLOG2_DAT_W = (pDAT_W == 1) ? 1 : $clog2(pDAT_W);
 
   typedef logic [cLOG2_DAT_W-1 : 0] bshift_t;
 

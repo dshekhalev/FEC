@@ -121,8 +121,6 @@
 // Description   : encoder main controller
 //
 
-`include "define.vh"
-
 module ldpc_3gpp_enc_ctrl
 (
   iclk         ,

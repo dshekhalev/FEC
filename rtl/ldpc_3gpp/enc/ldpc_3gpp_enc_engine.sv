@@ -104,8 +104,6 @@
 // Description   : variable mode 3GPP LDPC RTL encoder engine
 //
 
-`include "define.vh"
-
 module ldpc_3gpp_enc_engine
 (
   iclk        ,
@@ -177,7 +175,7 @@ module ldpc_3gpp_enc_engine
 
   localparam int cZC            = pUSE_FIXED_CODE ? cZC_TAB[pIDX_LS][pIDX_ZC]/pDAT_W : cZC_MAX/pDAT_W;
 
-  localparam int cMATRIX_ADDR_W = clogb2(cZC);
+  localparam int cMATRIX_ADDR_W = $clog2(cZC);
   localparam bit cMATRIX_PIPE   = 1;
 
   //------------------------------------------------------------------------------------------------------

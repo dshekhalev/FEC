@@ -115,7 +115,12 @@
 
 */
 
-`include "define.vh"
+//
+// Project       : ldpc 3gpp TS 38.212 v15.7.0
+// Author        : Shekhalev Denis (des00)
+// Workfile      : ldpc_3gpp_enc_muxout.sv
+// Description   : data/parity bits output multipexer
+//
 
 module ldpc_3gpp_enc_muxout
 (

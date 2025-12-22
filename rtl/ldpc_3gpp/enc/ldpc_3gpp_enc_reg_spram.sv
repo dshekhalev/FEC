@@ -73,8 +73,6 @@
 //                  read latency pPIPE (0/1) = 3/4 tick
 //
 
-`include "define.vh"
-
 module ldpc_3gpp_enc_reg_spram
 (
   iclk     ,
@@ -154,7 +152,7 @@ module ldpc_3gpp_enc_reg_spram
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
-      wdat    <= iwdat;
+      wdat <= iwdat;
       //
       if (iwrite | iread) begin
         if (iwrite) begin
