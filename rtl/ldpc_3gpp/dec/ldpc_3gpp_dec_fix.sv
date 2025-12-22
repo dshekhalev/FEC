@@ -2,153 +2,136 @@
 
 
 
-  parameter int pIDX_GR         =  0 ;
-  parameter int pIDX_LS         =  0 ;
-  parameter int pIDX_ZC         =  7 ;
-  parameter int pCODE           =  4 ;
-  parameter int pDO_PUNCT       =  0 ;
+  parameter int pIDX_GR       =  0 ;
+  parameter int pIDX_LS       =  0 ;
+  parameter int pIDX_ZC       =  7 ;
+  parameter int pCODE         =  4 ;
+  parameter int pDO_PUNCT     =  0 ;
   //
-  parameter int pLLR_W          =  8 ;
-  parameter int pLLR_NUM        =  1 ;
+  parameter int pLLR_W        =  8 ;
+  parameter int pLLR_NUM      =  1 ;
   //
-  parameter int pDAT_W          =  8 ;
-  parameter int pTAG_W          =  4 ;
+  parameter int pDAT_W        =  8 ;
+  parameter int pTAG_W        =  4 ;
   //
-  parameter int pERR_W          = 16 ;
+  parameter int pERR_W        = 16 ;
   //
-  parameter int pNODE_W         =  8 ;
-  parameter int pLLR_BY_CYCLE   =  1 ;
-  parameter int pROW_BY_CYCLE   =  8 ;
+  parameter int pNODE_W       =  8 ;
+  parameter int pROW_BY_CYCLE =  8 ;
   //
-  parameter int pVNORM_FACTOR   =  7 ;
-  parameter int pCNORM_FACTOR   =  7 ;
+  parameter int pNORM_FACTOR  =  7 ;
   //
-  parameter int pMEM_ADDR_MAX   =  0 ;
-  parameter bit pUSE_HSHAKE     =  0 ;
-  parameter bit pUSE_FIXED_CODE =  0 ;
-  parameter bit pUSE_SC_MODE    =  1 ;
-  parameter bit pUSE_DBYPASS    =  0 ;
-  parameter bit pUSE_HC_SROM    =  1 ;
+  parameter bit pUSE_HSHAKE   =  0 ;
+  parameter bit pUSE_SC_MODE  =  1 ;
 
 
 
-  logic                ldpc_3gpp_dec__iclk                ;
-  logic                ldpc_3gpp_dec__ireset              ;
-  logic                ldpc_3gpp_dec__iclkena             ;
+  logic                ldpc_3gpp_dec_fix__iclk                ;
+  logic                ldpc_3gpp_dec_fix__ireset              ;
+  logic                ldpc_3gpp_dec_fix__iclkena             ;
   //
-  logic        [7 : 0] ldpc_3gpp_dec__iNiter              ;
-  logic                ldpc_3gpp_dec__ifmode              ;
-  logic        [6 : 0] ldpc_3gpp_dec__inidx               ;
-  logic        [5 : 0] ldpc_3gpp_dec__icode               ;
-  logic                ldpc_3gpp_dec__ido_punct           ;
+  logic        [7 : 0] ldpc_3gpp_dec_fix__iNiter              ;
+  logic                ldpc_3gpp_dec_fix__ifmode              ;
   //
-  logic                ldpc_3gpp_dec__ival                ;
-  logic                ldpc_3gpp_dec__isop                ;
-  logic                ldpc_3gpp_dec__ieop                ;
-  logic [pTAG_W-1 : 0] ldpc_3gpp_dec__itag                ;
-  llr_t                ldpc_3gpp_dec__iLLR     [pLLR_NUM] ;
+  logic                ldpc_3gpp_dec_fix__ival                ;
+  logic                ldpc_3gpp_dec_fix__isop                ;
+  logic                ldpc_3gpp_dec_fix__ieop                ;
+  logic [pTAG_W-1 : 0] ldpc_3gpp_dec_fix__itag                ;
+  llr_t                ldpc_3gpp_dec_fix__iLLR     [pLLR_NUM] ;
   //
-  logic                ldpc_3gpp_dec__obusy               ;
-  logic                ldpc_3gpp_dec__ordy                ;
-  logic                ldpc_3gpp_dec__osrc_err            ;
+  logic                ldpc_3gpp_dec_fix__obusy               ;
+  logic                ldpc_3gpp_dec_fix__ordy                ;
+  logic                ldpc_3gpp_dec_fix__osrc_err            ;
   //
-  logic                ldpc_3gpp_dec__ireq                ;
-  logic                ldpc_3gpp_dec__ofull               ;
+  logic                ldpc_3gpp_dec_fix__ireq                ;
+  logic                ldpc_3gpp_dec_fix__ofull               ;
   //
-  logic                ldpc_3gpp_dec__oval                ;
-  logic                ldpc_3gpp_dec__osop                ;
-  logic                ldpc_3gpp_dec__oeop                ;
-  logic [pTAG_W-1 : 0] ldpc_3gpp_dec__otag                ;
-  logic [pDAT_W-1 : 0] ldpc_3gpp_dec__odat                ;
+  logic                ldpc_3gpp_dec_fix__oval                ;
+  logic                ldpc_3gpp_dec_fix__osop                ;
+  logic                ldpc_3gpp_dec_fix__oeop                ;
+  logic [pTAG_W-1 : 0] ldpc_3gpp_dec_fix__otag                ;
+  logic [pDAT_W-1 : 0] ldpc_3gpp_dec_fix__odat                ;
   //
-  logic                ldpc_3gpp_dec__odecfail            ;
-  logic [pERR_W-1 : 0] ldpc_3gpp_dec__oerr                ;
+  logic                ldpc_3gpp_dec_fix__odecfail            ;
+  logic [pERR_W-1 : 0] ldpc_3gpp_dec_fix__oerr                ;
+  logic [pERR_W-1 : 0] ldpc_3gpp_dec_fix__obitnum             ;
+  logic        [7 : 0] ldpc_3gpp_dec_fix__ouNiter             ;
 
 
 
-  ldpc_3gpp_dec
+  ldpc_3gpp_dec_fix
   #(
-    .pIDX_GR         ( pIDX_GR         ) ,
-    .pIDX_LS         ( pIDX_LS         ) ,
-    .pIDX_ZC         ( pIDX_ZC         ) ,
-    .pCODE           ( pCODE           ) ,
-    .pDO_PUNCT       ( pDO_PUNCT       ) ,
+    .pIDX_GR       ( pIDX_GR       ) ,
+    .pIDX_LS       ( pIDX_LS       ) ,
+    .pIDX_ZC       ( pIDX_ZC       ) ,
+    .pCODE         ( pCODE         ) ,
+    .pDO_PUNCT     ( pDO_PUNCT     ) ,
     //
-    .pLLR_W          ( pLLR_W          ) ,
-    .pLLR_NUM        ( pLLR_NUM        ) ,
+    .pLLR_W        ( pLLR_W        ) ,
+    .pLLR_NUM      ( pLLR_NUM      ) ,
     //
-    .pDAT_W          ( pDAT_W          ) ,
-    .pTAG_W          ( pTAG_W          ) ,
+    .pDAT_W        ( pDAT_W        ) ,
+    .pTAG_W        ( pTAG_W        ) ,
     //
-    .pERR_W          ( pERR_W          ) ,
+    .pERR_W        ( pERR_W        ) ,
     //
-    .pNODE_W         ( pNODE_W         ) ,
-    .pLLR_BY_CYCLE   ( pLLR_BY_CYCLE   ) ,
-    .pROW_BY_CYCLE   ( pROW_BY_CYCLE   ) ,
+    .pNODE_W       ( pNODE_W       ) ,
+    .pROW_BY_CYCLE ( pROW_BY_CYCLE ) ,
     //
-    .pVNORM_FACTOR   ( pVNORM_FACTOR   ) ,
-    .pCNORM_FACTOR   ( pCNORM_FACTOR   ) ,
+    .pNORM_FACTOR  ( pNORM_FACTOR  ) ,
     //
-    .pMEM_ADDR_MAX   ( pMEM_ADDR_MAX   ) ,
-    .pUSE_HSHAKE     ( pUSE_HSHAKE     ) ,
-    .pUSE_FIXED_CODE ( pUSE_FIXED_CODE ) ,
-    .pUSE_SC_MODE    ( pUSE_SC_MODE    ) ,
-    .pUSE_DBYPASS    ( pUSE_DBYPASS    ) ,
-    .pUSE_HC_SROM    ( pUSE_HC_SROM    )
+    .pUSE_HSHAKE   ( pUSE_HSHAKE   ) ,
+    .pUSE_SC_MODE  ( pUSE_SC_MODE  )
   )
-  ldpc_3gpp_dec
+  ldpc_3gpp_dec_fix
   (
-    .iclk      ( ldpc_3gpp_dec__iclk      ) ,
-    .ireset    ( ldpc_3gpp_dec__ireset    ) ,
-    .iclkena   ( ldpc_3gpp_dec__iclkena   ) ,
+    .iclk      ( ldpc_3gpp_dec_fix__iclk      ) ,
+    .ireset    ( ldpc_3gpp_dec_fix__ireset    ) ,
+    .iclkena   ( ldpc_3gpp_dec_fix__iclkena   ) ,
     //
-    .iNiter    ( ldpc_3gpp_dec__iNiter    ) ,
-    .ifmode    ( ldpc_3gpp_dec__ifmode    ) ,
-    .inidx     ( ldpc_3gpp_dec__inidx     ) ,
-    .icode     ( ldpc_3gpp_dec__icode     ) ,
-    .ido_punct ( ldpc_3gpp_dec__ido_punct ) ,
+    .iNiter    ( ldpc_3gpp_dec_fix__iNiter    ) ,
+    .ifmode    ( ldpc_3gpp_dec_fix__ifmode    ) ,
     //
-    .ival      ( ldpc_3gpp_dec__ival      ) ,
-    .isop      ( ldpc_3gpp_dec__isop      ) ,
-    .ieop      ( ldpc_3gpp_dec__ieop      ) ,
-    .itag      ( ldpc_3gpp_dec__itag      ) ,
-    .iLLR      ( ldpc_3gpp_dec__iLLR      ) ,
+    .ival      ( ldpc_3gpp_dec_fix__ival      ) ,
+    .isop      ( ldpc_3gpp_dec_fix__isop      ) ,
+    .ieop      ( ldpc_3gpp_dec_fix__ieop      ) ,
+    .itag      ( ldpc_3gpp_dec_fix__itag      ) ,
+    .iLLR      ( ldpc_3gpp_dec_fix__iLLR      ) ,
     //
-    .obusy     ( ldpc_3gpp_dec__obusy     ) ,
-    .ordy      ( ldpc_3gpp_dec__ordy      ) ,
-    .osrc_err  ( ldpc_3gpp_dec__osrc_err  ) ,
+    .obusy     ( ldpc_3gpp_dec_fix__obusy     ) ,
+    .ordy      ( ldpc_3gpp_dec_fix__ordy      ) ,
+    .osrc_err  ( ldpc_3gpp_dec_fix__osrc_err  ) ,
     //
-    .ireq      ( ldpc_3gpp_dec__ireq      ) ,
-    .ofull     ( ldpc_3gpp_dec__ofull     ) ,
+    .ireq      ( ldpc_3gpp_dec_fix__ireq      ) ,
+    .ofull     ( ldpc_3gpp_dec_fix__ofull     ) ,
     //
-    .oval      ( ldpc_3gpp_dec__oval      ) ,
-    .osop      ( ldpc_3gpp_dec__osop      ) ,
-    .oeop      ( ldpc_3gpp_dec__oeop      ) ,
-    .otag      ( ldpc_3gpp_dec__otag      ) ,
-    .odat      ( ldpc_3gpp_dec__odat      ) ,
+    .oval      ( ldpc_3gpp_dec_fix__oval      ) ,
+    .osop      ( ldpc_3gpp_dec_fix__osop      ) ,
+    .oeop      ( ldpc_3gpp_dec_fix__oeop      ) ,
+    .otag      ( ldpc_3gpp_dec_fix__otag      ) ,
+    .odat      ( ldpc_3gpp_dec_fix__odat      ) ,
     //
-    .odecfail  ( ldpc_3gpp_dec__odecfail  ) ,
-    .oerr      ( ldpc_3gpp_dec__oerr      )
+    .odecfail  ( ldpc_3gpp_dec_fix__odecfail  ) ,
+    .oerr      ( ldpc_3gpp_dec_fix__oerr      ) ,
+    .obitnum   ( ldpc_3gpp_dec_fix__obitnum   ) ,
+    .ouNiter   ( ldpc_3gpp_dec_fix__ouNiter   )
   );
 
 
-  assign ldpc_3gpp_dec__iclk      = '0 ;
-  assign ldpc_3gpp_dec__ireset    = '0 ;
-  assign ldpc_3gpp_dec__iclkena   = '0 ;
+  assign ldpc_3gpp_dec_fix__iclk      = '0 ;
+  assign ldpc_3gpp_dec_fix__ireset    = '0 ;
+  assign ldpc_3gpp_dec_fix__iclkena   = '0 ;
   //
-  assign ldpc_3gpp_dec__iNiter    = '0 ;
-  assign ldpc_3gpp_dec__ifmode    = '0 ;
-  assign ldpc_3gpp_dec__inidx     = '0 ;
-  assign ldpc_3gpp_dec__icode     = '0 ;
-  assign ldpc_3gpp_dec__ido_punct = '0 ;
+  assign ldpc_3gpp_dec_fix__iNiter    = '0 ;
+  assign ldpc_3gpp_dec_fix__ifmode    = '0 ;
   //
-  assign ldpc_3gpp_dec__ival      = '0 ;
-  assign ldpc_3gpp_dec__isop      = '0 ;
-  assign ldpc_3gpp_dec__ieop      = '0 ;
-  assign ldpc_3gpp_dec__itag      = '0 ;
-  assign ldpc_3gpp_dec__iLLR      = '0 ;
+  assign ldpc_3gpp_dec_fix__ival      = '0 ;
+  assign ldpc_3gpp_dec_fix__isop      = '0 ;
+  assign ldpc_3gpp_dec_fix__ieop      = '0 ;
+  assign ldpc_3gpp_dec_fix__itag      = '0 ;
+  assign ldpc_3gpp_dec_fix__iLLR      = '0 ;
   //
-  assign ldpc_3gpp_dec__ireq      = '0 ;
+  assign ldpc_3gpp_dec_fix__ireq      = '0 ;
 
 
 
@@ -157,13 +140,13 @@
 //
 // Project       : ldpc 3gpp TS 38.212 v15.7.0
 // Author        : Shekhalev Denis (des00)
-// Workfile      : ldpc_3gpp_dec.sv
-// Description   : 3GPP LDPC RTL decoder based upon duo phase parallel decoding
+// Workfile      : ldpc_3gpp_dec_fix.sv
+// Description   : fixed mode single clock 3GPP LDPC RTL decoder based upon duo phase parallel decoding
 //
 
 `include "define.vh"
 
-module ldpc_3gpp_dec
+module ldpc_3gpp_dec_fix
 (
   iclk      ,
   ireset    ,
@@ -171,9 +154,6 @@ module ldpc_3gpp_dec
   //
   iNiter    ,
   ifmode    ,
-  inidx     ,
-  icode     ,
-  ido_punct ,
   //
   ival      ,
   isop      ,
@@ -195,7 +175,9 @@ module ldpc_3gpp_dec
   odat      ,
   //
   odecfail  ,
-  oerr
+  oerr      ,
+  obitnum   ,
+  ouNiter
 );
 
   parameter int pDAT_W          =  8 ;  // == 1/2/4/8 & >= pLLR_BY_CYCLE & <= minimum cZC & integer multiply of minimum cZC
@@ -204,21 +186,14 @@ module ldpc_3gpp_dec
   //
   parameter int pERR_W          = 16 ;
   //
-  parameter int pVNORM_FACTOR   =  7 ;
-  parameter int pCNORM_FACTOR   =  8 ;
+  parameter int pNORM_FACTOR    =  7 ;
   //
   parameter bit pUSE_HSHAKE     =  0 ;  // use(1) handshake ival & ordy iinterface or use simple
-  parameter bit pUSE_FIXED_CODE =  0 ;  // use variable of fixed mode engine
-  parameter bit pUSE_DBYPASS    =  0 ;  // use no decoding(bypass) mode if Niter == 0
-  parameter bit pUSE_HC_SROM    =  1 ;  // use small rom for HC
 
   `include "../ldpc_3gpp_constants.svh"
   `include "ldpc_3gpp_dec_types.svh"
 
-  parameter int pLLR_NUM      = pLLR_BY_CYCLE; // == 1/2/4/8 & >= pLLR_BY_CYCLE & <= minimum cZC & integer multiply of minimum cZC
-
-  // maximum memory size constraint to optimize resources
-  parameter int pMEM_ADDR_MAX = cMEM_ADDR_MAX; // maximum for pIDX_GR, pCODE, pROW_BY_CYCLE by default
+  parameter int pLLR_NUM       = pLLR_BY_CYCLE; // == 1/2/4/8 & >= pLLR_BY_CYCLE & <= minimum cZC & integer multiply of minimum cZC
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -230,9 +205,6 @@ module ldpc_3gpp_dec
   //
   input  logic               [7 : 0] iNiter              ;
   input  logic                       ifmode              ;  // fast work mode with early stop
-  input  logic               [6 : 0] inidx               ;  // {idxGr[0], idxLs[2 : 0], idxZc[2 : 0]}
-  input  logic               [5 : 0] icode               ;  // graph1/graph2 [4:46]/[4:42]
-  input  logic                       ido_punct           ;  // do 3GPP puncture (1)
   //
   input  logic                       ival                ;
   input  logic                       isop                ;
@@ -255,6 +227,8 @@ module ldpc_3gpp_dec
   //
   output logic                       odecfail            ;
   output logic        [pERR_W-1 : 0] oerr                ;
+  output logic        [pERR_W-1 : 0] obitnum             ;  // number of bits corresponded oerr
+  output logic               [7 : 0] ouNiter             ;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -263,36 +237,35 @@ module ldpc_3gpp_dec
   localparam int cZC              = cZC_TAB[pIDX_LS][pIDX_ZC];
 
   // ibuffer read & engine address is defined by cZC, pIDX_GR, pCODE, pROW_BY_CYCLE, pLLR_BY_CYCLE
-  localparam int cIBUF_D_RNUM     = pUSE_FIXED_CODE ? (cMAX_COL_STEP_NUM * cZC/pLLR_BY_CYCLE) : cD_MEM_ADDR_MAX;
-  localparam int cIBUF_D_RADDR_W  = clogb2(cIBUF_D_RNUM);
+  localparam int cIBUF_D_RNUM     = cMAX_COL_STEP_NUM * cZC/pLLR_BY_CYCLE;
+  localparam int cIBUF_D_RADDR_W  = $clog2(cIBUF_D_RNUM);
 
   // select minimum parity addr width if constraint less then required. if minimum parity addr width is less then data addr width use data addr width
-  localparam int cIBUF_P_RNUM     = pUSE_FIXED_CODE ? (cMAX_ROW_STEP_NUM * cMAX_COL_STEP_NUM * cZC/pLLR_BY_CYCLE) :
-                                                      max(cD_MEM_ADDR_MAX, min(pMEM_ADDR_MAX, cMEM_ADDR_MAX));
-  localparam int cIBUF_P_RADDR_W  = clogb2(cIBUF_P_RNUM);
+  localparam int cIBUF_P_RNUM     = cMAX_ROW_STEP_NUM * cMAX_COL_STEP_NUM * cZC/pLLR_BY_CYCLE;
+  localparam int cIBUF_P_RADDR_W  = $clog2(cIBUF_P_RNUM);
 
   // ibuffer write address is defined by read address and pLLR_BY_CYCLE/pLLR_NUM scale
   localparam int cIBUF_D_WNUM     = cIBUF_D_RNUM * pLLR_BY_CYCLE/pLLR_NUM;
-  localparam int cIBUF_D_WADDR_W  = max(1, clogb2(cIBUF_D_WNUM));
+  localparam int cIBUF_D_WADDR_W  = max(1, $clog2(cIBUF_D_WNUM));
 
   localparam int cIBUF_P_WNUM     = cIBUF_P_RNUM * pLLR_BY_CYCLE/pLLR_NUM;
-  localparam int cIBUF_P_WADDR_W  = max(1, clogb2(cIBUF_P_WNUM));
+  localparam int cIBUF_P_WADDR_W  = max(1, $clog2(cIBUF_P_WNUM));
 
-  localparam int cIBUF_TAG_W      = pTAG_W + 8 + 1 + (pUSE_FIXED_CODE ? 0 : $bits(code_ctx_t)); // {tag, iter, fmode, code_ctx}
+  localparam int cIBUF_TAG_W      = pTAG_W + 8 + 1; // {tag, Niter, fmode}
 
   // obuffer write is same as ibuffer read
   localparam int cOBUF_WNUM       = cIBUF_D_RNUM;
-  localparam int cOBUF_WADDR_W    = clogb2(cOBUF_WNUM);
+  localparam int cOBUF_WADDR_W    = $clog2(cOBUF_WNUM);
   localparam int cOBUF_WDAT_W     = pLLR_BY_CYCLE;
 
   // obuffer read address is defined by write address and pLLR_BY_CYCLE/pDAT_W scale
   localparam int cOBUF_RNUM       = cOBUF_WNUM * pLLR_BY_CYCLE/pDAT_W;
-  localparam int cOBUF_RADDR_W    = clogb2(cOBUF_RNUM);
+  localparam int cOBUF_RADDR_W    = $clog2(cOBUF_RNUM);
   localparam int cOBUF_RDAT_W     = pDAT_W;
 
   localparam int cOBUF_DAT_NUM    = cGR_SYST_BIT_COL[pIDX_GR];
 
-  localparam int cOBUF_TAG_W      = pTAG_W + pERR_W + 1 + (pUSE_FIXED_CODE ? 0 : $bits(code_ctx_t)); // {tag, decfail, err, code_ctx}
+  localparam int cOBUF_TAG_W      = pTAG_W + pERR_W + 1 + 8; // {tag, err, decfail, uNiter}
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -355,16 +328,17 @@ module ldpc_3gpp_dec
   llr_t                            engine__ipLLR       [pROW_BY_CYCLE]               [pLLR_BY_CYCLE] ;
   logic    [cIBUF_P_RADDR_W-1 : 0] engine__oLLR_raddr                                                ;
   //
-  code_ctx_t                       engine__ocode_ctx                                                 ;
+  code_ctx_t                       engine__owcode_ctx                                                ;
   //
   logic                            engine__owrite                                                    ;
   logic                            engine__owfull                                                    ;
   logic    [cIBUF_P_RADDR_W-1 : 0] engine__owaddr                                                    ;
   logic      [pLLR_BY_CYCLE-1 : 0] engine__owdat                      [cCOL_BY_CYCLE]                ;
-
-  logic             [pTAG_W-1 : 0] engine__otag                                                      ;
-  logic                            engine__odecfail                                                  ;
-  logic             [pERR_W-1 : 0] engine__oerr                                                      ;
+  logic             [pTAG_W-1 : 0] engine__owtag                                                     ;
+  //
+  logic                            engine__owdecfail                                                 ;
+  logic                    [7 : 0] engine__owNiter                                                   ;
+  logic             [pERR_W-1 : 0] engine__owerr                                                     ;
 
   //
   // obuf
@@ -394,21 +368,10 @@ module ldpc_3gpp_dec
   //
   logic                            sink__irdecfail                  ;
   logic             [pERR_W-1 : 0] sink__irerr                      ;
+  logic                    [7 : 0] sink__irNiter                    ;
   //
   logic                            sink__orempty                    ;
   logic      [cOBUF_RADDR_W-1 : 0] sink__oraddr                     ;
-
-  //------------------------------------------------------------------------------------------------------
-  //
-  //------------------------------------------------------------------------------------------------------
-
-  code_ctx_t used_code_ctx;
-
-  assign  used_code_ctx.idxGr    = inidx[6]  | pIDX_GR;
-  assign {used_code_ctx.idxLs,
-          used_code_ctx.idxZc}   = inidx[5 : 0];
-  assign  used_code_ctx.code     = icode;
-  assign  used_code_ctx.do_punct = ido_punct | pDO_PUNCT;
 
   //------------------------------------------------------------------------------------------------------
   // input source
@@ -463,30 +426,19 @@ module ldpc_3gpp_dec
     .ohd_widx   (                   )
   );
 
-  assign source__ival       = pUSE_HSHAKE ? (ival & ordy) :  ival;
-  assign osrc_err           = pUSE_HSHAKE ? 1'b0          : (ival & !ordy);
+  assign source__ival               = pUSE_HSHAKE ? (ival & ordy) :  ival;
+  assign osrc_err                   = pUSE_HSHAKE ? 1'b0          : (ival & !ordy);
 
-  always_comb begin
-    source__icode_ctx = used_code_ctx;
-    //
-    if (pUSE_FIXED_CODE) begin
-      source__icode_ctx.idxGr    = pIDX_GR;
-      source__icode_ctx.idxLs    = pIDX_LS;
-      source__icode_ctx.idxZc    = pIDX_ZC;
-      source__icode_ctx.code     = pCODE;
-      source__icode_ctx.do_punct = pDO_PUNCT;
-    end
-  end
+  assign source__icode_ctx.idxGr    = pIDX_GR;
+  assign source__icode_ctx.idxLs    = pIDX_LS;
+  assign source__icode_ctx.idxZc    = pIDX_ZC;
+  assign source__icode_ctx.code     = pCODE;
+  assign source__icode_ctx.do_punct = pDO_PUNCT;
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
       if (ival & isop) begin
-        if (pUSE_FIXED_CODE) begin
-          ibuffer__iwtag <= {ifmode, iNiter, itag};
-        end
-        else begin
-          ibuffer__iwtag <= {ifmode, iNiter, used_code_ctx, itag};
-        end
+        ibuffer__iwtag <= {ifmode, iNiter, itag};
       end
     end
   end
@@ -583,14 +535,10 @@ module ldpc_3gpp_dec
     .pLLR_BY_CYCLE   ( pLLR_BY_CYCLE   ) ,
     .pROW_BY_CYCLE   ( pROW_BY_CYCLE   ) ,
     //
-    .pVNORM_FACTOR   ( pVNORM_FACTOR   ) ,
-    .pCNORM_FACTOR   ( pCNORM_FACTOR   ) ,
+    .pNORM_FACTOR    ( pNORM_FACTOR    ) ,
     //
     .pUSE_SC_MODE    ( pUSE_SC_MODE    ) ,
-    .pUSE_FIXED_CODE ( pUSE_FIXED_CODE ) ,
-    .pUSE_DBYPASS    ( pUSE_DBYPASS    ) ,
-    //
-    .pUSE_HC_SROM    ( pUSE_HC_SROM    )
+    .pUSE_FIXED_CODE ( 1               )
   )
   engine
   (
@@ -613,33 +561,24 @@ module ldpc_3gpp_dec
     //
     .iobuf_empty ( engine__iobuf_empty ) ,
     //
-    .ocode_ctx   ( engine__ocode_ctx   ) ,
+    .owcode_ctx  ( engine__owcode_ctx  ) ,
     //
     .owrite      ( engine__owrite      ) ,
     .owfull      ( engine__owfull      ) ,
     .owaddr      ( engine__owaddr      ) ,
     .owdat       ( engine__owdat       ) ,
-    .otag        ( engine__otag        ) ,
+    .owtag       ( engine__owtag       ) ,
     //
-    .odecfail    ( engine__odecfail    ) ,
-    .oerr        ( engine__oerr        )
+    .owdecfail   ( engine__owdecfail   ) ,
+    .owNiter     ( engine__owNiter     ) ,
+    .owerr       ( engine__owerr       )
   );
 
-  always_comb begin
-    if (pUSE_FIXED_CODE) begin
-      engine__icode_ctx = '0;
-      //
-      {engine__ifmode,
-       engine__iNiter,
-       engine__itag     } = ibuffer__ortag;
-    end
-    else begin
-      {engine__ifmode,
-       engine__iNiter,
-       engine__icode_ctx,
-       engine__itag     } = ibuffer__ortag;
-    end
-  end
+  assign engine__icode_ctx = '0;
+  //
+  assign {engine__ifmode,
+          engine__iNiter,
+          engine__itag     } = ibuffer__ortag;
 
   assign engine__iLLR         = ibuffer__oLLR;
   assign engine__ipLLR        = ibuffer__opLLR;
@@ -696,19 +635,9 @@ module ldpc_3gpp_dec
     end
   end
 
-  always_comb begin
-    if (pUSE_FIXED_CODE) begin
-      obuffer__iwtag  = { engine__odecfail,
-                          engine__oerr,
-                          engine__otag};
-    end
-    else begin
-      obuffer__iwtag  = { engine__ocode_ctx,
-                          engine__odecfail,
-                          engine__oerr,
-                          engine__otag};
-    end
-  end
+  assign obuffer__iwtag  = { engine__owdecfail,
+                             engine__owerr,
+                             engine__owtag};
 
   assign obuffer__irempty = sink__orempty;
   assign obuffer__iraddr  = sink__oraddr;
@@ -743,6 +672,7 @@ module ldpc_3gpp_dec
     //
     .irdecfail ( sink__irdecfail ) ,
     .irerr     ( sink__irerr     ) ,
+    .irNiter   ( sink__irNiter   ) ,
     //
     .orempty   ( sink__orempty   ) ,
     .oraddr    ( sink__oraddr    ) ,
@@ -758,33 +688,26 @@ module ldpc_3gpp_dec
     //
     .odecfail  ( odecfail        ) ,
     .oerr      ( oerr            ) ,
+    .obitnum   ( obitnum         ) ,
+    .oNiter    ( ouNiter         ) ,
     //
     .ohd_start (  ) , // n.u.
     .ohd_punct (  ) ,
     .ohd_raddr (  )
   );
 
-  assign sink__irfull = obuffer__ofull;
-  assign sink__irdat  = obuffer__ordat;
+  assign sink__irfull             = obuffer__ofull;
+  assign sink__irdat              = obuffer__ordat;
 
-  always_comb begin
-    if (pUSE_FIXED_CODE) begin
-      sink__icode_ctx.idxGr    = pIDX_GR;
-      sink__icode_ctx.idxLs    = pIDX_LS;
-      sink__icode_ctx.idxZc    = pIDX_ZC;
-      sink__icode_ctx.code     = pCODE;
-      sink__icode_ctx.do_punct = pDO_PUNCT;
-      //
-      {sink__irdecfail ,
-       sink__irerr     ,
-       sink__irtag     } = obuffer__ortag;
-    end
-    else begin
-      {sink__icode_ctx ,
-       sink__irdecfail ,
-       sink__irerr     ,
-       sink__irtag     } = obuffer__ortag;
-    end
-  end
+  assign sink__icode_ctx.idxGr    = pIDX_GR;
+  assign sink__icode_ctx.idxLs    = pIDX_LS;
+  assign sink__icode_ctx.idxZc    = pIDX_ZC;
+  assign sink__icode_ctx.code     = pCODE;
+  assign sink__icode_ctx.do_punct = pDO_PUNCT;
+  //
+  assign {sink__irdecfail ,
+          sink__irNiter   ,
+          sink__irerr     ,
+          sink__irtag     }       = obuffer__ortag;
 
 endmodule
