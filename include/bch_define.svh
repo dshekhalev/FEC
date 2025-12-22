@@ -1,7 +1,7 @@
 //
 // Project       : bch
 // Author        : Shekhalev Denis (des00)
-// Workfile      : bch_define.vh
+// Workfile      : bch_define.svh
 // Description   : bch modules macros file
 //
 

@@ -4,7 +4,7 @@
 // Workfile      : bch_functions.svh
 // Description   : BCH functions to get BCH generation poly
 //
-  `include "bch_define.vh"
+  `include "bch_define.svh"
   `include "gf_functions.svh"
 
   //------------------------------------------------------------------------------------------------------
