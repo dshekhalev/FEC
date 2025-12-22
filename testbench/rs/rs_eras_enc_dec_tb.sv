@@ -7,7 +7,6 @@
 // Description   : rs decoder with erasure testbench
 //
 
-
 module rs_eras_enc_dec_tb ;
 
   parameter   int m         =   8;      // GF (2^m)

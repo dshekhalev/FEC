@@ -285,7 +285,7 @@ module bertest ;
         // save reference
         code_queue.push_back(code);
         //
-        if ((n % 128) == 0)
+        if ((n % 16) == 0)
           $display("sent %0d packets", n);
       end
     end
@@ -347,11 +347,13 @@ module bertest ;
         end
       end
       while (n < Npkt);
-      $display("decode EbN0 = %0f done. ber = %0e, fer = %0e", EbNo[k], numerr[k]*1.0/bits, est_numerr[k]*1.0/fbits);
+      $display("decode EbN0 = %0.2f done. ber = %0.2e, fer = %0.2e", EbNo[k], numerr[k]*1.0/bits, est_numerr[k]*1.0/fbits);
       //
     end
+    //
+    $display("");
     for (int k = 0; k < EbNo.size(); k++) begin
-      $display("bits %0d EbNo = %f: ber = %0e. fer = %0e", bits, EbNo[k], numerr[k]*1.0/bits, est_numerr[k]*1.0/fbits);
+      $display("bits %0d EbNo = %0.2f: ber = %0.2e. fer = %0.2e", bits, EbNo[k], numerr[k]*1.0/bits, est_numerr[k]*1.0/fbits);
     end
     $stop;
   end

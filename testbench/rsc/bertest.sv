@@ -5,7 +5,6 @@
 // Description   : testbench for RTL RSC coder/decoder QPSK
 //
 
-`include "define.vh"
 `include "awgn_class.svh"
 `include "pkt_class.svh"
 
@@ -309,7 +308,6 @@ module bertest ;
   const int B = 1e5;
   const int Npkt = B/(pN*2);
 
-//const int Npkt = 4;
 //real EbNo [] = '{3.5};
 //real EbNo [] = '{3.0, 4.0, 5.0} ;
 //real EbNo [] = '{0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5};
@@ -373,7 +371,7 @@ module bertest ;
         repeat (16) @(posedge iclk);    // true hack
         @(posedge iclk iff !dec__obusy);
         //
-        if ((n % 32) == 0) begin
+        if ((n % 16) == 0) begin
           $display("sent %0d packets", n);
         end
       end
@@ -442,11 +440,13 @@ module bertest ;
         end
       end
       while (n < Npkt);
-      $display("decode EbN0 = %0f done. ber = %0e, fer = %0e", EbNo[k], numerr[k]*1.0/bits, est_numerr[k]*1.0/bits);
+      $display("decode EbN0 = %0.2f done. ber = %0.2e, fer = %0.2e", EbNo[k], numerr[k]*1.0/bits, est_numerr[k]*1.0/bits);
       //
     end
+    //
+    $display("");
     for (int k = 0; k < EbNo.size(); k++) begin
-      $display("bits %0d EbNo = %f: ber = %0e. fer = %0e", bits, EbNo[k], numerr[k]*1.0/bits, est_numerr[k]*1.0/bits);
+      $display("bits %0d EbNo = %0.2f: ber = %0.2e. fer = %0.2e", bits, EbNo[k], numerr[k]*1.0/bits, est_numerr[k]*1.0/bits);
     end
     $stop;
   end

@@ -1,3 +1,9 @@
+//
+// Project       : btc
+// Author        : Shekhalev Denis (des00)
+// Workfile      : bertest.sv
+// Description   : testbench for RTL CCSDS turbo coder/decoder integrated top module
+//
 
 `timescale 1ns/1ns
 

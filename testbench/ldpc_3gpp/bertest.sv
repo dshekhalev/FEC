@@ -7,7 +7,6 @@
 
 `timescale 1ns/1ns
 
-`include "define.vh"
 `include "awgn_class.svh"
 `include "pkt_class.svh"
 
@@ -600,6 +599,7 @@ module bertest;
       $display("decode EbN0(SNR) = %0.2f(%0.2f) done. ber = %0.2e, fer = %0.2e", EbNo[k], awgn.SNR, numerr[k]*1.0/(Npkt*data_bit_length), est_numerr[k]*1.0/(Npkt*code_bit_length));
     end
     // final results
+    $display("");
     for (int k = 0; k < EbNo.size(); k++) begin
       $display("bits %0d EbNo = %0.2f: ber = %0.2e. fer = %0.2e", Npkt*data_bit_length, EbNo[k], numerr[k]*1.0/(Npkt*data_bit_length), est_numerr[k]*1.0/(Npkt*code_bit_length));
     end
@@ -616,16 +616,20 @@ module bertest;
   function automatic real get_coderate (input bit idxGr, int code, bit do_punct);
   begin
     if (idxGr) begin
-      if (do_punct)
+      if (do_punct) begin
         get_coderate = 1.0*10/(8 + code);
-      else
+      end
+      else begin
         get_coderate = 1.0*10/(10 + code);
+      end
     end
     else begin
-      if (do_punct)
+      if (do_punct) begin
         get_coderate = 1.0*22/(20 + code);
-      else
+      end
+      else begin
         get_coderate = 1.0*22/(22 + code);
+      end
     end
   end
   endfunction

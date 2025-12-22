@@ -7,7 +7,7 @@
 
 `timescale 1ns/1ns
 
-`include "define.vh"
+`include "define.svh"
 `include "awgn_class.svh"
 `include "pkt_class.svh"
 
@@ -535,11 +535,12 @@ module bertest ;
       end
       while (n < Npkt);
       // intermediate results
-      $display("decode EbN0 = %0f done. ber = %0e, fer = %0e", EbNo[k], numerr[k]*1.0/(Npkt*enc.cLDPC_DNUM), est_numerr[k]*1.0/(Npkt*enc.cLDPC_NUM));
+      $display("decode EbN0 = %0.2f done. ber = %0.2e, fer = %0.2e", EbNo[k], numerr[k]*1.0/(Npkt*enc.cLDPC_DNUM), est_numerr[k]*1.0/(Npkt*enc.cLDPC_NUM));
     end
     // final results
+    $display("");
     for (int k = 0; k < EbNo.size(); k++) begin
-      $display("bits %0d EbNo = %f: ber = %0e. fer = %0e", Npkt*enc.cLDPC_DNUM, EbNo[k], numerr[k]*1.0/(Npkt*enc.cLDPC_DNUM), est_numerr[k]*1.0/(Npkt*enc.cLDPC_NUM));
+      $display("bits %0d EbNo = %0.2f: ber = %0.2e. fer = %0.2e", Npkt*enc.cLDPC_DNUM, EbNo[k], numerr[k]*1.0/(Npkt*enc.cLDPC_DNUM), est_numerr[k]*1.0/(Npkt*enc.cLDPC_NUM));
     end
     //
     #1us;

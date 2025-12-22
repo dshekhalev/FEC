@@ -5,7 +5,6 @@
 // Description   : bch erasure_decoder testbench
 //
 
-
 module bch_eras_enc_dec_tb ;
 
   //------------------------------------------------------------------------------------------------------

@@ -241,7 +241,7 @@ module bertest ;
 //const int Npkt = 2048;
 //const int Npkt = 4096;
 
-  const int B = 1e6;
+  const int B = 1e5;
   const int Npkt = B/pN;
 
 //real EbNo [] = '{4.0};
@@ -294,7 +294,7 @@ module bertest ;
         // wait all modules free
         repeat(24) @(posedge iclk);   // true hack
         //
-        if ((n % 128) == 0)
+        if ((n % 512) == 0)
           $display("sent %0d packets", n);
       end
     end
@@ -341,20 +341,20 @@ module bertest ;
           est_numerr[k] += dec__oerr;
 
           //
-          if ((n % 128) == 0) begin
+          if ((n % 512) == 0) begin
             $display("decode done %0d. err = %0d, est err %0d", n, numerr[k], est_numerr[k]);
           end
 //        $display("decode done %0d. err = %0d, est err %0d", n, err, dec__oerr);
-
         end
       end
       while (n < Npkt);
-      $display("decode EbN0 = %0f done. ber = %0e, fer = %0e", EbNo[k], numerr[k]*1.0/bits, est_numerr[k]*cCODE_RATE*1.0/bits);  // estimated error by full word
+      $display("decode EbN0 = %0.2f done. ber = %0.2e, fer = %0.2e", EbNo[k], numerr[k]*1.0/bits, est_numerr[k]*cCODE_RATE*1.0/bits);  // estimated error by full word
       //
     end
+    //
     $display("");
     for (int k = 0; k < EbNo.size(); k++) begin
-      $display("bits %0d EbNo = %f: ber = %0e. fer = %0e", bits, EbNo[k], numerr[k]*1.0/bits, est_numerr[k]*cCODE_RATE*1.0/bits);
+      $display("bits %0d EbNo = %.2f: ber = %0.2e. fer = %0.2e", bits, EbNo[k], numerr[k]*1.0/bits, est_numerr[k]*cCODE_RATE*1.0/bits);
     end
     $stop;
   end

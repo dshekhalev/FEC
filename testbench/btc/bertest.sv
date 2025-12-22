@@ -4,6 +4,7 @@
 // Workfile      : bertest.sv
 // Description   : testbench for RTL BTC coder/decoder integrated top module
 //
+
 `timescale 1ns/1ns
 
 `include "awgn_class.svh"

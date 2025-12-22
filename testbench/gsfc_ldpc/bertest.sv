@@ -7,7 +7,6 @@
 
 `timescale 1ns/1ns
 
-`include "define.vh"
 `include "awgn_class.svh"
 `include "pkt_class.svh"
 
@@ -416,7 +415,7 @@ module bertest ;
 //      @(posedge iclk iff !dec__obusy);
         @(posedge iclk iff dec__ordy);
         //
-        if ((n % 128) == 0)
+        if ((n % 16) == 0)
           $display("sent %0d packets", n);
       end
     end
@@ -468,7 +467,7 @@ module bertest ;
             err = code.do_compare(decode);
             numerr[k] += err;
 
-            if ((n % 32) == 0) begin
+            if ((n % 16) == 0) begin
               $display("decode done %0d. err = %0d, est err %0d", n, numerr[k], est_numerr[k]);
             end
           end
@@ -476,91 +475,18 @@ module bertest ;
       end
       while (n < Npkt);
       // intermediate results
-`ifdef __USE_DEC__
-      $display("decode EbN0 = %0f done. ber = %0e, fer = %0e", EbNo[k], numerr[k]*1.0/(Npkt*enc.cLDPC_DNUM), est_numerr[k]*1.0/(Npkt*enc.cLDPC_DNUM));
-`elsif __USE_ADEC__
-      $display("decode EbN0 = %0f done. ber = %0e, fer = %0e", EbNo[k], numerr[k]*1.0/(Npkt*enc.cLDPC_DNUM), est_numerr[k]*1.0/(Npkt*enc.cLDPC_DNUM));
-`else
-      $display("decode EbN0 = %0f done. ber = %0e, fer = %0e", EbNo[k], numerr[k]*1.0/(Npkt*enc.cLDPC_DNUM), est_numerr[k]*1.0/(Npkt*enc.cLDPC_NUM));
-`endif
+      $display("decode EbN0 = %0.2f done. ber = %0.2e, fer = %0.2e", EbNo[k], numerr[k]*1.0/(Npkt*enc.cLDPC_DNUM), est_numerr[k]*1.0/(Npkt*enc.cLDPC_NUM));
     end
     // final results
+    $display("");
     for (int k = 0; k < EbNo.size(); k++) begin
-`ifdef __USE_DEC__
-      $display("bits %0d EbNo = %f: ber = %0e. fer = %0e", Npkt*enc.cLDPC_DNUM, EbNo[k], numerr[k]*1.0/(Npkt*enc.cLDPC_DNUM), est_numerr[k]*1.0/(Npkt*enc.cLDPC_DNUM));
-`elsif __USE_ADEC__
-      $display("bits %0d EbNo = %f: ber = %0e. fer = %0e", Npkt*enc.cLDPC_DNUM, EbNo[k], numerr[k]*1.0/(Npkt*enc.cLDPC_DNUM), est_numerr[k]*1.0/(Npkt*enc.cLDPC_DNUM));
-`else
-      $display("bits %0d EbNo = %f: ber = %0e. fer = %0e", Npkt*enc.cLDPC_DNUM, EbNo[k], numerr[k]*1.0/(Npkt*enc.cLDPC_DNUM), est_numerr[k]*1.0/(Npkt*enc.cLDPC_NUM));
-`endif
+      $display("bits %0d EbNo = %0.2f: ber = %0.2e. fer = %0.2e", Npkt*enc.cLDPC_DNUM, EbNo[k], numerr[k]*1.0/(Npkt*enc.cLDPC_DNUM), est_numerr[k]*1.0/(Npkt*enc.cLDPC_NUM));
     end
     //
     #1us;
     $display("test done %0t", $time);
     $stop;
   end
-
-  //------------------------------------------------------------------------------------------------------
-  // RTL log functions
-  //------------------------------------------------------------------------------------------------------
-
-`ifdef __LOG_ENABLE__
-  initial begin : cnode_capture
-    int fp;
-    string tstr;
-    int taddr, sela;
-
-
-    forever begin
-      @(posedge iclk iff (dec_rtl.engine.ctrl.state != dec_rtl.engine.ctrl.cWAIT_STATE));
-      fp = $fopen("vn_rtl.log", "w");
-      do begin
-        @(posedge iclk iff dec_rtl.engine.cnode.oval); // wait cnode start
-        $fdisplay(fp, "============================== h step results ==============================");
-        @(posedge iclk iff dec_rtl.engine.mem.write); // wait write
-        @(posedge iclk iff !dec_rtl.engine.mem.write); // wait end
-        @(posedge iclk); // ram write latency
-
-        for (int c = 0; c < pC; c++) begin
-          for (int w = 0; w < pW; w++) begin
-            for (int z = 0; z < pZF; z++) begin
-              tstr = "";
-              for (int t = 0; t < pT; t++) begin
-                tstr ={tstr, $psprintf("%0.1f, ", $signed(dec_rtl.engine.mem.mem[c][w][z % pLLR_BY_CYCLE][t/(pT/pNODE_BY_CYCLE)][(t % (pT/pNODE_BY_CYCLE))*(pZF/pLLR_BY_CYCLE) + z/pLLR_BY_CYCLE]))};
-              end
-              $fdisplay(fp, "vn[%0d][%0d][%0d] = %s", c, w, z, tstr);
-            end
-          end
-        end
-        //
-        @(posedge iclk iff dec_rtl.engine.vnode.oval); // wait cnode start
-        $fdisplay(fp, "============================== v step results ==============================");
-        @(posedge iclk iff dec_rtl.engine.mem.write); // wait write
-        @(posedge iclk iff !dec_rtl.engine.mem.write); // wait end
-        @(posedge iclk); // ram write latency
-
-        for (int c = 0; c < pC; c++) begin
-          for (int w = 0; w < pW; w++) begin
-            for (int z = 0; z < pZF; z++) begin
-              int tmod;
-              tmod = pT/pNODE_BY_CYCLE;
-              tstr = "";
-              for (int t = 0; t < pT; t++) begin
-                tstr ={tstr, $psprintf("%0.1f, ", $signed(dec_rtl.engine.mem.mem[c][w][z % pLLR_BY_CYCLE][t/(pT/pNODE_BY_CYCLE)][(t % (pT/pNODE_BY_CYCLE))*(pZF/pLLR_BY_CYCLE) + z/pLLR_BY_CYCLE]))};
-              end
-              $fdisplay(fp, "vn[%0d][%0d][%0d] = %s", c, w, z, tstr);
-            end
-          end
-        end
-      end
-      while (dec_rtl.engine.ctrl.state != dec_rtl.engine.ctrl.cWAIT_STATE);
-
-      $fclose(fp);
-    end
-
-  end
-
-`endif
 
 endmodule
 

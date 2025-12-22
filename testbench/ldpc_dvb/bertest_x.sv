@@ -7,7 +7,6 @@
 
 `timescale 1ns/1ns
 
-`include "define.vh"
 `include "awgn_class.svh"
 `include "pkt_class.svh"
 

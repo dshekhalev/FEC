@@ -5,7 +5,6 @@
 // Description   : testbench for RTL RSC2 coder/decoder for QPSK
 //
 
-`include "define.vh"
 `include "awgn_class.svh"
 `include "pkt_class.svh"
 
@@ -275,10 +274,7 @@ module bertest ;
   //------------------------------------------------------------------------------------------------------
   // tb settings
   //------------------------------------------------------------------------------------------------------
-`ifdef __DIRECT_MODE__
-  const int Npkt = 1;
-  real EbNo [] = '{2.5};
-`else
+
 //const int Npkt = 4;
 //const int Npkt = 128;
 //const int Npkt = 1024;
@@ -287,14 +283,11 @@ module bertest ;
   const int Npkt = B/(pN*2);
 
 //real EbNo [] = '{5.0};
-//real EbNo [] = '{0.0};
   real EbNo [] = '{1.0, 1.5, 2.0, 2.5, 3.0};
-//real EbNo [] = '{1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0} ;
-//real EbNo [] = '{0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5};
 //real EbNo [] = '{0.5, 1.0, 1.5, 2.0, 2.5, 3.0};
 //real EbNo [] = '{1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
 //real EbNo [] = '{0.5, 0.75, 1.0, 1.25, 1.5, 1.75};
-`endif
+
   //------------------------------------------------------------------------------------------------------
   //
   //------------------------------------------------------------------------------------------------------
@@ -347,7 +340,7 @@ module bertest ;
         repeat (16) @(posedge iclk);    // true hack
         @(posedge iclk iff dec__ordy);
         //
-        if ((n % 32) == 0) begin
+        if ((n % 16) == 0) begin
           $display("sent %0d packets", n);
         end
       end
@@ -403,11 +396,13 @@ module bertest ;
         end
       end
       while (n < Npkt);
-      $display("decode EbN0 = %0f done. ber = %0e, fer = %0e", EbNo[k], numerr[k]*1.0/bits, est_numerr[k]*1.0/bits);
+      $display("decode EbN0 = %0.2f done. ber = %0.2e, fer = %0.2e", EbNo[k], numerr[k]*1.0/bits, est_numerr[k]*1.0/bits);
       //
     end
+    //
+    $display("");
     for (int k = 0; k < EbNo.size(); k++) begin
-      $display("bits %0d EbNo = %f: ber = %0e. fer = %0e", bits, EbNo[k], numerr[k]*1.0/bits, est_numerr[k]*1.0/bits);
+      $display("bits %0d EbNo = %0.2f: ber = %0.2e. fer = %0.2e", bits, EbNo[k], numerr[k]*1.0/bits, est_numerr[k]*1.0/bits);
     end
     $stop;
   end
