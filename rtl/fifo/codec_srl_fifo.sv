@@ -23,6 +23,9 @@
   //
   logic                codec_srl_fifo__oempty  ;
   logic                codec_srl_fifo__ofull   ;
+  logic                codec_srl_fifo__ohfull  ;
+  logic [pDEPTH_W : 0] codec_srl_fifo__ousedw  ;
+
 
 
 
@@ -48,14 +51,16 @@
     .ordat   ( codec_srl_fifo__ordat   ) ,
     //
     .oempty  ( codec_srl_fifo__oempty  ) ,
-    .ofull   ( codec_srl_fifo__ofull   )
+    .ofull   ( codec_srl_fifo__ofull   ) ,
+    .ohfull  ( codec_srl_fifo__ohfull  ) ,
+    .ousedw  ( codec_srl_fifo__ousedw  )
   );
 
 
   assign codec_srl_fifo__iclk    = '0 ;
   assign codec_srl_fifo__ireset  = '0 ;
   assign codec_srl_fifo__iclkena = '0 ;
-  assing codec_srl_fifo__iclear  = '0 ;
+  assign codec_srl_fifo__iclear  = '0 ;
   assign codec_srl_fifo__iwrite  = '0 ;
   assign codec_srl_fifo__iwdat   = '0 ;
   assign codec_srl_fifo__iread   = '0 ;
@@ -65,17 +70,17 @@
 */
 
 //
-// Project       : ldpc DVB-S2
+// Project       : coding library
 // Author        : Shekhalev Denis (des00)
 // Workfile      : codec_srl_fifo.sv
-// Description   : Small SRL based fifo with output delay 0/1 tick
+// Description   : Small synchronus SRL based fifo with output delay 0/1 tick
 //
 
 module codec_srl_fifo
 #(
-  parameter int pDEPTH_W = 8 ,
+  parameter int pDEPTH_W = 5 ,
   parameter int pDAT_W   = 8 ,
-  parameter bit pNO_REG  = 0
+  parameter bit pNO_REG  = 0    // read delay 0(no register)/1(register) tick
 )
 (
   iclk    ,
@@ -92,7 +97,9 @@ module codec_srl_fifo
   ordat   ,
   //
   oempty  ,
-  ofull
+  ofull   ,
+  ohfull  ,
+  ousedw
 );
 
   //------------------------------------------------------------------------------------------------------
@@ -114,6 +121,8 @@ module codec_srl_fifo
   //
   output logic                oempty  ;
   output logic                ofull   ;
+  output logic                ohfull  ;
+  output logic [pDEPTH_W : 0] ousedw  ; // + 1 bit for full width
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -146,6 +155,8 @@ module codec_srl_fifo
 
   assign oempty = (cnt == 0);
   assign ofull  = cnt[pDEPTH_W];
+  assign ohfull = cnt[pDEPTH_W] | cnt[pDEPTH_W-1];
+  assign ousedw = cnt;
 
   //------------------------------------------------------------------------------------------------------
   // ram write
@@ -169,7 +180,7 @@ module codec_srl_fifo
   generate
     if (pNO_REG) begin
       assign orval = read;
-      assign ordat = ram[cnt - 1'b1];
+      assign ordat = ram[cnt - 1];
     end
     else begin
       always_ff @(posedge iclk or posedge ireset) begin
@@ -183,7 +194,7 @@ module codec_srl_fifo
 
       always_ff @(posedge iclk) begin
         if (iclkena) begin
-          ordat <= ram[cnt - 1'b1];
+          ordat <= ram[cnt - 1];
         end
       end
     end

@@ -23,6 +23,8 @@
   //
   logic                codec_fifo__oempty  ;
   logic                codec_fifo__ofull   ;
+  logic                codec_fifo__ohfull  ;
+  logic [pDEPTH_W : 0] codec_fifo__ousedw  ;
 
 
 
@@ -48,14 +50,16 @@
     .ordat   ( codec_fifo__ordat   ) ,
     //
     .oempty  ( codec_fifo__oempty  ) ,
-    .ofull   ( codec_fifo__ofull   )
+    .ofull   ( codec_fifo__ofull   ) ,
+    .ohfull  ( codec_fifo__ohfull  ) ,
+    .ousedw  ( codec_fifo__ousedw  )
   );
 
 
   assign codec_fifo__iclk    = '0 ;
   assign codec_fifo__ireset  = '0 ;
   assign codec_fifo__iclkena = '0 ;
-  assing codec_fifo__iclear  = '0 ;
+  assign codec_fifo__iclear  = '0 ;
   assign codec_fifo__iwrite  = '0 ;
   assign codec_fifo__iwdat   = '0 ;
   assign codec_fifo__iread   = '0 ;
@@ -65,17 +69,17 @@
 */
 
 //
-// Project       : ldpc DVB-S2
+// Project       : coding library
 // Author        : Shekhalev Denis (des00)
 // Workfile      : codec_fifo.sv
-// Description   : Small RAM based fifo with output delay 0/1 tick
+// Description   : Small synchronus distributed RAM based fifo with output delay 0/1 tick
 //
 
 module codec_fifo
 #(
-  parameter int pDEPTH_W = 8 ,
+  parameter int pDEPTH_W = 5 ,
   parameter int pDAT_W   = 8 ,
-  parameter bit pNO_REG  = 0
+  parameter bit pNO_REG  = 0    // read delay 0(no register)/1(register) tick
 )
 (
   iclk    ,
@@ -92,7 +96,9 @@ module codec_fifo
   ordat   ,
   //
   oempty  ,
-  ofull
+  ofull   ,
+  ohfull  ,
+  ousedw
 );
 
   //------------------------------------------------------------------------------------------------------
@@ -114,12 +120,14 @@ module codec_fifo
   //
   output logic                oempty  ;
   output logic                ofull   ;
+  output logic                ohfull  ;
+  output logic [pDEPTH_W : 0] ousedw  ; // + 1 bit for full width
 
   //------------------------------------------------------------------------------------------------------
   //
   //------------------------------------------------------------------------------------------------------
 
-  bit     [pDAT_W-1 : 0] ram [2**pDEPTH_W];
+  (* ram_style = "distributed" *) bit [pDAT_W-1 : 0] ram [2**pDEPTH_W];
 
   logic [pDEPTH_W-1 : 0] waddr;
   logic [pDEPTH_W-1 : 0] raddr;
@@ -163,6 +171,8 @@ module codec_fifo
 
   assign oempty = (cnt == 0);
   assign ofull  = cnt[pDEPTH_W];
+  assign ohfull = cnt[pDEPTH_W] | cnt[pDEPTH_W-1];
+  assign ousedw = cnt;
 
   //------------------------------------------------------------------------------------------------------
   // ram write
@@ -200,7 +210,6 @@ module codec_fifo
           ordat <= ram[raddr];
         end
       end
-
     end
   endgenerate
 
