@@ -137,13 +137,10 @@ module codec_biterr_adder
       end
     end
     else if (pD_W == 0) begin
-      // synthesis translate_off
-      initial begin
-        $error("parameter error");
-        $stop;
-      end
-      // synthesis translate_on
-      assign oerr[-1] = 1'bx;
+      assign oval = ival;
+      assign osop = isop;
+      assign oeop = ieop;
+      assign oerr = ierr[0];
     end
     else begin
       logic [pERR_W-1 : 0] adder0__ierr [2**(pD_W-1)];
