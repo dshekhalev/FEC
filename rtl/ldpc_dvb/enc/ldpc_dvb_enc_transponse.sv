@@ -87,7 +87,7 @@ module ldpc_dvb_enc_transponse
 #(
   parameter int pADDR_W   =   8 ,
   parameter int pDAT_W    = 360 ,
-  parameter int pTR_DAT_W =   8   // transponse dat_W
+  parameter int pTR_DAT_W =   8   // transponse dat_w, only 2^N (N = [1:6]) support
 )
 (
   iclk       ,
@@ -182,8 +182,7 @@ module ldpc_dvb_enc_transponse
   logic                     acc__ival     ;
   logic                     acc__iload    ;
   logic                     acc__iwrite   ;
-  logic    [cSHIFT_W-1 : 0] acc__iashift  ;
-  logic    [cSHIFT_W-1 : 0] acc__itshift  ;
+  logic    [cSHIFT_W-1 : 0] acc__ishift   ;
   logic   [pTR_DAT_W-1 : 0] acc__idat     ;
   //
   logic                     acc__owrite   ;
@@ -268,6 +267,7 @@ module ldpc_dvb_enc_transponse
   assign ctrl__ibusy  = acc__ival ;
 
   assign ordy         = ctrl__ordy;
+  assign owfull       = ctrl__odone;
 
   //------------------------------------------------------------------------------------------------------
   // line accumulator
@@ -288,8 +288,7 @@ module ldpc_dvb_enc_transponse
     .ival    ( acc__ival    ) ,
     .iload   ( acc__iload   ) ,
     .iwrite  ( acc__iwrite  ) ,
-    .iashift ( acc__iashift ) ,
-    .itshift ( acc__itshift ) ,
+    .ishift  ( acc__ishift  ) ,
     .idat    ( acc__idat    ) ,
     //
     .owrite  ( acc__owrite  ) ,
@@ -297,23 +296,57 @@ module ldpc_dvb_enc_transponse
   );
 
   // 2 tick delay inside ctrl
-  assign acc__ival    = ctrl__oval;
-  assign acc__iload   = ctrl__oload;
-  assign acc__iwrite  = ctrl__owrite;
-  assign acc__iashift = ctrl__oashift;
-  assign acc__itshift = ctrl__otshift;
-
-  //------------------------------------------------------------------------------------------------------
-  // // allign 1 tick ram read delay
-  //------------------------------------------------------------------------------------------------------
-
-  logic [cSEL_W-1 : 0] ctrl_tsel;
+  always_ff @(posedge iclk or posedge ireset) begin
+    if (ireset) begin
+      acc__ival <= 1'b0;
+    end
+    else if (iclkena) begin
+      acc__ival <= ctrl__oval;
+    end
+  end
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
+      acc__iload  <= ctrl__oload;
+      acc__iwrite <= ctrl__owrite;
+      acc__ishift <= ctrl__oload ? ctrl__oashift : ctrl__otshift;
+    end
+  end
+
+  //------------------------------------------------------------------------------------------------------
+  // 1 tick ram read delay
+  // + do wide muxing 360 -> 1 2 phased : ceil(360/16)x(16 -> 1) & ceil(360/16) -> 1
+  //------------------------------------------------------------------------------------------------------
+
+  localparam int cTMUX_NUM = (pDAT_W/16) + ((pDAT_W % 16) != 0);
+
+  logic       [cSEL_W-1 : 0] ctrl_tsel             ;
+  logic       [cSEL_W-1 : 4] tmux_sel              ;
+  logic    [cTMUX_NUM-1 : 0] tmux_dat  [pTR_DAT_W] ;
+
+  // remove simulation warning
+  logic [cTMUX_NUM*16-1 : 0] mem_rdat  [pTR_DAT_W] ;
+
+  always_comb begin
+    for (int i = 0; i < pTR_DAT_W; i++) begin
+      mem_rdat[i] = mem__ordat[i];
+    end
+  end
+
+  always_ff @(posedge iclk) begin
+    if (iclkena) begin
+      // allign 1 tick ram read delay
       ctrl_tsel <= ctrl__otsel;
+      // mux lsw and save msw mix idx to next tick
       for (int i = 0; i < pTR_DAT_W; i++) begin
-        acc__idat[i] <= mem__ordat[i][ctrl_tsel];
+        for (int m = 0; m < cTMUX_NUM; m++) begin
+          tmux_dat[i][m] <= mem_rdat[i][{m[cSEL_W-1-4 : 0], ctrl_tsel[3 : 0]}];
+        end
+      end
+      tmux_sel <= ctrl_tsel[cSEL_W-1 : 4];
+      // mux msw
+      for (int i = 0; i < pTR_DAT_W; i++) begin
+        acc__idat[i] <= tmux_dat[i][tmux_sel];
       end
     end
   end
@@ -325,11 +358,9 @@ module ldpc_dvb_enc_transponse
   always_ff @(posedge iclk or posedge ireset) begin
     if (ireset) begin
       owrite <= 1'b0;
-      owfull <= 1'b0;
     end
     else if (iclkena) begin
       owrite <= (iwrite & !ipwrite) | acc__owrite;
-      owfull <= ctrl__odone;
     end
   end
 

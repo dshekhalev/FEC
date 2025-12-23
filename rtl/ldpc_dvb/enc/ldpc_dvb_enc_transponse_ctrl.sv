@@ -87,7 +87,7 @@
 module ldpc_dvb_enc_transponse_ctrl
 #(
   parameter int pDAT_W    = 360 ,
-  parameter int pTR_DAT_W =   8 ,
+  parameter int pTR_DAT_W =   8 , // transponse dat_w, only 2^N (N = [1:6]) support
   //
   parameter int pROW_W    =   8 ,
   parameter int pSEL_W    =   9 ,
@@ -223,7 +223,16 @@ module ldpc_dvb_enc_transponse_ctrl
   end
 
   assign ordy  = (state == cWAIT_STATE);
-  assign odone = (state == cDONE_STATE);
+//assign odone = (state == cDONE_STATE);
+
+  always_ff @(posedge iclk or posedge ireset) begin
+    if (ireset) begin
+      odone <= 1'b0;
+    end
+    else if (iclkena) begin
+      odone <= (state == cWAIT_NBUSY_STATE) & !ibusy;
+    end
+  end
 
   //------------------------------------------------------------------------------------------------------
   // FSM counters
@@ -232,6 +241,11 @@ module ldpc_dvb_enc_transponse_ctrl
   always_ff @(posedge iclk) begin
     if (iclkena) begin
       case (state)
+        cRESET_STATE : begin
+          tsel_cnt <= '0;
+          trow_cnt <= '0;
+        end
+        //
         cWAIT_STATE : begin
           max_row_m2      <= (iwrow >> cLOG2_TR_DAT_W) + (iwrow[cLOG2_TR_DAT_W-1 : 0] != 0) - 2;
           single_row      <= (iwrow <= pTR_DAT_W);
@@ -257,6 +271,8 @@ module ldpc_dvb_enc_transponse_ctrl
             end
           end
         end
+        //
+        default : begin end
       endcase
     end
   end
@@ -296,7 +312,6 @@ module ldpc_dvb_enc_transponse_ctrl
           new_sel_m1 <= pDAT_W-1;
         end
       endcase
-      //
     end
   end
 

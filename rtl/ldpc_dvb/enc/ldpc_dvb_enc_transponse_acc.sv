@@ -15,8 +15,7 @@
   logic                   ldpc_dvb_enc_transponse_acc__ival    ;
   logic                   ldpc_dvb_enc_transponse_acc__iload   ;
   logic                   ldpc_dvb_enc_transponse_acc__iwrite  ;
-  logic  [pSHIFT_W-1 : 0] ldpc_dvb_enc_transponse_acc__iashift ;
-  logic  [pSHIFT_W-1 : 0] ldpc_dvb_enc_transponse_acc__itshift ;
+  logic  [pSHIFT_W-1 : 0] ldpc_dvb_enc_transponse_acc__ishift  ;
   logic [pTR_DAT_W-1 : 0] ldpc_dvb_enc_transponse_acc__idat    ;
   //
   logic                   ldpc_dvb_enc_transponse_acc__owrite  ;
@@ -39,8 +38,7 @@
     .ival    ( ldpc_dvb_enc_transponse_acc__ival    ) ,
     .iload   ( ldpc_dvb_enc_transponse_acc__iload   ) ,
     .iwrite  ( ldpc_dvb_enc_transponse_acc__iwrite  ) ,
-    .iashift ( ldpc_dvb_enc_transponse_acc__iashift ) ,
-    .itshift ( ldpc_dvb_enc_transponse_acc__itshift ) ,
+    .ishift  ( ldpc_dvb_enc_transponse_acc__ishift  ) ,
     .idat    ( ldpc_dvb_enc_transponse_acc__idat    ) ,
     //
     .owrite  ( ldpc_dvb_enc_transponse_acc__owrite  ) ,
@@ -54,8 +52,7 @@
   assign ldpc_dvb_enc_transponse_acc__ival    = '0 ;
   assign ldpc_dvb_enc_transponse_acc__iload   = '0 ;
   assign ldpc_dvb_enc_transponse_acc__iwrite  = '0 ;
-  assign ldpc_dvb_enc_transponse_acc__iashift = '0 ;
-  assign ldpc_dvb_enc_transponse_acc__itshift = '0 ;
+  assign ldpc_dvb_enc_transponse_acc__ishift  = '0 ;
   assign ldpc_dvb_enc_transponse_acc__idat    = '0 ;
 
 
@@ -71,9 +68,9 @@
 
 module ldpc_dvb_enc_transponse_acc
 #(
-  parameter int pDAT_W    = 360 ,
-  parameter int pTR_DAT_W =   8 ,
-  parameter int pSHIFT_W  =   8
+  parameter int pDAT_W    =                   360 ,
+  parameter int pTR_DAT_W =                     8 , // transponse dat_w, only 2^N (N = [1:6]) support
+  parameter int pSHIFT_W  = $clog2(pTR_DAT_W) + 1
 )
 (
   iclk    ,
@@ -83,8 +80,7 @@ module ldpc_dvb_enc_transponse_acc
   ival    ,
   iload   ,
   iwrite  ,
-  iashift ,
-  itshift ,
+  ishift  ,
   idat    ,
   //
   owrite  ,
@@ -102,8 +98,7 @@ module ldpc_dvb_enc_transponse_acc
   input  logic                   ival    ;
   input  logic                   iload   ;
   input  logic                   iwrite  ;
-  input  logic  [pSHIFT_W-1 : 0] iashift ;
-  input  logic  [pSHIFT_W-1 : 0] itshift ;
+  input  logic  [pSHIFT_W-1 : 0] ishift  ; // iload ? ashift : tshift
   input  logic [pTR_DAT_W-1 : 0] idat    ;
   //
   output logic                   owrite  ;
@@ -136,29 +131,16 @@ module ldpc_dvb_enc_transponse_acc
   always_ff @(posedge iclk) begin
     if (iclkena) begin
       if (ival) begin
-        if (iload) begin
-          {tmp_line, acc_line} <= {idat, acc_line} >> get_shift_value(iashift);
+        if (ishift[pSHIFT_W-1]) begin
+          {tmp_line, acc_line} <= {iload ? idat : tmp_line, acc_line} >> pTR_DAT_W;
         end
         else begin
-          acc_line <= {tmp_line, acc_line} >> get_shift_value(itshift);
+          {tmp_line, acc_line} <= {iload ? idat : tmp_line, acc_line} >> ishift[pSHIFT_W-2 : 0];
         end
       end
     end
   end
 
   assign owdat = acc_line;
-
-  //------------------------------------------------------------------------------------------------------
-  // function to scale shift to range [0 : pDAT_W]
-  //------------------------------------------------------------------------------------------------------
-
-  function logic [pSHIFT_W-1 : 0] get_shift_value (logic [pSHIFT_W-1 : 0] shift);
-  begin
-    get_shift_value = pDAT_W;
-    if (shift < pDAT_W) begin
-      get_shift_value = shift % pDAT_W;
-    end
-  end
-  endfunction
 
 endmodule
