@@ -1,7 +1,7 @@
 //
 // Project       : hamming
 // Author        : Shekhalev Denis (des00)
-// Workfile      : hamming_parameters.v
+// Workfile      : hamming_parameters.svh
 // Description   : Hamming codec parameters and functions
 //
 
@@ -29,6 +29,8 @@
       end
     end
     // convert matrix to systematic view
+    // it's not canonical matrix H = [Hk, In-k], matrix order is H = [In-k, Hk]
+    // because vector has [msb:lsb] format (!!!)
     perm = generate_permutation(0);
     for (int i = 0; i < cCBITS; i++) begin
       for (int r = 0; r < pR; r++) begin

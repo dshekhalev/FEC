@@ -66,7 +66,7 @@
 //
 // Project       : hamming
 // Author        : Shekhalev Denis (des00)
-// Workfile      : hamming_enc.v
+// Workfile      : hamming_enc.sv
 // Description   : Systematic extended hamming encoder with static code parameters. The extended even bit output contolled by ieof flag.
 //                 If ieof is at 2^pR-1 position it's perfect hamming code if ieof is at 2^pR positions it's extended perfect hamming code
 //

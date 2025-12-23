@@ -19,9 +19,10 @@
   logic                hamming_dec__osop      ;
   logic                hamming_dec__oval      ;
   logic                hamming_dec__oeop      ;
-  logic                hamming_dec__odecfail  ;
   logic [pTAG_W-1 : 0] hamming_dec__otag      ;
   logic                hamming_dec__odat      ;
+  logic                hamming_dec__odaterr   ;
+  logic                hamming_dec__odecfail  ;
 
 
 
@@ -44,9 +45,10 @@
     .osop     ( hamming_dec__osop     ) ,
     .oval     ( hamming_dec__oval     ) ,
     .oeop     ( hamming_dec__oeop     ) ,
-    .odecfail ( hamming_dec__odecfail ) ,
     .otag     ( hamming_dec__otag     ) ,
-    .odat     ( hamming_dec__odat     )
+    .odat     ( hamming_dec__odat     ) ,
+    .odaterr  ( hamming_dec__odaterr  ) ,
+    .odecfail ( hamming_dec__odecfail )
   );
 
 
@@ -66,7 +68,7 @@
 //
 // Project       : hamming
 // Author        : Shekhalev Denis (des00)
-// Workfile      : hamming_enc.v
+// Workfile      : hamming_dec.sv
 // Description   : Systematic extended hamming decoder with static code parameters
 //
 
@@ -86,9 +88,10 @@ module hamming_dec
   osop     ,
   oval     ,
   oeop     ,
-  odecfail ,
   otag     ,
-  odat
+  odat     ,
+  odaterr  ,
+  odecfail
 );
 
   parameter bit pEXT    = 0; // extended hamming code (2^pR, 2^pR - pR) or not (2^pR - 1, 2^pR - pR - 1)
@@ -113,9 +116,10 @@ module hamming_dec
   output logic                osop      ;
   output logic                oval      ;
   output logic                oeop      ;
-  output logic                odecfail  ;
   output logic [pTAG_W-1 : 0] otag      ;
   output logic                odat      ;
+  output logic                odaterr   ;
+  output logic                odecfail  ;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -131,6 +135,7 @@ module hamming_dec
   logic     [pR-1 : 0] syndrome;
   logic                even;
   logic                decfail;
+  logic                daterr;
   logic [cCBITS-1 : 0] fix_data;
 
   logic                do_output;
@@ -187,29 +192,39 @@ module hamming_dec
     syndrome = get_syndrome(dat);
     even     = (^dat) ^ edat;
     // Fix error
+    fix_data = dat;
     if (syndrome != 0) begin
       fix_data = dat ^ (1'b1 << P[syndrome]);
-    end
-    else begin
-      fix_data = dat;
     end
     // detect number of erros
 /*
     decfail = 1'b0;
-    if (syndrome == 0 & !even)  // no error
+    daterr  = 1'b0;
+    if (syndrome == 0 & !even) begin      // no error
       decfail = 1'b0;
-    else if (syndrome != 0 & even)  // 1 error
+      daterr  = 1'b0;
+    end
+    else if (syndrome != 0 & even) begin  // 1 error
       decfail = 1'b0;
-    else if (syndrome == 0 & even)  // error in even bits
+      daterr  = 1'b1;
+    end
+    else if (syndrome == 0 & even) begin  // 1 error in even bits
       decfail = 1'b0;
-    else // if (syndrome != 0) & !even; // > 1 error
+      daterr  = 1'b1;
+    end
+    else begin // if (syndrome != 0) & !even; // > 1 error
       decfail = 1'b1;
+      daterr  = 1'b0;
+    end
 */
+    decfail = 1'b0; // can't decode valid oê not without extended parity bit
     if (pEXT) begin
       decfail = (syndrome != 0) & !even;
     end
-    else begin
-      decfail = 1'b0; // can't decode valid oê not
+    //
+    daterr = (syndrome != 0);
+    if (pEXT) begin
+      daterr = even;
     end
   end
 
@@ -249,6 +264,7 @@ module hamming_dec
       end
       //
       if (val & eop) begin
+        odaterr   <= daterr;
         odecfail  <= decfail;
         otag      <= tag;
       end
