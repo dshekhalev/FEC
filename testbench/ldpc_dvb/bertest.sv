@@ -98,7 +98,8 @@ module bertest;
 
   ldpc_dvb_enc_fix
   #(
-    .pDAT_W    ( cENC_DAT_W ) ,
+    .pIDAT_W   ( cENC_DAT_W ) ,
+    .pODAT_W   ( cENC_DAT_W ) ,
     .pCODEGR   ( pCODEGR    ) ,
     .pCODERATE ( pCODERATE  )
   )
@@ -299,7 +300,8 @@ module bertest;
     .otag      (               ) ,
     //
     .odecfail  ( dec__odecfail ) ,
-    .oerr      ( dec__oerr     )
+    .oerr      ( dec__oerr     ) ,
+
   );
 
 

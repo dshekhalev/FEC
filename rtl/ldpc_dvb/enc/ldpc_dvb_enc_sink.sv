@@ -14,7 +14,7 @@
   logic                  ldpc_dvb_enc_sink__ireset  ;
   logic                  ldpc_dvb_enc_sink__iclkena ;
   //
-  logic [pRADDR_W-1 : 0] ldpc_dvb_enc_sink__irsize  ;
+  col_t                  ldpc_dvb_enc_sink__irsize  ;
   logic                  ldpc_dvb_enc_sink__irfull  ;
   logic  [pRDAT_W-1 : 0] ldpc_dvb_enc_sink__irdat   ;
   logic   [pTAG_W-1 : 0] ldpc_dvb_enc_sink__irtag   ;
@@ -85,8 +85,6 @@
 // Description   : output encoder interface module with DWC
 //
 
-`include "define.vh"
-
 module ldpc_dvb_enc_sink
 #(
   parameter int pRADDR_W = 8 ,
@@ -118,6 +116,8 @@ module ldpc_dvb_enc_sink
   otag
 );
 
+  `include "../ldpc_dvb_constants.svh"
+
   //------------------------------------------------------------------------------------------------------
   //
   //------------------------------------------------------------------------------------------------------
@@ -126,7 +126,7 @@ module ldpc_dvb_enc_sink
   input  logic                  ireset    ;
   input  logic                  iclkena   ;
   //
-  input  logic [pRADDR_W-1 : 0] irsize    ;
+  input  col_t                  irsize    ;
   //
   input  logic                  irfull    ;
   input  logic  [pRDAT_W-1 : 0] irdat     ;
@@ -166,8 +166,8 @@ module ldpc_dvb_enc_sink
   } dwc_cnt;
 
   struct packed {
-    logic                  done;
-    logic [pRADDR_W-1 : 0] value;
+    logic done;
+    col_t value;
   } col_cnt;
 
   logic         [2 : 0] val;
@@ -196,7 +196,7 @@ module ldpc_dvb_enc_sink
     end
   end
 
-  assign orempty = (state == cDO_STATE & ireq & work_done);
+  assign orempty = (state == cDO_STATE) & ireq & work_done;
 
   //------------------------------------------------------------------------------------------------------
   // FSM counters
@@ -209,7 +209,7 @@ module ldpc_dvb_enc_sink
           if (state == cRESET_STATE) begin
             col_cnt <= '0;
           end
-          else if (state == cDO_STATE & ireq) begin
+          else if ((state == cDO_STATE) & ireq) begin
             col_cnt.value <=  col_cnt.done ? '0 : (col_cnt.value + 1'b1);
             col_cnt.done  <= (col_cnt.value == (irsize - 2));
           end
@@ -228,7 +228,7 @@ module ldpc_dvb_enc_sink
             //
             col_cnt       <= '0;
           end
-          else if (state == cDO_STATE & ireq) begin
+          else if ((state == cDO_STATE) & ireq) begin
             dwc_cnt.value <=  dwc_cnt.done ? '0 : (dwc_cnt.value + 1'b1);
             dwc_cnt.done  <= (dwc_cnt.value == cDWC_FACTOR-2);
             dwc_cnt.zero  <= dwc_cnt.done;
@@ -245,6 +245,10 @@ module ldpc_dvb_enc_sink
 
   assign oraddr = col_cnt.value;
 
+  //------------------------------------------------------------------------------------------------------
+  // output logic
+  //------------------------------------------------------------------------------------------------------
+
   wire start = (state == cRESET_STATE) & irfull;
 
   always_ff @(posedge iclk or posedge ireset) begin
@@ -257,8 +261,8 @@ module ldpc_dvb_enc_sink
       osop    <= 1'b0;
     end
     else if (iclkena) begin
-      val     <= (val  << 1) | (state == cDO_STATE & ireq);
-      rval    <= (rval << 1) | (state == cDO_STATE & ireq & dwc_cnt.zero);
+      val     <= (val  << 1) | ((state == cDO_STATE) & ireq);
+      rval    <= (rval << 1) | ((state == cDO_STATE) & ireq & dwc_cnt.zero);
       //
       set_sf  <= (set_sf << 1) | start;
       //
@@ -282,7 +286,7 @@ module ldpc_dvb_enc_sink
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
-      eop  <= (eop << 1) | (state == cDO_STATE & work_done);
+      eop  <= (eop << 1) | ((state == cDO_STATE) & ireq & work_done);
       //
       if (val[1]) begin
         rdat <= rval[1] ? irdat : (rdat >> pDAT_W);

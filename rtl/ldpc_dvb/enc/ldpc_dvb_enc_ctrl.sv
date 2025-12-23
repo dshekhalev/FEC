@@ -29,6 +29,8 @@
   logic       ldpc_dvb_enc_ctrl__op_read        ;
   strb_t      ldpc_dvb_enc_ctrl__op_strb        ;
   row_t       ldpc_dvb_enc_ctrl__op_row_idx     ;
+  //
+  logic       ldpc_dvb_enc_ctrl__obusy          ;
 
 
 
@@ -58,7 +60,9 @@
     .ip_read_busy   ( ldpc_dvb_enc_ctrl__ip_read_busy   ) ,
     .op_read        ( ldpc_dvb_enc_ctrl__op_read        ) ,
     .op_strb        ( ldpc_dvb_enc_ctrl__op_strb        ) ,
-    .op_row_idx     ( ldpc_dvb_enc_ctrl__op_row_idx     )
+    .op_row_idx     ( ldpc_dvb_enc_ctrl__op_row_idx     ) ,
+    //
+    .obusy          ( ldpc_dvb_enc_ctrl__obusy          )
   );
 
 
@@ -110,7 +114,9 @@ module ldpc_dvb_enc_ctrl
   ip_read_busy   ,
   op_read        ,
   op_strb        ,
-  op_row_idx
+  op_row_idx     ,
+  //
+  obusy
 );
 
   `include "../ldpc_dvb_constants.svh"
@@ -144,6 +150,8 @@ module ldpc_dvb_enc_ctrl
   output logic       op_read        ;
   output strb_t      op_strb        ;
   output row_t       op_row_idx     ;
+  //
+  output logic       obusy          ;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -189,22 +197,24 @@ module ldpc_dvb_enc_ctrl
     end
     else if (iclkena) begin
       case (state)
-        cRESET_STATE        : state <= cWAIT_STATE;
+        cRESET_STATE      : state <= cWAIT_STATE;
         //
-        cWAIT_STATE         : state <= (ibuf_full & iobuf_empty) ? cINIT_STATE      : cWAIT_STATE;
+        cWAIT_STATE       : state <= (ibuf_full & iobuf_empty) ? cINIT_STATE      : cWAIT_STATE;
         // decode worked parameters
-        cINIT_STATE         : state <= cDATA_STATE;
+        cINIT_STATE       : state <= cDATA_STATE;
         // count parity bit and write data 2 output
-        cDATA_STATE         : state <= cycle_cnt.done            ? cWAIT_DATA_STATE : cDATA_STATE;
-        cWAIT_DATA_STATE    : state <= !ip_busy                  ? cDO_P_STATE      : cWAIT_DATA_STATE;
+        cDATA_STATE       : state <= cycle_cnt.done            ? cWAIT_DATA_STATE : cDATA_STATE;
+        cWAIT_DATA_STATE  : state <= !ip_busy                  ? cDO_P_STATE      : cWAIT_DATA_STATE;
         // do IRA coding
-        cDO_P_STATE         : state <= row_cnt.done              ? cWAIT_DO_P_STATE : cDO_P_STATE;
-        cWAIT_DO_P_STATE    : state <= !ip_read_busy             ? cDONE_STATE      : cWAIT_DO_P_STATE;
+        cDO_P_STATE       : state <= row_cnt.done              ? cWAIT_DO_P_STATE : cDO_P_STATE;
+        cWAIT_DO_P_STATE  : state <= !ip_read_busy             ? cDONE_STATE      : cWAIT_DO_P_STATE;
         //
-        cDONE_STATE         : state <= cWAIT_STATE;
+        cDONE_STATE       : state <= cWAIT_STATE;
       endcase
     end
   end
+
+  assign obusy = (state != cWAIT_STATE);
 
   // FSM counters
   always_ff @(posedge iclk) begin
@@ -216,7 +226,7 @@ module ldpc_dvb_enc_ctrl
           row_cnt       <= '0;
           row_cnt.zero  <= 1'b1;
           //
-          used_row_m2   <= iused_row      - 1;
+          used_row_m2   <= iused_row      - 2;
           used_cycle_m2 <= icycle_max_num - 2;
         end
         //
@@ -230,6 +240,8 @@ module ldpc_dvb_enc_ctrl
           row_cnt.done  <= (row_cnt.value == used_row_m2);
           row_cnt.zero  <=  row_cnt.done;
         end
+        //
+        default : begin end
       endcase
     end
   end

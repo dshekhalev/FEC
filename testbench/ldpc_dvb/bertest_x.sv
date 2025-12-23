@@ -97,7 +97,8 @@ module bertest_x;
 
   ldpc_dvb_enc_fix
   #(
-    .pDAT_W    ( cENC_DAT_W ) ,
+    .pIDAT_W   ( cENC_DAT_W ) ,
+    .pODAT_W   ( cENC_DAT_W ) ,
     .pCODEGR   ( pCODEGR    ) ,
     .pCODERATE ( pCODERATE  ) ,
     .pXMODE    ( 1          )

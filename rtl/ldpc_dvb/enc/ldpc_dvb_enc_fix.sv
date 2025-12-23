@@ -2,7 +2,8 @@
 
 
 
-  parameter int pDAT_W         = 8 ;
+  parameter int pIDAT_W        = 8 ;
+  parameter int pODAT_W        = 8 ;
   parameter int pTAG_W         = 4 ;
   parameter bit pDO_TRANSPONSE = 0 ;
   parameter int pTR_DAT_W      = 8 ;
@@ -11,35 +12,36 @@
   parameter bit pXMODE         = 0 ;
 
 
-  logic                ldpc_dvb_enc__iclk      ;
-  logic                ldpc_dvb_enc__ireset    ;
+  logic                 ldpc_dvb_enc__iclk      ;
+  logic                 ldpc_dvb_enc__ireset    ;
   //
-  logic                ldpc_dvb_enc__iclkin    ;
+  logic                 ldpc_dvb_enc__iclkin    ;
   //
-  logic                ldpc_dvb_enc__isop      ;
-  logic                ldpc_dvb_enc__ival      ;
-  logic                ldpc_dvb_enc__ieop      ;
-  logic [pDAT_W-1 : 0] ldpc_dvb_enc__idat      ;
-  logic [pTAG_W-1 : 0] ldpc_dvb_enc__itag      ;
+  logic                 ldpc_dvb_enc__isop      ;
+  logic                 ldpc_dvb_enc__ival      ;
+  logic                 ldpc_dvb_enc__ieop      ;
+  logic [pIDAT_W-1 : 0] ldpc_dvb_enc__idat      ;
+  logic  [pTAG_W-1 : 0] ldpc_dvb_enc__itag      ;
   //
-  logic                ldpc_dvb_enc__obusy     ;
-  logic                ldpc_dvb_enc__ordy      ;
+  logic                 ldpc_dvb_enc__obusy     ;
+  logic                 ldpc_dvb_enc__ordy      ;
   //
-  logic                ldpc_dvb_enc__iclkout   ;
-  logic                ldpc_dvb_enc__ireq      ;
-  logic                ldpc_dvb_enc__ofull     ;
+  logic                 ldpc_dvb_enc__iclkout   ;
+  logic                 ldpc_dvb_enc__ireq      ;
+  logic                 ldpc_dvb_enc__ofull     ;
   //
-  logic                ldpc_dvb_enc__osop      ;
-  logic                ldpc_dvb_enc__oval      ;
-  logic                ldpc_dvb_enc__oeop      ;
-  logic [pDAT_W-1 : 0] ldpc_dvb_enc__odat      ;
-  logic [pTAG_W-1 : 0] ldpc_dvb_enc__otag      ;
+  logic                 ldpc_dvb_enc__osop      ;
+  logic                 ldpc_dvb_enc__oval      ;
+  logic                 ldpc_dvb_enc__oeop      ;
+  logic [pODAT_W-1 : 0] ldpc_dvb_enc__odat      ;
+  logic  [pTAG_W-1 : 0] ldpc_dvb_enc__otag      ;
 
 
 
   ldpc_dvb_enc_fix
   #(
-    .pDAT_W         ( pDAT_W         ) ,
+    .pIDAT_W        ( pDAT_W         ) ,
+    .pODAT_W        ( pDAT_W         ) ,
     .pTAG_W         ( pTAG_W         ) ,
     .pDO_TRANSPONSE ( pDO_TRANSPONSE ) ,
     .pTR_DAT_W      ( pTR_DAT_W      ) ,
@@ -127,7 +129,8 @@ module ldpc_dvb_enc_fix
   otag
 );
 
-  parameter int pDAT_W         = 8 ;  // must be multiply of cZC_MAX (360)
+  parameter int pIDAT_W        = 8 ;  // must be multiply of cZC_MAX (360)
+  parameter int pODAT_W        = 8 ;  // must be multiply of cZC_MAX (360)
   parameter int pTAG_W         = 4 ;
   parameter bit pDO_TRANSPONSE = 0 ;  // do output transponse to be like DVB-S standart or not
   parameter int pTR_DAT_W      = 8 ;  // transponce engine internal data bitwidth. only 4/8/16 support
@@ -143,36 +146,36 @@ module ldpc_dvb_enc_fix
   //
   //------------------------------------------------------------------------------------------------------
 
-  input  logic                iclk      ; // core clock
-  input  logic                ireset    ;
+  input  logic                 iclk      ; // core clock
+  input  logic                 ireset    ;
   //
-  input  logic                iclkin    ; // input interface clock
+  input  logic                 iclkin    ; // input interface clock
   //
-  input  logic                isop      ;
-  input  logic                ival      ;
-  input  logic                ieop      ;
-  input  logic [pDAT_W-1 : 0] idat      ;
-  input  logic [pTAG_W-1 : 0] itag      ;
+  input  logic                 isop      ;
+  input  logic                 ival      ;
+  input  logic                 ieop      ;
+  input  logic [pIDAT_W-1 : 0] idat      ;
+  input  logic  [pTAG_W-1 : 0] itag      ;
   //
-  output logic                obusy     ;
-  output logic                ordy      ;
+  output logic                 obusy     ;
+  output logic                 ordy      ;
   //
-  input  logic                iclkout   ; // output interface clock
-  input  logic                ireq      ;
-  output logic                ofull     ;
+  input  logic                 iclkout   ; // output interface clock
+  input  logic                 ireq      ;
+  output logic                 ofull     ;
   //
-  output logic                osop      ;
-  output logic                oval      ;
-  output logic                oeop      ;
-  output logic [pDAT_W-1 : 0] odat      ;
-  output logic [pTAG_W-1 : 0] otag      ;
+  output logic                 osop      ;
+  output logic                 oval      ;
+  output logic                 oeop      ;
+  output logic [pODAT_W-1 : 0] odat      ;
+  output logic  [pTAG_W-1 : 0] otag      ;
 
   //------------------------------------------------------------------------------------------------------
   //
   //------------------------------------------------------------------------------------------------------
 
   // used DWC word
-  localparam int cZC            = get_buffer_dat_w(pDAT_W);
+  localparam int cZC            = get_buffer_dat_w(pIDAT_W);
 
   // input DWC buffer
   localparam int cIB_ADDR       = get_ibuff_addr(pCODEGR, pCODERATE, pXMODE);
@@ -203,7 +206,10 @@ module ldpc_dvb_enc_fix
   logic                     source__isop      ;
   logic                     source__ieop      ;
   logic                     source__ival      ;
-  logic      [pDAT_W-1 : 0] source__idat      ;
+  logic     [pIDAT_W-1 : 0] source__idat      ;
+
+  logic                     source__ordy      ;
+  logic                     source__obusy     ;
 
   logic  [cZC_FACTOR-1 : 0] source__owrite    ;
   logic                     source__owfull    ;
@@ -256,6 +262,8 @@ module ldpc_dvb_enc_fix
   //
   logic                     engine__opwrite     ;
   logic  [cOB_ADDR_W-1 : 0] engine__opwaddr     ;
+  //
+  logic                     engine__obusy       ;
 
   //
   // optional transponse
@@ -334,12 +342,37 @@ module ldpc_dvb_enc_fix
   );
 
   //------------------------------------------------------------------------------------------------------
+  // CDC for busy. Not need in reset because ordy (not obusy) use for handshake
+  //------------------------------------------------------------------------------------------------------
+
+  logic         engine_busy;
+  logic [1 : 0] engine_busy_line;
+  logic         engine_busy_at_clkin;
+
+  always_ff @(posedge iclk) begin
+    engine_busy <= engine__obusy | !transponse__ordy | !obuffer__owemptya;
+  end
+
+  always_ff @(posedge iclkin or posedge engine_busy) begin
+    if (engine_busy) begin
+      engine_busy_line[0] <= 1'b1;
+    end
+    else begin
+      engine_busy_line[0] <= 1'b0;
+    end
+  end
+
+  always_ff @(posedge iclkin) begin
+    {engine_busy_at_clkin, engine_busy_line[1]} <= engine_busy_line;
+  end
+
+  //------------------------------------------------------------------------------------------------------
   // source
   //------------------------------------------------------------------------------------------------------
 
   ldpc_dvb_enc_source
   #(
-    .pDAT_W     ( pDAT_W      ) ,
+    .pDAT_W     ( pIDAT_W     ) ,
     //
     .pWADDR_W   ( cIB_WADDR_W ) ,
     .pWDAT_W    ( cIB_WDAT_W  ) ,
@@ -360,8 +393,8 @@ module ldpc_dvb_enc_fix
     .ifulla  ( ibuffer__owfulla  ) ,
     .iemptya ( ibuffer__owemptya ) ,
     //
-    .ordy    ( ordy              ) ,
-    .obusy   ( obusy             ) ,
+    .ordy    ( source__ordy      ) ,
+    .obusy   ( source__obusy     ) ,
     //
     .owrite  ( source__owrite    ) ,
     .owfull  ( source__owfull    ) ,
@@ -373,6 +406,9 @@ module ldpc_dvb_enc_fix
   assign source__ieop = ieop;
   assign source__ival = ival & ordy;
   assign source__idat = idat;
+
+  assign ordy  = source__ordy;
+  assign obusy = source__obusy | engine_busy_at_clkin;
 
   //------------------------------------------------------------------------------------------------------
   // input buffer :: 2 tick read delay
@@ -475,7 +511,9 @@ module ldpc_dvb_enc_fix
     .owtag       ( engine__owtag       ) ,
     //
     .opwrite     ( engine__opwrite     ) ,
-    .opwaddr     ( engine__opwaddr     )
+    .opwaddr     ( engine__opwaddr     ) ,
+    //
+    .obusy       ( engine__obusy       )
   );
 
   assign engine__irbuf_full   = ibuffer__orfull;
@@ -615,7 +653,7 @@ module ldpc_dvb_enc_fix
     .pRADDR_W ( cOB_ADDR_W ) ,
     .pRDAT_W  ( cOB_DAT_W  ) ,
     //
-    .pDAT_W   ( pDAT_W     ) ,
+    .pDAT_W   ( pODAT_W    ) ,
     .pTAG_W   ( pTAG_W     )
   )
   sink

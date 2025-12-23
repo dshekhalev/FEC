@@ -13,31 +13,33 @@
 
 
 
-  logic                       ldpc_dvb_enc_engine_fix__iclk        ;
-  logic                       ldpc_dvb_enc_engine_fix__ireset      ;
-  logic                       ldpc_dvb_enc_engine_fix__iclkena     ;
+  logic                  ldpc_dvb_enc_engine_fix__iclk        ;
+  logic                  ldpc_dvb_enc_engine_fix__ireset      ;
+  logic                  ldpc_dvb_enc_engine_fix__iclkena     ;
   //
-  logic                       ldpc_dvb_enc_engine_fix__irbuf_full  ;
+  logic                  ldpc_dvb_enc_engine_fix__irbuf_full  ;
   //
-  logic       [cZC_MAX-1 : 0] ldpc_dvb_enc_engine_fix__irdat       ;
-  logic        [pTAG_W-1 : 0] ldpc_dvb_enc_engine_fix__irtag       ;
-  logic                       ldpc_dvb_enc_engine_fix__orempty     ;
-  logic      [pRADDR_W-1 : 0] ldpc_dvb_enc_engine_fix__oraddr      ;
+  logic  [cZC_MAX-1 : 0] ldpc_dvb_enc_engine_fix__irdat       ;
+  logic   [pTAG_W-1 : 0] ldpc_dvb_enc_engine_fix__irtag       ;
+  logic                  ldpc_dvb_enc_engine_fix__orempty     ;
+  logic [pRADDR_W-1 : 0] ldpc_dvb_enc_engine_fix__oraddr      ;
   //
-  logic                       ldpc_dvb_enc_engine_fix__iwbuf_empty ;
+  logic                  ldpc_dvb_enc_engine_fix__iwbuf_empty ;
   //
-  logic      [pWADDR_W-1 : 0] ldpc_dvb_enc_engine_fix__owcol       ;
-  logic      [pWADDR_W-1 : 0] ldpc_dvb_enc_engine_fix__owdata_col  ;
-  logic      [pWADDR_W-1 : 0] ldpc_dvb_enc_engine_fix__owrow       ;
+  col_t                  ldpc_dvb_enc_engine_fix__owcol       ;
+  col_t                  ldpc_dvb_enc_engine_fix__owdata_col  ;
+  row_t                  ldpc_dvb_enc_engine_fix__owrow       ;
   //
-  logic                       ldpc_dvb_enc_engine_fix__owrite      ;
-  logic                       ldpc_dvb_enc_engine_fix__owfull      ;
-  logic      [pWADDR_W-1 : 0] ldpc_dvb_enc_engine_fix__owaddr      ;
-  logic       [cZC_MAX-1 : 0] ldpc_dvb_enc_engine_fix__owdat       ;
-  logic        [pTAG_W-1 : 0] ldpc_dvb_enc_engine_fix__owtag       ;
+  logic                  ldpc_dvb_enc_engine_fix__owrite      ;
+  logic                  ldpc_dvb_enc_engine_fix__owfull      ;
+  logic [pWADDR_W-1 : 0] ldpc_dvb_enc_engine_fix__owaddr      ;
+  logic  [cZC_MAX-1 : 0] ldpc_dvb_enc_engine_fix__owdat       ;
+  logic   [pTAG_W-1 : 0] ldpc_dvb_enc_engine_fix__owtag       ;
   //
-  logic                       ldpc_dvb_enc_engine_fix__opwrite     ;
-  logic      [pWADDR_W-1 : 0] ldpc_dvb_enc_engine_fix__opwaddr     ;
+  logic                  ldpc_dvb_enc_engine_fix__opwrite     ;
+  logic [pWADDR_W-1 : 0] ldpc_dvb_enc_engine_fix__opwaddr     ;
+  //
+  logic                  ldpc_dvb_enc_engine_fix__obusy       ;
 
 
 
@@ -78,7 +80,9 @@
     .owtag       ( ldpc_dvb_enc_engine_fix__owtag       )
     //
     .opwrite     ( ldpc_dvb_enc_engine_fix__opwrite     ) ,
-    .opwaddr     ( ldpc_dvb_enc_engine_fix__opwaddr     )
+    .opwaddr     ( ldpc_dvb_enc_engine_fix__opwaddr     ) ,
+    //
+    .obusy       ( ldpc_dvb_enc_engine_fix__obusy       )
   );
 
 
@@ -137,7 +141,9 @@ module ldpc_dvb_enc_engine_fix
   owtag       ,
   //
   opwrite     ,
-  opwaddr
+  opwaddr     ,
+  //
+  obusy
 );
 
   `include "../ldpc_dvb_constants.svh"
@@ -147,31 +153,33 @@ module ldpc_dvb_enc_engine_fix
   //
   //------------------------------------------------------------------------------------------------------
 
-  input  logic                       iclk        ;
-  input  logic                       ireset      ;
-  input  logic                       iclkena     ;
+  input  logic                  iclk        ;
+  input  logic                  ireset      ;
+  input  logic                  iclkena     ;
   // input ram interface
-  input  logic                       irbuf_full  ;
+  input  logic                  irbuf_full  ;
   //
-  input  logic       [cZC_MAX-1 : 0] irdat       ;
-  input  logic        [pTAG_W-1 : 0] irtag       ;
-  output logic                       orempty     ;
-  output logic      [pRADDR_W-1 : 0] oraddr      ;
+  input  logic  [cZC_MAX-1 : 0] irdat       ;
+  input  logic   [pTAG_W-1 : 0] irtag       ;
+  output logic                  orempty     ;
+  output logic [pRADDR_W-1 : 0] oraddr      ;
   // output ram interface
-  input  logic                       iwbuf_empty ;
+  input  logic                  iwbuf_empty ;
   // transponse info
-  output logic      [pWADDR_W-1 : 0] owcol       ;
-  output logic      [pWADDR_W-1 : 0] owdata_col  ;
-  output logic      [pWADDR_W-1 : 0] owrow       ;
+  output col_t                  owcol       ;
+  output col_t                  owdata_col  ;
+  output row_t                  owrow       ;
   //
-  output logic                       owrite      ;
-  output logic                       owfull      ;
-  output logic      [pWADDR_W-1 : 0] owaddr      ;
-  output logic       [cZC_MAX-1 : 0] owdat       ;
-  output logic        [pTAG_W-1 : 0] owtag       ;
+  output logic                  owrite      ;
+  output logic                  owfull      ;
+  output logic [pWADDR_W-1 : 0] owaddr      ;
+  output logic  [cZC_MAX-1 : 0] owdat       ;
+  output logic   [pTAG_W-1 : 0] owtag       ;
   //
-  output logic                       opwrite     ;
-  output logic      [pWADDR_W-1 : 0] opwaddr     ;
+  output logic                  opwrite     ;
+  output logic [pWADDR_W-1 : 0] opwaddr     ;
+  //
+  output logic                  obusy       ;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -314,7 +322,13 @@ module ldpc_dvb_enc_engine_fix
     .ocycle_shift   ( hs_gen__ocycle_shift   )
   );
 
-  assign hs_gen__icode_ctx    = '{xmode : pXMODE, gr : pCODEGR, coderate : pCODERATE};
+  always_comb begin
+    hs_gen__icode_ctx = '0;
+    //
+    hs_gen__icode_ctx.xmode     = pXMODE;
+    hs_gen__icode_ctx.gr        = pCODEGR;
+    hs_gen__icode_ctx.coderate  = pCODERATE;
+  end
 
   assign hs_gen__icycle_read  = ctrl__ocycle_read;
   assign hs_gen__icycle_idx   = ctrl__ocycle_idx;
@@ -386,7 +400,9 @@ module ldpc_dvb_enc_engine_fix
     .ip_read_busy   ( ctrl__ip_read_busy   ) ,
     .op_read        ( ctrl__op_read        ) ,
     .op_strb        ( ctrl__op_strb        ) ,
-    .op_row_idx     ( ctrl__op_row_idx     )
+    .op_row_idx     ( ctrl__op_row_idx     ) ,
+    //
+    .obusy          ( obusy                )
   );
 
   assign ctrl__ibuf_full      = irbuf_full  ;

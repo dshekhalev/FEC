@@ -38,30 +38,30 @@
   endfunction
 
   //
-  // function to get maximum input buffer ram address
+  // function to get maximum input buffer ram address. maximum data rows:
+  // dvb-s2
+  //    short   =  45 -  5  = 40
+  //    normal  = 180 - 18  = 162
+  // dvb-s2x (support dvb-s2 any case)
+  //    short   =  45 - 13  = 32
+  //    normal  = 180 - 26  = 154
+  //    medium  =  90 - 60  = 30
   //
   function automatic int get_ibuff_max_addr (input int gr, bit xmode = 0);
     code_ctx_t ctx;
   begin
-    if (xmode) begin
-      if (gr == cCODEGR_LARGE) begin
-        ctx = '{xmode : 1, gr : cCODEGR_LARGE, coderate : cXCODERATE_L_154by180};
+    ctx = '0;
+    //
+    case (gr)
+      cCODEGR_LARGE : begin
+        ctx.gr        = cCODEGR_LARGE;
+        ctx.coderate  = cCODERATE_9by10;
       end
-      else if (gr == cCODEGR_SHORT) begin
-        ctx = '{xmode : 1, gr : cCODEGR_SHORT, coderate : cXCODERATE_S_32by45};
+      default : begin
+        ctx.gr        = cCODEGR_SHORT;
+        ctx.coderate  = cCODERATE_8by9;
       end
-      else begin
-        ctx = '{xmode : 1, gr : cCODEGR_MEDIUM, coderate : cXCODERATE_M_1by3};
-      end
-    end
-    else begin
-      if (gr == cCODEGR_LARGE) begin
-        ctx = '{xmode : 0, gr : cCODEGR_LARGE, coderate : cCODERATE_9by10};
-      end
-      else begin
-        ctx = '{xmode : 0, gr : cCODEGR_SHORT, coderate : cCODERATE_8by9};
-      end
-    end
+    endcase
     //
     get_ibuff_max_addr = get_used_data_col(ctx);
   end
@@ -72,18 +72,24 @@
   //
   function automatic int get_obuff_max_addr (input int gr);
   begin
-    get_obuff_max_addr = cGET_USED_COL_TAB[gr];
+    get_obuff_max_addr = cGET_USED_COL_TAB[cCODEGR_LARGE];
+    if (gr <= 2) begin
+      get_obuff_max_addr = cGET_USED_COL_TAB[gr];
+    end
   end
   endfunction
 
   //
-  // function to get input buffer ram address
+  // function to get input buffer ram address for fix encoder
   //
   function automatic int get_ibuff_addr (input int gr, coderate, bit xmode = 0);
     code_ctx_t ctx;
   begin
+    ctx = '0;
     // can use any coderate
-    ctx = '{xmode : xmode, gr : gr, coderate : coderate};
+    ctx.xmode     = xmode;
+    ctx.gr        = gr;
+    ctx.coderate  = coderate;
     //
     get_ibuff_addr = get_used_data_col(ctx);
   end

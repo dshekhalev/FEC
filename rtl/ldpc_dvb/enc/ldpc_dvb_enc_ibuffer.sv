@@ -272,7 +272,7 @@ module ldpc_dvb_enc_ibuffer
   // tag ram
   //------------------------------------------------------------------------------------------------------
 
-  logic [pTAG_W-1 : 0] tram [2**pBNUM_W] /* synthesis ramstyle = "logic" */ = '{default : '0};
+  logic [pTAG_W-1 : 0] tram [2**pBNUM_W] /* synthesis ramstyle = "logic" */;
 
   always_ff @(posedge iwclk) begin
     if (iwfull) begin
