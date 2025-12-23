@@ -82,7 +82,6 @@
 // Description   : bch decoder top module with single passing througth data. Increase the amount of error if decfail occured, but has low latency
 //
 
-
 module bch_dec
 (
   iclk     ,

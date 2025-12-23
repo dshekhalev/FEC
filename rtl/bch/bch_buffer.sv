@@ -72,7 +72,6 @@
 // Description   : BCH decoder ram buffer with external sub buffer controls
 //
 
-
 module bch_buffer
 #(
   parameter int pADDR_W  = 8 ,

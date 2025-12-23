@@ -82,7 +82,6 @@
 // Description   : bch decoder top module with dual passing througth data. No any data correction if decfail occured, but has high latency
 //
 
-
 module bch_dec_dp
 (
   iclk     ,

@@ -90,7 +90,6 @@
 // Description   : bch chieny search algorithm module
 //
 
-
 module bch_decision
 (
   iclk             ,
@@ -191,7 +190,7 @@ module bch_decision
   end
   // synthesis translate_on
   //------------------------------------------------------------------------------------------------------
-  // deicsion as chieny search FSM
+  // decision as chieny search FSM
   //------------------------------------------------------------------------------------------------------
 
   assign start_search = idata_val;

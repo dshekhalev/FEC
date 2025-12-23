@@ -86,7 +86,6 @@
 // Description   : bch chieny search algorithm module
 //
 
-
 module bch_chieny_search
 (
   iclk          ,

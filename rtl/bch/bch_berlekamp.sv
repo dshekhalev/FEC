@@ -68,8 +68,6 @@
 // Description   : file with configuration of berlekamp modules
 //
 
-
-
 module bch_berlekamp
 (
   iclk          ,

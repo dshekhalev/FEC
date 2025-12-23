@@ -64,8 +64,6 @@
 //                 module use only 2 GF(2^m) mult modules
 //
 
-`include "define.vh"
-
 module bch_berlekamp_ibm_2t_by_t
 (
   iclk          ,
@@ -108,7 +106,7 @@ module bch_berlekamp_ibm_2t_by_t
   data_t l_poly      [-1 : t];
   data_t b_poly      [-2 : t];
 
-  localparam int cCNT_W = clogb2(t + 1);
+  localparam int cCNT_W = $clog2(t + 1);
 
   logic [cCNT_W-1 : 0]  cnt;
   logic                 cnt_done;
