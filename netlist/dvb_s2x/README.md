@@ -18,4 +18,4 @@ DVB-S2X VL-SNR
 
 Other modes is not inside netlist & don't working  (!!!)
 
-Demo example with reference QPSK/BSPK mapper inside. The expected resuls is inside "expected_results.png" file. 
+Demo example with reference QPSK/BSPK mapper inside. The expected results is inside "expected_results.png" file. 

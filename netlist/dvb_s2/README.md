@@ -10,4 +10,4 @@ QPSK short/normal frame all modes
  
 Other modes is not inside netlist & don't working (!!!)
 
-Demo example with reference QPSK mapper inside. The expected resuls is inside "expected_results.png" file. 
+Demo example with reference QPSK mapper inside. The expected results is inside "expected_results.png" file. 
