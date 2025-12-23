@@ -26,22 +26,25 @@
   //------------------------------------------------------------------------------------------------------
 
   // arithmetic bitwidth
-  parameter int pLLR_W          = 4;      // <= 8
-  parameter int pNODE_W         = pLLR_W; // extend internal node bitwidth to increase fixed point part when normaliation used
+  parameter int pLLR_W          = 4;                        // <= 8
+  //
+  parameter int pNODE_SCALE_W   = 0;                        // fixed point bitwidth, >= 0. 1 is optimal for performance/resources
+  //
+  parameter int pNODE_W         = get_min_node_w (pLLR_W, pNODE_SCALE_W);
 
   // parallelization settings
-  parameter int pLLR_BY_CYCLE   = 1;      // amount of metric per clock cycle. == 1/2/4/8 & <= minimum used cZC & integer multiply of minimum used cZC
-  parameter int pROW_BY_CYCLE   = 4;      // amount of rows per cycle. maximum number of row for graph1/2 is 46/42
+  parameter int pLLR_BY_CYCLE   = 1;                                    // amount of metric per clock cycle. == 1/2/4/8 & <= minimum used cZC & integer multiply of minimum used cZC
+  parameter int pROW_BY_CYCLE   = 4;                                    // amount of rows per cycle. maximum number of row for graph1/2 is 46/42
   // fixed. don't change
-  localparam int cCOL_BY_CYCLE  = 26;     // amount of major decoder collumns per cycle. maximum number of col for graph1/2 is 26/14
+  localparam int cCOL_BY_CYCLE  = 26;                                   // amount of major decoder collumns per cycle. maximum number of col for graph1/2 is 26/14
 
-  parameter bit pUSE_SC_MODE    = 1;      // use self corrected mode (with vnode erasure)
+  parameter bit pUSE_SC_MODE    = 1;                                    // use self corrected mode (with vnode erasure)
 
   //------------------------------------------------------------------------------------------------------
   //
   //------------------------------------------------------------------------------------------------------
 
-  localparam int cLOG2_LLR_BY_CYCLE = (pLLR_BY_CYCLE == 1) ? 1 : clogb2(pLLR_BY_CYCLE);
+  localparam int cLOG2_LLR_BY_CYCLE = (pLLR_BY_CYCLE == 1) ? 1 : $clog2(pLLR_BY_CYCLE);
 
   typedef logic [cLOG2_LLR_BY_CYCLE-1 : 0] bshift_t;
 
@@ -61,10 +64,11 @@
   typedef logic signed [pNODE_W-1 : 0] node_t;
 
   typedef struct packed {
-    logic pre_sign, pre_zero;
+    logic pre_sign;
+    logic pre_zero;
   } node_state_t;
 
-  localparam int cNODE_STATE_W  = $bits(node_state_t);
+  localparam int cNODE_STATE_W = $bits(node_state_t);
 
   // control strobes type
   typedef struct packed {
@@ -84,28 +88,31 @@
 
   // node mem : pMAX_ROW_STEP_NUM of Zc*Zc block
   localparam int cMEM_ADDR_MAX      = cMAX_ROW_STEP_NUM * cMAX_COL_STEP_NUM * cZC_MAX/pLLR_BY_CYCLE;
-  localparam int cMEM_ADDR_W        = clogb2(cMEM_ADDR_MAX);
+  localparam int cMEM_ADDR_W        = $clog2(cMEM_ADDR_MAX);
 
   // data LLR mem : one Zc*Zc block
   localparam int cD_MEM_ADDR_MAX    = cMAX_COL_STEP_NUM * cZC_MAX/pLLR_BY_CYCLE;
-  localparam int cD_MEM_ADDR_W      = clogb2(cD_MEM_ADDR_MAX);
+  localparam int cD_MEM_ADDR_W      = $clog2(cD_MEM_ADDR_MAX);
 
   // parity LLR mem : pMAX_ROW_STEP_NUM of Zc*Zc block
   localparam int cP_MEM_ADDR_MAX    = cMEM_ADDR_MAX;
-  localparam int cP_MEM_ADDR_W      = clogb2(cP_MEM_ADDR_MAX);
+  localparam int cP_MEM_ADDR_W      = $clog2(cP_MEM_ADDR_MAX);
 
   //------------------------------------------------------------------------------------------------------
   //
   //------------------------------------------------------------------------------------------------------
 
   function int get_max_row_step_num (int idxGr, code);
+    int max_row_num;
   begin
     if (code < 4) begin
-      get_max_row_step_num = ceil(4, pROW_BY_CYCLE);
+      max_row_num = 4;
     end
     else begin
-      get_max_row_step_num = ceil((code > cGR_MAX_ROW[idxGr]) ? cGR_MAX_ROW[idxGr] : code, pROW_BY_CYCLE);
+      max_row_num = (code > cGR_MAX_ROW[idxGr]) ? cGR_MAX_ROW[idxGr] : code;
     end
+    //
+    get_max_row_step_num = max_row_num/pROW_BY_CYCLE + ((max_row_num % pROW_BY_CYCLE) != 0);
   end
   endfunction
 
@@ -128,5 +135,10 @@
   } vn_min_t;
 
   //------------------------------------------------------------------------------------------------------
-  //
+  // usefull functions
   //------------------------------------------------------------------------------------------------------
+
+  // function to get minumal worked pNODE_W
+  function automatic int get_min_node_w (input int llr_w, scale_w);
+    get_min_node_w = llr_w + scale_w;
+  endfunction

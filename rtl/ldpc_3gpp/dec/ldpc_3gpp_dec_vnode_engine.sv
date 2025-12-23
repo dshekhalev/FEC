@@ -106,8 +106,6 @@
 //                  vnode update values L(qij)  = L(Pi) + sum(Lrij)|(i ~= j) = L(Qi) - L(rji)|(i == j)
 //
 
-`include "define.vh"
-
 module ldpc_3gpp_dec_vnode_engine
 (
   iclk      ,
@@ -172,12 +170,12 @@ module ldpc_3gpp_dec_vnode_engine
   //
   //------------------------------------------------------------------------------------------------------
 
-  localparam int cCN_SUM_STAGE_NUM     = clogb2(pROW_BY_CYCLE + pROW_BY_CYCLE[0]);  // +1 for odd pROW_BY_CYCLE 1/3/5/7
+  localparam int cCN_SUM_STAGE_NUM     = $clog2(pROW_BY_CYCLE + pROW_BY_CYCLE[0]);  // +1 for odd pROW_BY_CYCLE 1/3/5/7
   localparam int cCN_SUM_NUM_PER_STAGE = 2**(cCN_SUM_STAGE_NUM-1);
 
-  localparam int cCN_SUM_W             = pNODE_W + clogb2(pCODE);
+  localparam int cCN_SUM_W             = pNODE_W + $clog2(pCODE);
 
-  localparam int cLOG2_MAX_ROW_NUM     = clogb2(cMAX_ROW_STEP_NUM);
+  localparam int cLOG2_MAX_ROW_NUM     = $clog2(cMAX_ROW_STEP_NUM);
 
   localparam int cVAR_DELAY_NUN        = cMAX_ROW_STEP_NUM + cCN_SUM_STAGE_NUM;
 
@@ -196,6 +194,7 @@ module ldpc_3gpp_dec_vnode_engine
   logic         val;
   strb_t        strb;
   node_t        LLR;
+  logic         hdLLR;
   node_t        cnode  [pROW_BY_CYCLE];
   node_state_t  cstate [pROW_BY_CYCLE];
 
@@ -251,18 +250,18 @@ module ldpc_3gpp_dec_vnode_engine
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
-      strb <= istrb;
+      strb  <= istrb;
       //
-      LLR <= istrb.sop ? (iLLR <<< (pNODE_W - pLLR_W)) : '0; // align fixed point
+      LLR   <= istrb.sop ? (iLLR <<< pNODE_SCALE_W) : 0;  // align fixed point
+      hdLLR <= (iLLR <= 0);                               // share resources from upload data path
       //
       for (int row = 0; row < pROW_BY_CYCLE; row++) begin
-        cnode [row] <= icmask [row] ? '0 : icnode [row];
+        cnode [row] <= icmask [row] ? 0 : icnode [row];
         cstate[row] <= icstate[row];
       end
       // even 2/4/6/8 : compress line stage
       if (!pROW_BY_CYCLE[0]) begin
-        LLR_p_cnode0 <= (istrb.sop ? (iLLR <<< (pNODE_W - pLLR_W)) : 0) +
-                        (icmask[0] ? 0                             : icnode[0]);
+        LLR_p_cnode0 <= (istrb.sop ? (iLLR <<< pNODE_SCALE_W) : 0) + (icmask[0] ? 0 : icnode[0]);
       end
     end
   end
@@ -272,7 +271,7 @@ module ldpc_3gpp_dec_vnode_engine
   //------------------------------------------------------------------------------------------------------
 
   always_comb begin
-    cnode2sum    = '{default : '0};
+    cnode2sum = '{default : '0};
     //
     if (pROW_BY_CYCLE[0]) begin // odd 1/3/5/7
       cnode2sum[0] = LLR;
@@ -305,7 +304,7 @@ module ldpc_3gpp_dec_vnode_engine
     if (iclkena) begin
       for (int stage = 0; stage < cCN_SUM_STAGE_NUM; stage++) begin
         if (stage == 0) begin
-          LLR_leq_0   [stage] <= (LLR <= 0);
+          LLR_leq_0   [stage] <= hdLLR;
           cn_sum_strb [stage] <= strb;
           //
           for (int i = 0; i < cCN_SUM_NUM_PER_STAGE; i++) begin
@@ -371,7 +370,7 @@ module ldpc_3gpp_dec_vnode_engine
   // L(qij) = = L(Qi) - L(rji)|(i == j)
   //------------------------------------------------------------------------------------------------------
 
-  localparam int cVAR_DELAY_IDX_W = clogb2(cVAR_DELAY_NUN);
+  localparam int cVAR_DELAY_IDX_W = $clog2(cVAR_DELAY_NUN);
 
   logic [cVAR_DELAY_IDX_W-1 : 0] var_line_idx;
 
@@ -455,24 +454,30 @@ module ldpc_3gpp_dec_vnode_engine
       ostrb <= vnode_strb;
       //
       for (int row = 0; row < pROW_BY_CYCLE; row++) begin
-        if (pUSE_SC_MODE & !vstate[row].pre_zero & (vstate[row].pre_sign ^ vnode[row][cCN_SUM_W-1])) begin // not zero and sign changed
-          vnode_norm[row] <= '0;
-        end
-        else begin
-          vnode_norm[row] <= normalize(vnode[row]);
-        end
-      end
-    end
-  end
+        vnode_norm[row] <= normalize(vnode[row]);
+        //
+        if (pUSE_SC_MODE) begin
+          ovstate[row].pre_sign <= vnode[row][cCN_SUM_W-1];
+          ovstate[row].pre_zero <= 1'b0;
+          //
+          if (!vstate[row].pre_zero) begin // if was not zero
+            if (vstate[row].pre_sign ^ vnode[row][cCN_SUM_W-1]) begin // sign change -> clear vnode
+              ovstate   [row].pre_sign <= 1'b0;
+              ovstate   [row].pre_zero <= 1'b1;
+              vnode_norm[row]          <= '0;
+            end
+          end
+        end // pUSE_SC_MODE
+      end // row
+    end // iclkena
+  end // iclk
 
   //
   // saturate vnode
   //  register for ovnode is outside
   always_comb begin
     for (int row = 0; row < pROW_BY_CYCLE; row++) begin
-      ovstate[row].pre_sign = pUSE_SC_MODE &  vnode_norm[row][cCN_SUM_W-1];
-      ovstate[row].pre_zero = pUSE_SC_MODE & (vnode_norm[row] == 0);
-      ovnode [row]          = saturate(vnode_norm[row]);
+      ovnode [row] = saturate(vnode_norm[row]);
     end
   end
 

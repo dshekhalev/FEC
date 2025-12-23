@@ -1,19 +1,23 @@
 /*
 
 
-
-  parameter int pLLR_W         = 4 ;
-  parameter int pNODE_W        = 4 ;
+  parameter int pCODE         = 46 ;
   //
-  parameter int pLLR_BY_CYCLE  = 1 ;
-  parameter int pROW_BY_CYCLE  = 8 ;
+  parameter int pLLR_W        =  4 ;
+  parameter int pNODE_W       =  4 ;
   //
-  parameter bit pNORM_FACTOR   = 7 ;
+  parameter int pLLR_BY_CYCLE =  1 ;
+  parameter int pROW_BY_CYCLE =  8 ;
+  //
+  parameter bit pNORM_FACTOR  =  7 ;
 
 
   logic        ldpc_3gpp_dec_cnode__iclk                                                   ;
   logic        ldpc_3gpp_dec_cnode__ireset                                                 ;
   logic        ldpc_3gpp_dec_cnode__iclkena                                                ;
+  //
+  logic        ldpc_3gpp_dec_cnode__istart                                                 ;
+  logic        ldpc_3gpp_dec_cnode__iload_mode                                             ;
   //
   logic        ldpc_3gpp_dec_cnode__ival                                                   ;
   strb_t       ldpc_3gpp_dec_cnode__istrb                                                  ;
@@ -28,13 +32,19 @@
   node_t       ldpc_3gpp_dec_cnode__ocnode   [pROW_BY_CYCLE][cCOL_BY_CYCLE][pLLR_BY_CYCLE] ;
   node_state_t ldpc_3gpp_dec_cnode__icstate  [pROW_BY_CYCLE][cCOL_BY_CYCLE][pLLR_BY_CYCLE] ;
   //
+  logic        ldpc_3gpp_dec_cnode__odecfail_val                                           ;
+  logic        ldpc_3gpp_dec_cnode__odecfail_pre_val                                       ;
   logic        ldpc_3gpp_dec_cnode__odecfail                                               ;
+  logic        ldpc_3gpp_dec_cnode__odecfail_est                                           ;
+  //
   logic        ldpc_3gpp_dec_cnode__obusy                                                  ;
 
 
 
   ldpc_3gpp_dec_cnode
   #(
+    .pCODE         ( pCODE         ) ,
+    //
     .pLLR_W        ( pLLR_W        ) ,
     .pNODE_W       ( pNODE_W       ) ,
     //
@@ -45,39 +55,49 @@
   )
   ldpc_3gpp_dec_cnode
   (
-    .iclk     ( ldpc_3gpp_dec_cnode__iclk     ) ,
-    .ireset   ( ldpc_3gpp_dec_cnode__ireset   ) ,
-    .iclkena  ( ldpc_3gpp_dec_cnode__iclkena  ) ,
+    .iclk             ( ldpc_3gpp_dec_cnode__iclk             ) ,
+    .ireset           ( ldpc_3gpp_dec_cnode__ireset           ) ,
+    .iclkena          ( ldpc_3gpp_dec_cnode__iclkena          ) ,
     //
-    .ival     ( ldpc_3gpp_dec_cnode__ival     ) ,
-    .istrb    ( ldpc_3gpp_dec_cnode__istrb    ) ,
-    .ivmask   ( ldpc_3gpp_dec_cnode__ivmask   ) ,
-    .ivnode   ( ldpc_3gpp_dec_cnode__ivnode   ) ,
-    .ivstate  ( ldpc_3gpp_dec_cnode__ivstate  ) ,
-    .ipmask   ( ldpc_3gpp_dec_cnode__ipmask   ) ,
-    .ipLLR    ( ldpc_3gpp_dec_cnode__ipLLR    ) ,
+    .istart           ( ldpc_3gpp_dec_cnode__istart           ) ,
+    .iload_mode       ( ldpc_3gpp_dec_cnode__iload_mode       ) ,
     //
-    .oval     ( ldpc_3gpp_dec_cnode__oval     ) ,
-    .ostrb    ( ldpc_3gpp_dec_cnode__ostrb    ) ,
-    .ocnode   ( ldpc_3gpp_dec_cnode__ocnode   ) ,
-    .ocstate  ( ldpc_3gpp_dec_cnode__ocstate  ) ,
+    .ival             ( ldpc_3gpp_dec_cnode__ival             ) ,
+    .istrb            ( ldpc_3gpp_dec_cnode__istrb            ) ,
+    .ivmask           ( ldpc_3gpp_dec_cnode__ivmask           ) ,
+    .ivnode           ( ldpc_3gpp_dec_cnode__ivnode           ) ,
+    .ivstate          ( ldpc_3gpp_dec_cnode__ivstate          ) ,
+    .ipmask           ( ldpc_3gpp_dec_cnode__ipmask           ) ,
+    .ipLLR            ( ldpc_3gpp_dec_cnode__ipLLR            ) ,
     //
-    .odecfail ( ldpc_3gpp_dec_cnode__odecfail ) ,
-    .obusy    ( ldpc_3gpp_dec_cnode__obusy    )
+    .oval             ( ldpc_3gpp_dec_cnode__oval             ) ,
+    .ostrb            ( ldpc_3gpp_dec_cnode__ostrb            ) ,
+    .ocnode           ( ldpc_3gpp_dec_cnode__ocnode           ) ,
+    .ocstate          ( ldpc_3gpp_dec_cnode__ocstate          ) ,
+    //
+    .odecfail_val     ( ldpc_3gpp_dec_cnode__odecfail_val     ) ,
+    .odecfail_pre_val ( ldpc_3gpp_dec_cnode__odecfail_pre_val ) ,
+    .odecfail         ( ldpc_3gpp_dec_cnode__odecfail         ) ,
+    .odecfail_est     ( ldpc_3gpp_dec_cnode__odecfail_est     ) ,
+    //
+    .obusy            ( ldpc_3gpp_dec_cnode__obusy            )
   );
 
 
-  assign ldpc_3gpp_dec_cnode__iclk    = '0 ;
-  assign ldpc_3gpp_dec_cnode__ireset  = '0 ;
-  assign ldpc_3gpp_dec_cnode__iclkena = '0 ;
+  assign ldpc_3gpp_dec_cnode__iclk       = '0 ;
+  assign ldpc_3gpp_dec_cnode__ireset     = '0 ;
+  assign ldpc_3gpp_dec_cnode__iclkena    = '0 ;
   //
-  assign ldpc_3gpp_dec_cnode__ival    = '0 ;
-  assign ldpc_3gpp_dec_cnode__istrb   = '0 ;
-  assign ldpc_3gpp_dec_cnode__ivmask  = '0 ;
-  assign ldpc_3gpp_dec_cnode__ivnode  = '0 ;
-  assign ldpc_3gpp_dec_cnode__ivstate = '0 ;
-  assign ldpc_3gpp_dec_cnode__ipmask  = '0 ;
-  assign ldpc_3gpp_dec_cnode__ipLLR   = '0 ;
+  assign ldpc_3gpp_dec_cnode__istart     = '0 ;
+  assign ldpc_3gpp_dec_cnode__iload_mode = '0 ;
+  //
+  assign ldpc_3gpp_dec_cnode__ival       = '0 ;
+  assign ldpc_3gpp_dec_cnode__istrb      = '0 ;
+  assign ldpc_3gpp_dec_cnode__ivmask     = '0 ;
+  assign ldpc_3gpp_dec_cnode__ivnode     = '0 ;
+  assign ldpc_3gpp_dec_cnode__ivstate    = '0 ;
+  assign ldpc_3gpp_dec_cnode__ipmask     = '0 ;
+  assign ldpc_3gpp_dec_cnode__ipLLR      = '0 ;
 
 
 
@@ -91,29 +111,34 @@
 //                 Consist of pROW_BY_CYCLE*pLLR_BY_CYCLE engines with cCOL_BY_CYCLE + 1 vnodes
 //
 
-`include "define.vh"
-
 module ldpc_3gpp_dec_cnode
 (
-  iclk     ,
-  ireset   ,
-  iclkena  ,
+  iclk             ,
+  ireset           ,
+  iclkena          ,
   //
-  ival     ,
-  istrb    ,
-  ivmask   ,
-  ivnode   ,
-  ivstate  ,
-  ipmask   ,
-  ipLLR    ,
+  istart           ,
+  iload_mode       ,
   //
-  oval     ,
-  ostrb    ,
-  orow     ,
-  ocnode   ,
-  ocstate  ,
+  ival             ,
+  istrb            ,
+  ivmask           ,
+  ivnode           ,
+  ivstate          ,
+  ipmask           ,
+  ipLLR            ,
   //
-  odecfail ,
+  oval             ,
+  ostrb            ,
+  orow             ,
+  ocnode           ,
+  ocstate          ,
+  //
+  odecfail_val     ,
+  odecfail_pre_val ,
+  odecfail         ,
+  odecfail_est     ,
+  //
   obusy
 );
 
@@ -130,6 +155,9 @@ module ldpc_3gpp_dec_cnode
   input  logic        ireset                                                ;
   input  logic        iclkena                                               ;
   //
+  input  logic        istart                                                ;
+  input  logic        iload_mode                                            ;
+  //
   input  logic        ival                                                  ;
   input  strb_t       istrb                                                 ;
   input  logic        ivmask  [pROW_BY_CYCLE][cCOL_BY_CYCLE]                ;
@@ -144,28 +172,40 @@ module ldpc_3gpp_dec_cnode
   output node_t       ocnode  [pROW_BY_CYCLE][cCOL_BY_CYCLE][pLLR_BY_CYCLE] ;
   output node_state_t ocstate [pROW_BY_CYCLE][cCOL_BY_CYCLE][pLLR_BY_CYCLE] ;
   //
+  output logic        odecfail_val                                          ;
+  output logic        odecfail_pre_val                                      ;
   output logic        odecfail                                              ;
+  output logic        odecfail_est                                          ;
+  //
   output logic        obusy                                                 ;
 
   //------------------------------------------------------------------------------------------------------
   //
   //------------------------------------------------------------------------------------------------------
 
-  logic        engine__ival                                                   ;
-  strb_t       engine__istrb                                                  ;
-  logic        engine__ivmask   [pROW_BY_CYCLE]               [cCOL_BY_CYCLE] ;
-  node_t       engine__ivnode   [pROW_BY_CYCLE][pLLR_BY_CYCLE][cCOL_BY_CYCLE] ;
-  node_state_t engine__ivstate  [pROW_BY_CYCLE][pLLR_BY_CYCLE][cCOL_BY_CYCLE] ;
+  logic        engine__ival                                                       ;
+  strb_t       engine__istrb                                                      ;
+  logic        engine__ivmask       [pROW_BY_CYCLE]               [cCOL_BY_CYCLE] ;
+  node_t       engine__ivnode       [pROW_BY_CYCLE][pLLR_BY_CYCLE][cCOL_BY_CYCLE] ;
+  node_state_t engine__ivstate      [pROW_BY_CYCLE][pLLR_BY_CYCLE][cCOL_BY_CYCLE] ;
 
-  logic        engine__ipmask   [pROW_BY_CYCLE]                               ;
-  node_t       engine__ipnode   [pROW_BY_CYCLE][pLLR_BY_CYCLE]                ;
+  logic        engine__ipmask       [pROW_BY_CYCLE]                               ;
+  node_t       engine__ipnode       [pROW_BY_CYCLE][pLLR_BY_CYCLE]                ;
+  //
+  logic        engine__oval         [pROW_BY_CYCLE][pLLR_BY_CYCLE]                ;
+  strb_t       engine__ostrb        [pROW_BY_CYCLE][pLLR_BY_CYCLE]                ;
+  node_t       engine__ocnode       [pROW_BY_CYCLE][pLLR_BY_CYCLE][cCOL_BY_CYCLE] ;
+  node_state_t engine__ocstate      [pROW_BY_CYCLE][pLLR_BY_CYCLE][cCOL_BY_CYCLE] ;
+  logic        engine__opmask       [pROW_BY_CYCLE][pLLR_BY_CYCLE]                ;
+  logic        engine__orow_decfail [pROW_BY_CYCLE][pLLR_BY_CYCLE]                ;
+  logic        engine__orow_minfail [pROW_BY_CYCLE][pLLR_BY_CYCLE]                ;
 
-  logic        engine__oval     [pROW_BY_CYCLE][pLLR_BY_CYCLE]                ;
-  strb_t       engine__ostrb    [pROW_BY_CYCLE][pLLR_BY_CYCLE]                ;
-  node_t       engine__ocnode   [pROW_BY_CYCLE][pLLR_BY_CYCLE][cCOL_BY_CYCLE] ;
-  node_state_t engine__ocstate  [pROW_BY_CYCLE][pLLR_BY_CYCLE][cCOL_BY_CYCLE] ;
-
-  logic        engine__odecfail [pROW_BY_CYCLE][pLLR_BY_CYCLE]                ;
+  // decfail estimator
+  logic        decfail_cnt__ival                                        ;
+  strb_t       decfail_cnt__istrb                                       ;
+  logic        decfail_cnt__ipmask       [pROW_BY_CYCLE][pLLR_BY_CYCLE] ;
+  logic        decfail_cnt__irow_decfail [pROW_BY_CYCLE][pLLR_BY_CYCLE] ;
+  logic        decfail_cnt__irow_minfail [pROW_BY_CYCLE][pLLR_BY_CYCLE] ;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -178,7 +218,7 @@ module ldpc_3gpp_dec_cnode
     for (int row = 0; row < pROW_BY_CYCLE; row++) begin
       engine__ipmask[row] = ipmask[row];
       for (int llra = 0; llra < pLLR_BY_CYCLE; llra++) begin
-        engine__ipnode[row][llra] = ipLLR[row][llra] <<< (pNODE_W - pLLR_W);  // align fixed point
+        engine__ipnode[row][llra] = (ipLLR[row][llra] <<< pNODE_SCALE_W);  // align fixed point
         for (int col = 0; col < cCOL_BY_CYCLE; col++) begin
           if (col < cGR_MAJOR_BIT_COL[pIDX_GR]) begin
             engine__ivmask  [row]      [col] = ivmask [row][col];
@@ -202,30 +242,33 @@ module ldpc_3gpp_dec_cnode
       for (gllr = 0; gllr < pLLR_BY_CYCLE; gllr++) begin : engine_inst_llr_gen
         ldpc_3gpp_dec_cnode_p_engine
         #(
-          .pLLR_W         ( pLLR_W         ) ,
-          .pNODE_W        ( pNODE_W        ) ,
-          .pNORM_FACTOR   ( pNORM_FACTOR   )
+          .pLLR_W        ( pLLR_W        ) ,
+          .pNODE_W       ( pNODE_W       ) ,
+          .pNODE_SCALE_W ( pNODE_SCALE_W ) ,
+          .pNORM_FACTOR  ( pNORM_FACTOR  )
         )
         engine
         (
-          .iclk       ( iclk                          ) ,
-          .ireset     ( ireset                        ) ,
-          .iclkena    ( iclkena                       ) ,
+          .iclk         ( iclk                             ) ,
+          .ireset       ( ireset                           ) ,
+          .iclkena      ( iclkena                          ) ,
           //
-          .ival       ( engine__ival                  ) ,
-          .istrb      ( engine__istrb                 ) ,
-          .ivmask     ( engine__ivmask   [grow]       ) ,
-          .ivnode     ( engine__ivnode   [grow][gllr] ) ,
-          .ivstate    ( engine__ivstate  [grow][gllr] ) ,
-          .ipmask     ( engine__ipmask   [grow]       ) ,
-          .ipnode     ( engine__ipnode   [grow][gllr] ) ,
+          .ival         ( engine__ival                     ) ,
+          .istrb        ( engine__istrb                    ) ,
+          .ivmask       ( engine__ivmask      [grow]       ) ,
+          .ivnode       ( engine__ivnode      [grow][gllr] ) ,
+          .ivstate      ( engine__ivstate     [grow][gllr] ) ,
+          .ipmask       ( engine__ipmask      [grow]       ) ,
+          .ipnode       ( engine__ipnode      [grow][gllr] ) ,
           //
-          .oval       ( engine__oval     [grow][gllr] ) ,
-          .ostrb      ( engine__ostrb    [grow][gllr] ) ,
-          .ocnode     ( engine__ocnode   [grow][gllr] ) ,
-          .ocstate    ( engine__ocstate  [grow][gllr] ) ,
+          .oval         ( engine__oval        [grow][gllr] ) ,
+          .ostrb        ( engine__ostrb       [grow][gllr] ) ,
+          .ocnode       ( engine__ocnode      [grow][gllr] ) ,
+          .ocstate      ( engine__ocstate     [grow][gllr] ) ,
           //
-          .odecfail   ( engine__odecfail [grow][gllr] )
+          .opmask       ( engine__opmask      [grow][gllr] ) ,
+          .orow_decfail ( engine__orow_decfail[grow][gllr] ) ,
+          .orow_minfail ( engine__orow_minfail[grow][gllr] )
         );
       end
     end
@@ -249,7 +292,7 @@ module ldpc_3gpp_dec_cnode
     else if (iclkena) begin
       oval <= used_val;
       //
-      if (!obusy & used_val & used_strb.sof & used_strb.sop) begin
+      if (!obusy & ival & istrb.sof & istrb.sop) begin
         obusy <= 1'b1;
       end
       else if (oval & ostrb.eof & ostrb.eop) begin
@@ -271,10 +314,6 @@ module ldpc_3gpp_dec_cnode
         end
       end
       //
-      if (used_val) begin
-        odecfail <= get_decfail(engine__odecfail);
-      end
-      //
       if (used_val & used_strb.sop) begin
         orow <= (used_strb.sof & used_strb.sop) ? '0 : (orow + 1'b1);
       end
@@ -282,17 +321,40 @@ module ldpc_3gpp_dec_cnode
   end
 
   //------------------------------------------------------------------------------------------------------
-  // used function
-  // take into account only major LDPC matrix
+  // decfail estimator
   //------------------------------------------------------------------------------------------------------
 
-  function logic get_decfail (input logic decfail [pROW_BY_CYCLE][pLLR_BY_CYCLE]);
-    get_decfail = '0;
-    for (int row = 0; row < ((pROW_BY_CYCLE > 4) ? 4 : pROW_BY_CYCLE); row++) begin
-      for (int llra = 0; llra < pLLR_BY_CYCLE; llra++) begin
-        get_decfail |= decfail[row][llra];
-      end
-    end
-  endfunction
+  ldpc_3gpp_dec_decfail_cnt
+  #(
+    .pCODE         ( pCODE         ) ,
+    .pLLR_BY_CYCLE ( pLLR_BY_CYCLE ) ,
+    .pROW_BY_CYCLE ( pROW_BY_CYCLE )
+  )
+  decfail_cnt
+  (
+    .iclk         ( iclk                      ) ,
+    .ireset       ( ireset                    ) ,
+    .iclkena      ( iclkena                   ) ,
+    //
+    .istart       ( istart                    ) ,
+    .iload_mode   ( iload_mode                ) ,
+    //
+    .ival         ( decfail_cnt__ival         ) ,
+    .istrb        ( decfail_cnt__istrb        ) ,
+    .ipmask       ( decfail_cnt__ipmask       ) ,
+    .irow_decfail ( decfail_cnt__irow_decfail ) ,
+    .irow_minfail ( decfail_cnt__irow_minfail ) ,
+    //
+    .oval         ( odecfail_val              ) ,
+    .opre_val     ( odecfail_pre_val          ) ,
+    .odecfail     ( odecfail                  ) ,
+    .odecfail_est ( odecfail_est              )
+  );
+
+  assign decfail_cnt__ival         = engine__oval  [0][0] ;
+  assign decfail_cnt__istrb        = engine__ostrb [0][0] ;
+  assign decfail_cnt__ipmask       = engine__opmask       ;
+  assign decfail_cnt__irow_decfail = engine__orow_decfail ;
+  assign decfail_cnt__irow_minfail = engine__orow_minfail ;
 
 endmodule

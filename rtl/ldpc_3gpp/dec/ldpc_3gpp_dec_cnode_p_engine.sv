@@ -24,7 +24,9 @@
   node_t       ldpc_3gpp_dec_cnode_p_engine__ocnode   [cCOL_BY_CYCLE] ;
   node_state_t ldpc_3gpp_dec_cnode_p_engine__ocstate  [cCOL_BY_CYCLE] ;
   //
-  logic        ldpc_3gpp_dec_cnode_p_engine__odecfail                 ;
+  logic        ldpc_3gpp_dec_cnode_p_engine__opmask                   ;
+  logic        ldpc_3gpp_dec_cnode_p_engine__orow_decfail             ;
+  logic        ldpc_3gpp_dec_cnode_p_engine__orow_minfail             ;
 
 
 
@@ -36,24 +38,26 @@
   )
   ldpc_3gpp_dec_cnode_p_engine
   (
-    .iclk       ( ldpc_3gpp_dec_cnode_p_engine__iclk       ) ,
-    .ireset     ( ldpc_3gpp_dec_cnode_p_engine__ireset     ) ,
-    .iclkena    ( ldpc_3gpp_dec_cnode_p_engine__iclkena    ) ,
+    .iclk         ( ldpc_3gpp_dec_cnode_p_engine__iclk         ) ,
+    .ireset       ( ldpc_3gpp_dec_cnode_p_engine__ireset       ) ,
+    .iclkena      ( ldpc_3gpp_dec_cnode_p_engine__iclkena      ) ,
     //
-    .ival       ( ldpc_3gpp_dec_cnode_p_engine__ival       ) ,
-    .istrb      ( ldpc_3gpp_dec_cnode_p_engine__istrb      ) ,
-    .ivmask     ( ldpc_3gpp_dec_cnode_p_engine__ivmask     ) ,
-    .ivnode     ( ldpc_3gpp_dec_cnode_p_engine__ivnode     ) ,
-    .ivstate    ( ldpc_3gpp_dec_cnode_p_engine__ivstate    ) ,
-    .ipmask     ( ldpc_3gpp_dec_cnode_p_engine__ipmask     ) ,
-    .ipnode     ( ldpc_3gpp_dec_cnode_p_engine__ipnode     ) ,
+    .ival         ( ldpc_3gpp_dec_cnode_p_engine__ival         ) ,
+    .istrb        ( ldpc_3gpp_dec_cnode_p_engine__istrb        ) ,
+    .ivmask       ( ldpc_3gpp_dec_cnode_p_engine__ivmask       ) ,
+    .ivnode       ( ldpc_3gpp_dec_cnode_p_engine__ivnode       ) ,
+    .ivstate      ( ldpc_3gpp_dec_cnode_p_engine__ivstate      ) ,
+    .ipmask       ( ldpc_3gpp_dec_cnode_p_engine__ipmask       ) ,
+    .ipnode       ( ldpc_3gpp_dec_cnode_p_engine__ipnode       ) ,
     //
-    .oval       ( ldpc_3gpp_dec_cnode_p_engine__oval       ) ,
-    .ostrb      ( ldpc_3gpp_dec_cnode_p_engine__ostrb      ) ,
-    .ocnode     ( ldpc_3gpp_dec_cnode_p_engine__ocnode     ) ,
-    .ocstate    ( ldpc_3gpp_dec_cnode_p_engine__ocstate    ) ,
+    .oval         ( ldpc_3gpp_dec_cnode_p_engine__oval         ) ,
+    .ostrb        ( ldpc_3gpp_dec_cnode_p_engine__ostrb        ) ,
+    .ocnode       ( ldpc_3gpp_dec_cnode_p_engine__ocnode       ) ,
+    .ocstate      ( ldpc_3gpp_dec_cnode_p_engine__ocstate      ) ,
     //
-    .odecfail   ( ldpc_3gpp_dec_cnode_p_engine__odecfail   )
+    .opmask       ( ldpc_3gpp_dec_cnode_p_engine__opmask       ) ,
+    .orow_decfail ( ldpc_3gpp_dec_cnode_p_engine__orow_decfail ) ,
+    .orow_minfail ( ldpc_3gpp_dec_cnode_p_engine__orow_minfail )
   );
 
 
@@ -84,28 +88,28 @@
 //                                            2 step :: pcol_by_cycle sequential full search
 //
 
-`include "define.vh"
-
 module ldpc_3gpp_dec_cnode_p_engine
 (
-  iclk     ,
-  ireset   ,
-  iclkena  ,
+  iclk         ,
+  ireset       ,
+  iclkena      ,
   //
-  ival     ,
-  istrb    ,
-  ivmask   ,
-  ivnode   ,
-  ivstate  ,
-  ipmask   ,
-  ipnode   ,
+  ival         ,
+  istrb        ,
+  ivmask       ,
+  ivnode       ,
+  ivstate      ,
+  ipmask       ,
+  ipnode       ,
   //
-  oval     ,
-  ostrb    ,
-  ocnode   ,
-  ocstate  ,
+  oval         ,
+  ostrb        ,
+  ocnode       ,
+  ocstate      ,
   //
-  odecfail
+  opmask       ,
+  orow_decfail ,
+  orow_minfail
 );
 
   parameter int pNORM_FACTOR  = 7;  // pNORM_FACTOR/8 - normalization factor
@@ -134,13 +138,15 @@ module ldpc_3gpp_dec_cnode_p_engine
   output node_t       ocnode    [cCOL_BY_CYCLE] ;
   output node_state_t ocstate   [cCOL_BY_CYCLE] ;
   //
-  output logic        odecfail                  ;
+  output logic        opmask                    ;
+  output logic        orow_decfail              ;
+  output logic        orow_minfail              ;
 
   //------------------------------------------------------------------------------------------------------
   //
   //------------------------------------------------------------------------------------------------------
 
-  localparam int cSORT_TREE_LEVEL = clogb2(cCOL_BY_CYCLE + 1);
+  localparam int cSORT_TREE_LEVEL = $clog2(cCOL_BY_CYCLE + 1);
 
   typedef int sort_tree_t [0 : cSORT_TREE_LEVEL];
 
@@ -195,8 +201,9 @@ module ldpc_3gpp_dec_cnode_p_engine
   strb_t        sorted_vn_strb;
   node_state_t  sorted_vn_vstate [cCOL_BY_CYCLE];
   vn_min_t      sorted_vn;
-
-  logic         decfail_acc;
+  logic         sorted_pmask;
+  logic         sorted_row_decfail;
+  logic         sorted_row_minfail;
 
   vnode_sign_t  cn_sign;
   vnode_sign_t  cn_min2_sel;
@@ -224,7 +231,7 @@ module ldpc_3gpp_dec_cnode_p_engine
       for (int col = 0; col < cCOL_BY_CYCLE; col++) begin
         if (ivmask[col]) begin
           sign_vnode[col] <= 1'b0;
-          abs_vnode [col] <= {1'b1, {(pNODE_W-1){1'b0}}};
+          abs_vnode [col] <= '1;
         end
         else begin
           sign_vnode[col] <=  ivnode[col][pNODE_W-1];
@@ -234,7 +241,7 @@ module ldpc_3gpp_dec_cnode_p_engine
       // pnode
       if (ipmask) begin
         sign_pnode <= 1'b0;
-        abs_pnode  <= {1'b1, {(pNODE_W-1){1'b0}}};
+        abs_pnode  <= '1;
       end
       else begin
         sign_pnode <=  ipnode[pNODE_W-1];
@@ -360,7 +367,7 @@ module ldpc_3gpp_dec_cnode_p_engine
     end
   end
 
-  wire vn_sort_leq1 = (vn_sort.min1[pNODE_W-1 -: pLLR_W] == 0);  // <= 0..1
+  wire vn_sort_leq1 = (vn_sort.min1[pNODE_W-1 : 1 + pNODE_SCALE_W] == 0);  // <= 0..1
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
@@ -374,24 +381,26 @@ module ldpc_3gpp_dec_cnode_p_engine
         cn_sign     [col] <=  vn_sort.vn_sign[col] ^ vn_sort.prod_sign;
         cn_min2_sel [col] <= (vn_sort.min1_col == col);
       end
-      if (vn_sort_done) begin
-        // parity mask is inverted. count decfail only for major matrix
-        decfail_acc <= (vn_sort_strb.sof & vn_sort_strb.sop) ? ((vn_sort_leq1 | vn_sort.prod_sign) & vn_sort_pmask) :
-                                                (decfail_acc | ((vn_sort_leq1 | vn_sort.prod_sign) & vn_sort_pmask));
-      end
+      //
+      sorted_pmask       <= vn_sort_pmask;
+      sorted_row_decfail <= vn_sort.prod_sign;
+      sorted_row_minfail <= vn_sort_leq1;
     end
   end
 
   // register outside of module
   always_comb begin
-    oval     = sorted_vn_val;
-    ostrb    = sorted_vn_strb;
-    ocstate  = sorted_vn_vstate;
-    odecfail = decfail_acc;
+    oval          = sorted_vn_val;
+    ostrb         = sorted_vn_strb;
+    ocstate       = sorted_vn_vstate;
     for (int col = 0; col < cCOL_BY_CYCLE; col++) begin
       cn_abs[col] = cn_min2_sel[col] ? sorted_vn.min2 : sorted_vn.min1;
       ocnode[col] = (cn_abs[col] ^ {pNODE_W{cn_sign[col]}}) + cn_sign[col];
     end
+    //
+    opmask        = sorted_pmask;
+    orow_decfail  = sorted_row_decfail;
+    orow_minfail  = sorted_row_minfail;
   end
 
   //------------------------------------------------------------------------------------------------------

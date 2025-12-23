@@ -18,8 +18,7 @@
   parameter int pLLR_BY_CYCLE   =  1 ;
   parameter int pROW_BY_CYCLE   =  8 ;
   //
-  parameter int pVNORM_FACTOR   =  7 ;
-  parameter int pCNORM_FACTOR   =  7 ;
+  parameter int pNORM_FACTOR    =  7 ;
   //
   parameter int pUSE_FIXED_CODE =  0 ;
   parameter bit pUSE_SC_MODE    =  1 ;
@@ -47,16 +46,17 @@
   //
   logic                            ldpc_3gpp_dec_engine__iobuf_empty                                               ;
   //
-  code_ctx_t                       ldpc_3gpp_dec_engine__ocode_ctx                                                 ;
+  code_ctx_t                       ldpc_3gpp_dec_engine__owcode_ctx                                                ;
   //
-  logic                            ldpc_3gpp_dec_engine__oval                                                      ;
-  logic                            ldpc_3gpp_dec_engine__osop                                                      ;
-  logic                            ldpc_3gpp_dec_engine__oeop                                                      ;
-  logic      [pLLR_BY_CYCLE-1 : 0] ldpc_3gpp_dec_engine__odat                       [cCOL_BY_CYCLE]                ;
-  logic             [pTAG_W-1 : 0] ldpc_3gpp_dec_engine__otag                                                      ;
+  logic                            ldpc_3gpp_dec_engine__owrite                                                    ;
+  logic                            ldpc_3gpp_dec_engine__owfull                                                    ;
+  logic            [pADDR_W-1 : 0] ldpc_3gpp_dec_engine__owaddr                                                    ;
+  logic      [pLLR_BY_CYCLE-1 : 0] ldpc_3gpp_dec_engine__owdat                      [cCOL_BY_CYCLE]                ;
+  logic             [pTAG_W-1 : 0] ldpc_3gpp_dec_engine__owtag                                                     ;
   //
-  logic                            ldpc_3gpp_dec_engine__odecfail                                                  ;
-  logic             [pERR_W-1 : 0] ldpc_3gpp_dec_engine__oerr                                                      ;
+  logic                            ldpc_3gpp_dec_engine__owdecfail                                                 ;
+  logic                    [7 : 0] ldpc_3gpp_dec_engine__owNiter                                                   ;
+  logic             [pERR_W-1 : 0] ldpc_3gpp_dec_engine__owerr                                                     ;
 
 
 
@@ -77,8 +77,7 @@
     .pLLR_BY_CYCLE   ( pLLR_BY_CYCLE   ) ,
     .pROW_BY_CYCLE   ( pROW_BY_CYCLE   ) ,
     //
-    .pVNORM_FACTOR   ( pVNORM_FACTOR   ) ,
-    .pCNORM_FACTOR   ( pCNORM_FACTOR   ) ,
+    .pNORM_FACTOR    ( pNORM_FACTOR    ) ,
     //
     .pUSE_FIXED_CODE ( pUSE_FIXED_CODE ) ,
     .pUSE_SC_MODE    ( pUSE_SC_MODE    ) ,
@@ -106,16 +105,17 @@
     //
     .iobuf_empty ( ldpc_3gpp_dec_engine__iobuf_empty ) ,
     //
-    .ocode_ctx   ( ldpc_3gpp_dec_engine__ocode_ctx   ) ,
+    .owcode_ctx  ( ldpc_3gpp_dec_engine__owcode_ctx  ) ,
     //
-    .oval        ( ldpc_3gpp_dec_engine__oval        ) ,
-    .osop        ( ldpc_3gpp_dec_engine__osop        ) ,
-    .oeop        ( ldpc_3gpp_dec_engine__oeop        ) ,
-    .odat        ( ldpc_3gpp_dec_engine__odat        ) ,
-    .otag        ( ldpc_3gpp_dec_engine__otag        ) ,
+    .owrite      ( ldpc_3gpp_dec_engine__owrite      ) ,
+    .owfull      ( ldpc_3gpp_dec_engine__owfull      ) ,
+    .owaddr      ( ldpc_3gpp_dec_engine__owaddr      ) ,
+    .owdat       ( ldpc_3gpp_dec_engine__owdat       ) ,
+    .owtag       ( ldpc_3gpp_dec_engine__owtag       ) ,
     //
-    .odecfail    ( ldpc_3gpp_dec_engine__odecfail    ) ,
-    .oerr        ( ldpc_3gpp_dec_engine__oerr        )
+    .owdecfail   ( ldpc_3gpp_dec_engine__owdecfail   ) ,
+    .owNiter     ( ldpc_3gpp_dec_engine__owNiter     ) ,
+    .owerr       ( ldpc_3gpp_dec_engine__owerr       )
   );
 
 
@@ -139,10 +139,8 @@
 // Project       : ldpc 3gpp TS 38.212 v15.7.0
 // Author        : Shekhalev Denis (des00)
 // Workfile      : ldpc_3gpp_dec_engine.sv
-// Description   : LDPC decoder engine with variable parameters based upon duo-phase decoding
+// Description   : LDPC decoder engine with variable parameters based upon duo-phase (2D) decoding
 //
-
-`include "define.vh"
 
 module ldpc_3gpp_dec_engine
 (
@@ -165,16 +163,17 @@ module ldpc_3gpp_dec_engine
   //
   iobuf_empty ,
   //
-  ocode_ctx   ,
+  owcode_ctx  ,
   //
   owrite      ,
   owfull      ,
   owaddr      ,
   owdat       ,
-  otag        ,
+  owtag       ,
   //
-  odecfail    ,
-  oerr
+  owdecfail   ,
+  owNiter     ,
+  owerr
 );
 
   parameter int pADDR_W         =  8 ;
@@ -182,8 +181,7 @@ module ldpc_3gpp_dec_engine
   //
   parameter int pERR_W          = 16 ;
   //
-  parameter int pVNORM_FACTOR   =  7 ;
-  parameter int pCNORM_FACTOR   =  7 ;
+  parameter int pNORM_FACTOR    =  7 ;
   //
   parameter bit pUSE_FIXED_CODE =  0 ;  // use variable of fixed mode engine
   parameter bit pUSE_DBYPASS    =  0 ;  // use no decoding(bypass) mode if Niter == 0
@@ -215,16 +213,23 @@ module ldpc_3gpp_dec_engine
   //
   input  logic                            iobuf_empty                                               ;
   //
-  output code_ctx_t                       ocode_ctx                                                 ;
+  output code_ctx_t                       owcode_ctx                                                ;
   //
   output logic                            owrite                                                    ;
   output logic                            owfull                                                    ;
   output logic            [pADDR_W-1 : 0] owaddr                                                    ;
   output logic      [pLLR_BY_CYCLE-1 : 0] owdat                      [cCOL_BY_CYCLE]                ;
-  output logic             [pTAG_W-1 : 0] otag                                                      ;
+  output logic             [pTAG_W-1 : 0] owtag                                                     ;
   //
-  output logic                            odecfail                                                  ;
-  output logic             [pERR_W-1 : 0] oerr                                                      ;
+  output logic                            owdecfail                                                 ;
+  output logic                    [7 : 0] owNiter                                                   ;
+  output logic             [pERR_W-1 : 0] owerr                                                     ;
+
+  //------------------------------------------------------------------------------------------------------
+  //
+  //------------------------------------------------------------------------------------------------------
+
+  localparam int cBIT_ERR_W = pLLR_BY_CYCLE * cCOL_BY_CYCLE;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -269,14 +274,18 @@ module ldpc_3gpp_dec_engine
   //
   logic                           ctrl__oload_mode     ;
   logic                           ctrl__oc_nv_mode     ;
+  logic                           ctrl__obypass        ;
   //
   logic                           ctrl__oread          ;
   logic                           ctrl__orstart        ;
   logic                           ctrl__orval          ;
   strb_t                          ctrl__orstrb         ;
   hb_row_t                        ctrl__orrow          ;
-
+  //
   logic                           ctrl__olast_iter     ;
+  //
+  logic                   [7 : 0] ctrl__ouNiter        ;
+  logic                           ctrl__obusy          ;
 
   //
   // address gen
@@ -324,6 +333,9 @@ module ldpc_3gpp_dec_engine
 
   //
   // cnode
+  logic                           cnode__istart                                                 ;
+  logic                           cnode__iload_mode                                             ;
+  //
   logic                           cnode__ival                                                   ;
   strb_t                          cnode__istrb                                                  ;
   logic                           cnode__ivmask   [pROW_BY_CYCLE][cCOL_BY_CYCLE]                ;
@@ -337,7 +349,12 @@ module ldpc_3gpp_dec_engine
   hb_row_t                        cnode__orow                                                   ;
   node_t                          cnode__ocnode   [pROW_BY_CYCLE][cCOL_BY_CYCLE][pLLR_BY_CYCLE] ;
   node_state_t                    cnode__ocstate  [pROW_BY_CYCLE][cCOL_BY_CYCLE][pLLR_BY_CYCLE] ;
+  //
+  logic                           cnode__odecfail_val                                           ;
+  logic                           cnode__odecfail_pre_val                                       ;
   logic                           cnode__odecfail                                               ;
+  logic                           cnode__odecfail_est                                           ;
+  //
   logic                           cnode__obusy                                                  ;
 
   //
@@ -346,16 +363,15 @@ module ldpc_3gpp_dec_engine
   logic                           vnode__ido_punct                                             ;
   hb_row_t                        vnode__iused_row                                             ;
   //
+  logic                           vnode__iload_mode                                            ;
+  logic                           vnode__ibypass                                               ;
+  //
   logic                           vnode__ival                                                  ;
   strb_t                          vnode__istrb                                                 ;
   llr_t                           vnode__iLLR                   [cCOL_BY_CYCLE][pLLR_BY_CYCLE] ;
   node_t                          vnode__icnode  [pROW_BY_CYCLE][cCOL_BY_CYCLE][pLLR_BY_CYCLE] ;
   logic                           vnode__icmask  [pROW_BY_CYCLE][cCOL_BY_CYCLE]                ;
   node_state_t                    vnode__icstate [pROW_BY_CYCLE][cCOL_BY_CYCLE][pLLR_BY_CYCLE] ;
-  //
-  logic                           vnode__iuval                                                 ;
-  strb_t                          vnode__iustrb                                                ;
-  llr_t                           vnode__iuLLR                  [cCOL_BY_CYCLE][pLLR_BY_CYCLE] ;
   //
   logic                           vnode__oval                                                  ;
   strb_t                          vnode__ostrb                                                 ;
@@ -369,6 +385,13 @@ module ldpc_3gpp_dec_engine
   logic     [pLLR_BY_CYCLE-1 : 0] vnode__obiterr                [cCOL_BY_CYCLE]                ;
   //
   logic                           vnode__obusy                                                 ;
+
+  //
+  // bit err counter
+  logic                           biterr_cnt__ival    ;
+  logic                           biterr_cnt__isop    ;
+  logic                           biterr_cnt__ieop    ;
+  logic        [cBIT_ERR_W-1 : 0] biterr_cnt__ibiterr ;
 
   //------------------------------------------------------------------------------------------------------
   // hb
@@ -465,10 +488,10 @@ module ldpc_3gpp_dec_engine
     end
   endgenerate
 
-  assign hb_tab__irrow        = ctrl__orrow;
-  assign hb_tab__iwrow        = cnode__orow;
+  assign hb_tab__irrow  = ctrl__orrow;
+  assign hb_tab__iwrow  = cnode__orow;
 
-  assign obuf_rempty          = hb_tab__obuf_rempty;
+  assign obuf_rempty    = hb_tab__obuf_rempty;
 
   //------------------------------------------------------------------------------------------------------
   // ctrl
@@ -480,8 +503,7 @@ module ldpc_3gpp_dec_engine
   ldpc_3gpp_dec_ctrl
   #(
     .pLLR_BY_CYCLE ( pLLR_BY_CYCLE ) ,
-    .pROW_BY_CYCLE ( pROW_BY_CYCLE ) ,
-    .pUSE_DBYPASS  ( pUSE_DBYPASS  )
+    .pROW_BY_CYCLE ( pROW_BY_CYCLE )
   )
   ctrl
   (
@@ -506,6 +528,7 @@ module ldpc_3gpp_dec_engine
     //
     .oload_mode     ( ctrl__oload_mode     ) ,
     .oc_nv_mode     ( ctrl__oc_nv_mode     ) ,
+    .obypass        ( ctrl__obypass        ) ,
     //
     .oread          ( ctrl__oread          ) ,
     .orstart        ( ctrl__orstart        ) ,
@@ -513,7 +536,10 @@ module ldpc_3gpp_dec_engine
     .orstrb         ( ctrl__orstrb         ) ,
     .orrow          ( ctrl__orrow          ) ,
     //
-    .olast_iter     ( ctrl__olast_iter     )
+    .olast_iter     ( ctrl__olast_iter     ) ,
+    //
+    .ouNiter        ( ctrl__ouNiter        ) ,
+    .obusy          ( ctrl__obusy          )
   );
 
   assign ctrl__ibuf_full      = hb_tab__octrl_full ;
@@ -526,7 +552,7 @@ module ldpc_3gpp_dec_engine
   assign ctrl__ivnode_busy    = (ctrl__oread | vnode_busy) | !hb_tab__oupdate_done; // delay first iteration (upload) if need
 
   assign ctrl__icnode_busy    = (ctrl__oread | cnode_busy);
-  assign ctrl__icnode_decfail = cnode__odecfail;
+  assign ctrl__icnode_decfail = cnode__odecfail_est;
 
   always_ff @(posedge iclk or posedge ireset) begin
     if (ireset) begin
@@ -541,10 +567,10 @@ module ldpc_3gpp_dec_engine
         vnode_busy <= 1'b0;
       end
       //
-      if (ctrl__oread & ctrl__orstrb.sof &  ctrl__oc_nv_mode) begin
+      if (ctrl__oread & ctrl__orstrb.sof & ctrl__oc_nv_mode) begin
         cnode_busy <= 1'b1;
       end
-      else if (cnode__oval & cnode__ostrb.eof & cnode__ostrb.eop) begin
+      else if (cnode__odecfail_pre_val) begin // save 1 tick for each iteration
         cnode_busy <= 1'b0;
       end
     end
@@ -646,7 +672,13 @@ module ldpc_3gpp_dec_engine
     .ovnode_rstate ( mem__ovnode_rstate )
   );
 
-  assign mem__iused_zc    = hb_tab__oused_zc;
+  always_ff @(posedge iclk) begin
+    if (iclkena) begin
+      // it's constant for decoding cycle
+      mem__iused_zc <= hb_tab__oused_zc;
+    end
+  end
+
   assign mem__iwHb        = hb_tab__owHb ;    // 1 tick read delay
 
   assign mem__ic_nv_mode  = ctrl__oc_nv_mode;
@@ -683,38 +715,49 @@ module ldpc_3gpp_dec_engine
   ldpc_3gpp_dec_cnode
   #(
     .pIDX_GR       ( pIDX_GR       ) ,
+    .pCODE         ( pCODE         ) ,
     //
     .pLLR_W        ( pLLR_W        ) ,
     .pNODE_W       ( pNODE_W       ) ,
+    .pNODE_SCALE_W ( pNODE_SCALE_W ) ,
     //
     .pLLR_BY_CYCLE ( pLLR_BY_CYCLE ) ,
     .pROW_BY_CYCLE ( pROW_BY_CYCLE ) ,
     //
-    .pNORM_FACTOR  ( pCNORM_FACTOR )
+    .pNORM_FACTOR  ( pNORM_FACTOR  )
   )
   cnode
   (
-    .iclk     ( iclk            ) ,
-    .ireset   ( ireset          ) ,
-    .iclkena  ( iclkena         ) ,
+    .iclk             ( iclk                    ) ,
+    .ireset           ( ireset                  ) ,
+    .iclkena          ( iclkena                 ) ,
     //
-    .ival     ( cnode__ival     ) ,
-    .istrb    ( cnode__istrb    ) ,
-    .ivmask   ( cnode__ivmask   ) ,
-    .ivnode   ( cnode__ivnode   ) ,
-    .ivstate  ( cnode__ivstate  ) ,
-    .ipmask   ( cnode__ipmask   ) ,
-    .ipLLR    ( cnode__ipLLR    ) ,
+    .istart           ( cnode__istart           ) ,
+    .iload_mode       ( cnode__iload_mode       ) ,
     //
-    .oval     ( cnode__oval     ) ,
-    .ostrb    ( cnode__ostrb    ) ,
-    .orow     ( cnode__orow     ) ,
-    .ocnode   ( cnode__ocnode   ) ,
-    .ocstate  ( cnode__ocstate  ) ,
+    .ival             ( cnode__ival             ) ,
+    .istrb            ( cnode__istrb            ) ,
+    .ivmask           ( cnode__ivmask           ) ,
+    .ivnode           ( cnode__ivnode           ) ,
+    .ivstate          ( cnode__ivstate          ) ,
+    .ipmask           ( cnode__ipmask           ) ,
+    .ipLLR            ( cnode__ipLLR            ) ,
     //
-    .odecfail ( cnode__odecfail ) ,
-    .obusy    ( cnode__obusy    )
+    .oval             ( cnode__oval             ) ,
+    .ostrb            ( cnode__ostrb            ) ,
+    .orow             ( cnode__orow             ) ,
+    .ocnode           ( cnode__ocnode           ) ,
+    .ocstate          ( cnode__ocstate          ) ,
+    //
+    .odecfail_val     ( cnode__odecfail_val     ) ,
+    .odecfail_pre_val ( cnode__odecfail_pre_val ) ,
+    .odecfail         ( cnode__odecfail         ) ,
+    .odecfail_est     ( cnode__odecfail_est     ) ,
+    .obusy            ( cnode__obusy            )
   );
+
+  assign cnode__istart      = ctrl__orstart & ctrl__oc_nv_mode;
+  assign cnode__iload_mode  = ctrl__oload_mode;
 
   generate
     if (pLLR_BY_CYCLE == 1) begin
@@ -775,61 +818,61 @@ module ldpc_3gpp_dec_engine
     //
     .pLLR_W        ( pLLR_W        ) ,
     .pNODE_W       ( pNODE_W       ) ,
+    .pNODE_SCALE_W ( pNODE_SCALE_W ) ,
     //
     .pLLR_BY_CYCLE ( pLLR_BY_CYCLE ) ,
     .pROW_BY_CYCLE ( pROW_BY_CYCLE ) ,
     //
-    .pNORM_FACTOR  ( pVNORM_FACTOR ) ,
-    .pUSE_SC_MODE  ( pUSE_SC_MODE  ) ,
-    .pUSE_DBYPASS  ( pUSE_DBYPASS  )
+    .pNORM_FACTOR  ( 0             ) ,  // disable normalization :: not need
+    .pUSE_SC_MODE  ( pUSE_SC_MODE  )
   )
   vnode
   (
-    .iclk      ( iclk             ) ,
-    .ireset    ( ireset           ) ,
-    .iclkena   ( iclkena          ) ,
+    .iclk       ( iclk              ) ,
+    .ireset     ( ireset            ) ,
+    .iclkena    ( iclkena           ) ,
     //
-    .iidxGr    ( vnode__iidxGr    ) ,
-    .ido_punct ( vnode__ido_punct ) ,
-    .iused_row ( vnode__iused_row ) ,
+    .iidxGr     ( vnode__iidxGr     ) ,
+    .ido_punct  ( vnode__ido_punct  ) ,
+    .iused_row  ( vnode__iused_row  ) ,
     //
-    .ival      ( vnode__ival      ) ,
-    .istrb     ( vnode__istrb     ) ,
-    .iLLR      ( vnode__iLLR      ) ,
-    .icnode    ( vnode__icnode    ) ,
-    .icmask    ( vnode__icmask    ) ,
-    .icstate   ( vnode__icstate   ) ,
+    .iload_mode ( vnode__iload_mode ) ,
+    .ibypass    ( vnode__ibypass    ) ,
     //
-    .iuval     ( vnode__iuval     ) ,
-    .iustrb    ( vnode__iustrb    ) ,
-    .iuLLR     ( vnode__iuLLR     ) ,
+    .ival       ( vnode__ival       ) ,
+    .istrb      ( vnode__istrb      ) ,
+    .iLLR       ( vnode__iLLR       ) ,
+    .icnode     ( vnode__icnode     ) ,
+    .icmask     ( vnode__icmask     ) ,
+    .icstate    ( vnode__icstate    ) ,
     //
-    .oval      ( vnode__oval      ) ,
-    .ostrb     ( vnode__ostrb     ) ,
-    .ovnode    ( vnode__ovnode    ) ,
-    .ovstate   ( vnode__ovstate   ) ,
+    .oval       ( vnode__oval       ) ,
+    .ostrb      ( vnode__ostrb      ) ,
+    .ovnode     ( vnode__ovnode     ) ,
+    .ovstate    ( vnode__ovstate    ) ,
     //
-    .obitval   ( vnode__obitval   ) ,
-    .obitsop   ( vnode__obitsop   ) ,
-    .obiteop   ( vnode__obiteop   ) ,
-    .obitdat   ( vnode__obitdat   ) ,
-    .obiterr   ( vnode__obiterr   ) ,
+    .obitval    ( vnode__obitval    ) ,
+    .obitsop    ( vnode__obitsop    ) ,
+    .obiteop    ( vnode__obiteop    ) ,
+    .obitdat    ( vnode__obitdat    ) ,
+    .obiterr    ( vnode__obiterr    ) ,
     //
-    .obusy     ( vnode__obusy     )
+    .obusy      ( vnode__obusy      )
   );
 
-  assign vnode__iidxGr    = hb_tab__ocode_ctx.idxGr;
-  assign vnode__ido_punct = hb_tab__ocode_ctx.do_punct;
-  assign vnode__iused_row = hb_tab__oused_row;
+  assign vnode__iidxGr      = hb_tab__ocode_ctx.idxGr;
+  assign vnode__ido_punct   = hb_tab__ocode_ctx.do_punct;
+  assign vnode__iused_row   = hb_tab__oused_row;
+
+  assign vnode__iload_mode  = ctrl__oload_mode;
+  assign vnode__ibypass     = ctrl__obypass;
 
   always_ff @(posedge iclk or posedge ireset) begin
     if (ireset) begin
-      vnode__ival   <= 1'b0;
-      vnode__iuval  <= 1'b0;
+      vnode__ival <= 1'b0;
     end
     else if (iclkena) begin
-      vnode__ival   <= mem__ovnode_rval & !ctrl__oload_mode;
-      vnode__iuval  <= mem__ovnode_rval &  ctrl__oload_mode ;
+      vnode__ival <= mem__ovnode_rval;
     end
   end
 
@@ -843,11 +886,7 @@ module ldpc_3gpp_dec_engine
     vnode__icnode   <= mem__ovnode_rdat ;
     vnode__icmask   <= mem__ovnode_rmask ;
     vnode__icstate  <= mem__ovnode_rstate ;
-    //
-    vnode__iustrb   <= mem__ovnode_rstrb ;
   end
-
-  assign vnode__iuLLR = vnode__iLLR; // it's the same
 
   //------------------------------------------------------------------------------------------------------
   // output data mapping
@@ -872,9 +911,10 @@ module ldpc_3gpp_dec_engine
       //
       // output tags hold for all cycle
       if (vnode__obitval & vnode__obitsop) begin
-        otag      <= itag;
-        ocode_ctx <= hb_tab__ocode_ctx;
-        odecfail  <= ctrl__oload_mode ? 1'b0 : cnode__odecfail;
+        owtag      <= itag;
+        owcode_ctx <= hb_tab__ocode_ctx;
+        owdecfail  <= ctrl__oload_mode ? 1'b0 : cnode__odecfail;
+        owNiter    <= ctrl__ouNiter;
       end
     end
   end
@@ -883,25 +923,35 @@ module ldpc_3gpp_dec_engine
   // output error mapping
   //------------------------------------------------------------------------------------------------------
 
-  ldpc_3gpp_dec_biterr_cnt
+  codec_biterr_cnt
   #(
-    .pLLR_BY_CYCLE ( pLLR_BY_CYCLE ) ,
-    .pCOL_BY_CYCLE ( cCOL_BY_CYCLE ) ,
-    .pERR_W        ( pERR_W        )
+    .pBIT_ERR_W ( cBIT_ERR_W ) ,
+    .pERR_W     ( pERR_W     )
   )
   biterr_cnt
   (
-    .iclk    ( iclk                              ) ,
-    .ireset  ( ireset                            ) ,
-    .iclkena ( iclkena                           ) ,
+    .iclk    ( iclk                ) ,
+    .ireset  ( ireset              ) ,
+    .iclkena ( iclkena             ) ,
     //
-    .ival    ( vnode__obitval & ctrl__olast_iter ) ,
-    .isop    ( vnode__obitsop                    ) ,
-    .ieop    ( vnode__obiteop                    ) ,
-    .ibiterr ( vnode__obiterr                    ) ,
+    .ival    ( biterr_cnt__ival    ) ,
+    .isop    ( biterr_cnt__isop    ) ,
+    .ieop    ( biterr_cnt__ieop    ) ,
+    .ibiterr ( biterr_cnt__ibiterr ) ,
     //
-    .oval    ( owfull                            ) ,
-    .oerr    ( oerr                              )
+    .oval    ( owfull              ) ,
+    .oerr    ( owerr               )
   );
+
+  assign biterr_cnt__ival = vnode__obitval & ctrl__olast_iter;
+  assign biterr_cnt__isop = vnode__obitsop ;
+  assign biterr_cnt__ieop = vnode__obiteop ;
+
+  always_comb begin
+    biterr_cnt__ibiterr = '0;
+    for (int col = 0; col < cCOL_BY_CYCLE; col++) begin
+      biterr_cnt__ibiterr[col*pLLR_BY_CYCLE +: pLLR_BY_CYCLE] = vnode__obiterr[col];
+    end
+  end
 
 endmodule

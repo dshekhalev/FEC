@@ -13,7 +13,6 @@
   //
   parameter int pNORM_FACTOR  =  7 ;
   parameter bit pUSE_SC_MODE  =  1 ;
-  parameter bit pUSE_DBYPASS  =  0 ;
 
 
 
@@ -26,16 +25,15 @@
   logic                            ldpc_3gpp_dec_vnode__ido_punct                                             ;
   hb_row_t                         ldpc_3gpp_dec_vnode__iused_row                                             ;
   //
+  logic                            ldpc_3gpp_dec_vnode__iload_mode                                            ;
+  logic                            ldpc_3gpp_dec_vnode__ibypass                                               ;
+  //
   logic                            ldpc_3gpp_dec_vnode__ival                                                  ;
   strb_t                           ldpc_3gpp_dec_vnode__istrb                                                 ;
   llr_t                            ldpc_3gpp_dec_vnode__iLLR                   [cCOL_BY_CYCLE][pLLR_BY_CYCLE] ;
   node_t                           ldpc_3gpp_dec_vnode__icnode  [pROW_BY_CYCLE][cCOL_BY_CYCLE][pLLR_BY_CYCLE] ;
   logic                            ldpc_3gpp_dec_vnode__icmask  [pROW_BY_CYCLE][cCOL_BY_CYCLE]                ;
   node_state_t                     ldpc_3gpp_dec_vnode__icstate [pROW_BY_CYCLE][cCOL_BY_CYCLE][pLLR_BY_CYCLE] ;
-  //
-  logic                            ldpc_3gpp_dec_vnode__iuval                                                 ;
-  strb_t                           ldpc_3gpp_dec_vnode__iustrb                                                ;
-  llr_t                            ldpc_3gpp_dec_vnode__iuLLR                  [cCOL_BY_CYCLE][pLLR_BY_CYCLE] ;
   //
   logic                            ldpc_3gpp_dec_vnode__oval                                                  ;
   strb_t                           ldpc_3gpp_dec_vnode__ostrb                                                 ;
@@ -70,58 +68,56 @@
   )
   ldpc_3gpp_dec_vnode
   (
-    .iclk      ( ldpc_3gpp_dec_vnode__iclk      ) ,
-    .ireset    ( ldpc_3gpp_dec_vnode__ireset    ) ,
-    .iclkena   ( ldpc_3gpp_dec_vnode__iclkena   ) ,
+    .iclk       ( ldpc_3gpp_dec_vnode__iclk       ) ,
+    .ireset     ( ldpc_3gpp_dec_vnode__ireset     ) ,
+    .iclkena    ( ldpc_3gpp_dec_vnode__iclkena    ) ,
     //
-    .iidxGr    ( ldpc_3gpp_dec_vnode__iidxGr    ) ,
-    .ido_punct ( ldpc_3gpp_dec_vnode__ido_punct ) ,
-    .iused_row ( ldpc_3gpp_dec_vnode__iused_row ) ,
+    .iidxGr     ( ldpc_3gpp_dec_vnode__iidxGr     ) ,
+    .ido_punct  ( ldpc_3gpp_dec_vnode__ido_punct  ) ,
+    .iused_row  ( ldpc_3gpp_dec_vnode__iused_row  ) ,
     //
-    .ival      ( ldpc_3gpp_dec_vnode__ival      ) ,
-    .istrb     ( ldpc_3gpp_dec_vnode__istrb     ) ,
-    .iLLR      ( ldpc_3gpp_dec_vnode__iLLR      ) ,
-    .icnode    ( ldpc_3gpp_dec_vnode__icnode    ) ,
-    .icmask    ( ldpc_3gpp_dec_vnode__icmask    ) ,
-    .icstate   ( ldpc_3gpp_dec_vnode__icstate   ) ,
+    .iload_mode ( ldpc_3gpp_dec_vnode__iload_mode ) ,
+    .ibypass    ( ldpc_3gpp_dec_vnode__ibypass    ) ,
     //
-    .iuval     ( ldpc_3gpp_dec_vnode__iuval     ) ,
-    .iustrb    ( ldpc_3gpp_dec_vnode__iustrb    ) ,
-    .iuLLR     ( ldpc_3gpp_dec_vnode__iuLLR     ) ,
+    .ival       ( ldpc_3gpp_dec_vnode__ival       ) ,
+    .istrb      ( ldpc_3gpp_dec_vnode__istrb      ) ,
+    .iLLR       ( ldpc_3gpp_dec_vnode__iLLR       ) ,
+    .icnode     ( ldpc_3gpp_dec_vnode__icnode     ) ,
+    .icmask     ( ldpc_3gpp_dec_vnode__icmask     ) ,
+    .icstate    ( ldpc_3gpp_dec_vnode__icstate    ) ,
     //
-    .oval      ( ldpc_3gpp_dec_vnode__oval      ) ,
-    .ostrb     ( ldpc_3gpp_dec_vnode__ostrb     ) ,
-    .ovnode    ( ldpc_3gpp_dec_vnode__ovnode    ) ,
-    .ovstate   ( ldpc_3gpp_dec_vnode__ovstate   ) ,
+    .oval       ( ldpc_3gpp_dec_vnode__oval       ) ,
+    .ostrb      ( ldpc_3gpp_dec_vnode__ostrb      ) ,
+    .ovnode     ( ldpc_3gpp_dec_vnode__ovnode     ) ,
+    .ovstate    ( ldpc_3gpp_dec_vnode__ovstate    ) ,
     //
-    .obitsop   ( ldpc_3gpp_dec_vnode__obitsop   ) ,
-    .obitval   ( ldpc_3gpp_dec_vnode__obitval   ) ,
-    .obiteop   ( ldpc_3gpp_dec_vnode__obiteop   ) ,
-    .obitdat   ( ldpc_3gpp_dec_vnode__obitdat   ) ,
-    .obiterr   ( ldpc_3gpp_dec_vnode__obiterr   ) ,
+    .obitsop    ( ldpc_3gpp_dec_vnode__obitsop    ) ,
+    .obitval    ( ldpc_3gpp_dec_vnode__obitval    ) ,
+    .obiteop    ( ldpc_3gpp_dec_vnode__obiteop    ) ,
+    .obitdat    ( ldpc_3gpp_dec_vnode__obitdat    ) ,
+    .obiterr    ( ldpc_3gpp_dec_vnode__obiterr    ) ,
     //
-    .obusy     ( ldpc_3gpp_dec_vnode__obusy     )
+    .obusy      ( ldpc_3gpp_dec_vnode__obusy      )
   );
 
 
-  assign ldpc_3gpp_dec_vnode__iclk      = '0 ;
-  assign ldpc_3gpp_dec_vnode__ireset    = '0 ;
-  assign ldpc_3gpp_dec_vnode__iclkena   = '0 ;
+  assign ldpc_3gpp_dec_vnode__iclk       = '0 ;
+  assign ldpc_3gpp_dec_vnode__ireset     = '0 ;
+  assign ldpc_3gpp_dec_vnode__iclkena    = '0 ;
   //
-  assign ldpc_3gpp_dec_vnode__iidxGr    = '0 ;
-  assign ldpc_3gpp_dec_vnode__ido_punct = '0 ;
-  assign ldpc_3gpp_dec_vnode__iused_row = '0 ;
+  assign ldpc_3gpp_dec_vnode__iidxGr     = '0 ;
+  assign ldpc_3gpp_dec_vnode__ido_punct  = '0 ;
+  assign ldpc_3gpp_dec_vnode__iused_row  = '0 ;
   //
-  assign ldpc_3gpp_dec_vnode__ival      = '0 ;
-  assign ldpc_3gpp_dec_vnode__istrb     = '0 ;
-  assign ldpc_3gpp_dec_vnode__iLLR      = '0 ;
-  assign ldpc_3gpp_dec_vnode__icnode    = '0 ;
-  assign ldpc_3gpp_dec_vnode__icmask    = '0 ;
-  assign ldpc_3gpp_dec_vnode__icstate   = '0 ;
+  assign ldpc_3gpp_dec_vnode__iload_mode = '0 ;
+  assign ldpc_3gpp_dec_vnode__ibypass    = '0 ;
   //
-  assign ldpc_3gpp_dec_vnode__iuval     = '0 ;
-  assign ldpc_3gpp_dec_vnode__iustrb    = '0 ;
-  assign ldpc_3gpp_dec_vnode__iuLLR     = '0 ;
+  assign ldpc_3gpp_dec_vnode__ival       = '0 ;
+  assign ldpc_3gpp_dec_vnode__istrb      = '0 ;
+  assign ldpc_3gpp_dec_vnode__iLLR       = '0 ;
+  assign ldpc_3gpp_dec_vnode__icnode     = '0 ;
+  assign ldpc_3gpp_dec_vnode__icmask     = '0 ;
+  assign ldpc_3gpp_dec_vnode__icstate    = '0 ;
 
 
 
@@ -135,45 +131,41 @@
 //                 Consist of pLLR_BY_CYCLE*cCOL_BY_CYCLE engines by pROW_BY_CYCLE nodes
 //
 
-`include "define.vh"
-
 module ldpc_3gpp_dec_vnode
 (
-  iclk      ,
-  ireset    ,
-  iclkena   ,
+  iclk       ,
+  ireset     ,
+  iclkena    ,
   //
-  iidxGr    ,
-  ido_punct ,
-  iused_row ,
+  iidxGr     ,
+  ido_punct  ,
+  iused_row  ,
   //
-  ival      ,
-  istrb     ,
-  iLLR      ,
-  icnode    ,
-  icmask    ,
-  icstate   ,
+  iload_mode ,
+  ibypass    ,
   //
-  iuval     ,
-  iustrb    ,
-  iuLLR     ,
+  ival       ,
+  istrb      ,
+  iLLR       ,
+  icnode     ,
+  icmask     ,
+  icstate    ,
   //
-  oval      ,
-  ostrb     ,
-  ovnode    ,
-  ovstate   ,
+  oval       ,
+  ostrb      ,
+  ovnode     ,
+  ovstate    ,
   //
-  obitval   ,
-  obitsop   ,
-  obiteop   ,
-  obitdat   ,
-  obiterr   ,
+  obitval    ,
+  obitsop    ,
+  obiteop    ,
+  obitdat    ,
+  obiterr    ,
   //
   obusy
 );
 
   parameter int pNORM_FACTOR  = 7;  // pNORM_FACTOR/8 - normalization factor
-  parameter bit pUSE_DBYPASS  = 0;  // use no decoding(bypass) mode if Niter == 0
 
   `include "../ldpc_3gpp_constants.svh"
   `include "ldpc_3gpp_dec_types.svh"
@@ -189,6 +181,9 @@ module ldpc_3gpp_dec_vnode
   input  logic                        iidxGr                                                ;
   input  logic                        ido_punct                                             ;
   input  hb_row_t                     iused_row                                             ;
+  //
+  input  logic                        iload_mode                                            ; // upload vnode mem
+  input  logic                        ibypass                                               ; // bypass at load to output mem
   // cycle work interface
   input  logic                        ival                                                  ;
   input  strb_t                       istrb                                                 ;
@@ -196,10 +191,6 @@ module ldpc_3gpp_dec_vnode
   input  node_t                       icnode  [pROW_BY_CYCLE][cCOL_BY_CYCLE][pLLR_BY_CYCLE] ;
   input  logic                        icmask  [pROW_BY_CYCLE][cCOL_BY_CYCLE]                ;
   input  node_state_t                 icstate [pROW_BY_CYCLE][cCOL_BY_CYCLE][pLLR_BY_CYCLE] ;
-  // initial upload interface
-  input  logic                        iuval                                                 ;
-  input  strb_t                       iustrb                                                ;
-  input  llr_t                        iuLLR                  [cCOL_BY_CYCLE][pLLR_BY_CYCLE] ;
   // vnode interface
   output logic                        oval                                                  ;
   output strb_t                       ostrb                                                 ;
@@ -277,6 +268,7 @@ module ldpc_3gpp_dec_vnode
             //
             .pLLR_W        ( pLLR_W        ) ,
             .pNODE_W       ( pNODE_W       ) ,
+            .pNODE_SCALE_W ( pNODE_SCALE_W ) ,
             //
             .pROW_BY_CYCLE ( pROW_BY_CYCLE ) ,
             //
@@ -342,25 +334,27 @@ module ldpc_3gpp_dec_vnode
       obusy <= 1'b0;
     end
     else if (iclkena) begin
-      oval <= iuval | used_val;
+      oval <= iload_mode ? ival : used_val;
       //
-      if (!obusy & ((iuval & iustrb.sof & iustrb.sop) | (used_val & used_strb.sof & used_strb.sop)))
+      if (!obusy & ival & istrb.sof & istrb.sop) begin
         obusy <= 1'b1;
-      else if (oval & ostrb.eof & ostrb.eop)
+      end
+      else if (oval & ostrb.eof & ostrb.eop) begin
         obusy <= 1'b0;
+      end
     end
   end
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
-      ostrb <= iuval ? iustrb : used_strb;
+      ostrb <= iload_mode ? istrb : used_strb;
       //
       for (int row = 0; row < pROW_BY_CYCLE; row++) begin
         for (int col = 0; col < cCOL_BY_CYCLE; col++) begin
           for (int llra = 0; llra < pLLR_BY_CYCLE; llra++) begin
-            ovstate[row][col][llra].pre_sign  <= iuval ? 1'b0                                      : engine__ovstate[col][llra][row].pre_sign;
-            ovstate[row][col][llra].pre_zero  <= iuval ? 1'b1                                      : engine__ovstate[col][llra][row].pre_zero;
-            ovnode [row][col][llra]           <= iuval ? (iuLLR[col][llra] <<< (pNODE_W - pLLR_W)) : engine__ovnode [col][llra][row];
+            ovstate[row][col][llra].pre_sign  <= iload_mode ? 1'b0                                : engine__ovstate[col][llra][row].pre_sign;
+            ovstate[row][col][llra].pre_zero  <= iload_mode ? 1'b1                                : engine__ovstate[col][llra][row].pre_zero;
+            ovnode [row][col][llra]           <= iload_mode ? (iLLR[col][llra] <<< pNODE_SCALE_W) : engine__ovnode [col][llra][row];
           end
         end
       end
@@ -378,9 +372,9 @@ module ldpc_3gpp_dec_vnode
       obitval <= 1'b0;
     end
     else if (iclkena) begin
-      ubitval <= pUSE_DBYPASS & iuval & iustrb.eop;
+      ubitval <= ival & istrb.eop;
       //
-      obitval <= ubitval | engine__obitval[0][0];
+      obitval <= ibypass ? ubitval : engine__obitval[0][0];
     end
   end
 
@@ -410,21 +404,19 @@ module ldpc_3gpp_dec_vnode
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
-      // upload data
-      if (pUSE_DBYPASS) begin
-        ubitsop <= iustrb.eop & iustrb.sof;
-        ubiteop <= iustrb.eop & iustrb.eof;
-        for (int col = 0; col < cCOL_BY_CYCLE; col++) begin
-          for (int llra = 0; llra < pLLR_BY_CYCLE; llra++) begin
-            ubitdat[col][llra] <= (iuLLR[col][llra] <= 0); // metric is inverted (minus zero occured) -> 0 metric is 1'b1
-          end
+      // upload data at bypass
+      ubitsop <= istrb.eop & istrb.sof;
+      ubiteop <= istrb.eop & istrb.eof;
+      for (int col = 0; col < cCOL_BY_CYCLE; col++) begin
+        for (int llra = 0; llra < pLLR_BY_CYCLE; llra++) begin
+          ubitdat[col][llra] <= (iLLR[col][llra] <= 0); // metric is inverted (minus zero occured) -> 0 metric is 1'b1
         end
       end
       // final sum
-      obitsop <= ubitval ? ubitsop : engine__obitsop[0][0];
-      obiteop <= ubitval ? ubiteop : engine__obiteop[0][0];
-      obitdat <= ubitval ? ubitdat : engine__obitdat;
-      obiterr <= ubitval ? ubiterr : biterr;
+      obitsop <= ibypass ? ubitsop : engine__obitsop[0][0];
+      obiteop <= ibypass ? ubiteop : engine__obiteop[0][0];
+      obitdat <= ibypass ? ubitdat : engine__obitdat;
+      obiterr <= ibypass ? ubiterr : biterr;
     end
   end
 

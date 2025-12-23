@@ -25,6 +25,7 @@
   //
   logic                    ldpc_3gpp_dec_sink__irdecfail            ;
   logic     [pERR_W-1 : 0] ldpc_3gpp_dec_sink__irerr                ;
+  logic            [7 : 0] ldpc_3gpp_dec_sink__irNiter              ;
   //
   logic                    ldpc_3gpp_dec_sink__orempty              ;
   logic    [pADDR_W-1 : 0] ldpc_3gpp_dec_sink__oraddr               ;
@@ -40,6 +41,8 @@
   //
   logic                    ldpc_3gpp_dec_sink__odecfail             ;
   logic     [pERR_W-1 : 0] ldpc_3gpp_dec_sink__oerr                 ;
+  logic     [pERR_W-1 : 0] ldpc_3gpp_dec_sink__obitnum              ;
+  logic            [7 : 0] ldpc_3gpp_dec_sink__oNiter               ;
   //
   logic                    ldpc_3gpp_dec_sink__ohd_start            ;
   logic                    ldpc_3gpp_dec_sink__ohd_punct            ;
@@ -75,6 +78,7 @@
     //
     .irdecfail ( ldpc_3gpp_dec_sink__irdecfail ) ,
     .irerr     ( ldpc_3gpp_dec_sink__irerr     ) ,
+    .irNiter   ( ldpc_3gpp_dec_sink__irNiter   ) ,
     //
     .orempty   ( ldpc_3gpp_dec_sink__orempty   ) ,
     .oraddr    ( ldpc_3gpp_dec_sink__oraddr    ) ,
@@ -90,6 +94,8 @@
     //
     .odecfail  ( ldpc_3gpp_dec_sink__odecfail  ) ,
     .oerr      ( ldpc_3gpp_dec_sink__oerr      ) ,
+    .obitnum   ( ldpc_3gpp_dec_sink__obitnum   ) ,
+    .oNiter    ( ldpc_3gpp_dec_sink__oNiter    ) ,
     //
     .ohd_start ( ldpc_3gpp_dec_sink__ohd_start ) ,
     .ohd_punct ( ldpc_3gpp_dec_sink__ohd_punct ) ,
@@ -106,6 +112,7 @@
   assign ldpc_3gpp_dec_sink__irtag      = '0 ;
   assign ldpc_3gpp_dec_sink__irdecfail  = '0 ;
   assign ldpc_3gpp_dec_sink__irerr      = '0 ;
+  assign ldpc_3gpp_dec_sink__irNiter    = '0 ;
   assign ldpc_3gpp_dec_sink__ireq       = '0 ;
 
 
@@ -135,6 +142,7 @@ module ldpc_3gpp_dec_sink
   //
   irerr     ,
   irdecfail ,
+  irNiter   ,
   //
   orempty   ,
   oraddr    ,
@@ -150,6 +158,8 @@ module ldpc_3gpp_dec_sink
   //
   odecfail  ,
   oerr      ,
+  obitnum   ,
+  oNiter    ,
   //
   ohd_start ,
   ohd_punct ,
@@ -184,6 +194,7 @@ module ldpc_3gpp_dec_sink
   //
   input  logic                    irdecfail           ;
   input  logic     [pERR_W-1 : 0] irerr               ;
+  input  logic            [7 : 0] irNiter             ;
   //
   output logic                    orempty             ;
   output logic    [pADDR_W-1 : 0] oraddr              ;
@@ -199,6 +210,8 @@ module ldpc_3gpp_dec_sink
   //
   output logic                    odecfail            ;
   output logic     [pERR_W-1 : 0] oerr                ;
+  output logic     [pERR_W-1 : 0] obitnum             ; // the number of bits used for error counting
+  output logic            [7 : 0] oNiter              ;
   //
   output logic                    ohd_start           ;
   output logic                    ohd_punct           ;
@@ -208,7 +221,7 @@ module ldpc_3gpp_dec_sink
   //
   //------------------------------------------------------------------------------------------------------
 
-  localparam int cSEL_W         = clogb2(pDAT_NUM);
+  localparam int cSEL_W         = $clog2(pDAT_NUM);
 
   localparam int cCOL_IN_BLOCK  = ceil(cGR_SYST_BIT_COL[pIDX_GR], pDAT_NUM);
 
@@ -374,6 +387,8 @@ module ldpc_3gpp_dec_sink
         otag      <= irtag;
         odecfail  <= irdecfail;
         oerr      <= irerr;
+        oNiter    <= irNiter;
+        obitnum   <= cMAIN_CODE_BIT_TAB[icode_ctx.idxGr][icode_ctx.idxLs][icode_ctx.idxZc][icode_ctx.do_punct];
       end
       // 2 tick output ram read latency
       rsel[0] <= bsel;

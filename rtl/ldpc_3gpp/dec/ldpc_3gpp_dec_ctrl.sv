@@ -4,7 +4,6 @@
 
   parameter int pLLR_BY_CYCLE =  1 ;
   parameter int pROW_BY_CYCLE =  8 ;
-  parameter bit pUSE_DBYPASS  =  0 ;
 
 
 
@@ -29,6 +28,7 @@
   //
   logic            ldpc_3gpp_dec_ctrl__oload_mode     ;
   logic            ldpc_3gpp_dec_ctrl__oc_nv_mode     ;
+  logic            ldpc_3gpp_dec_ctrl__obypass        ;
   //
   logic            ldpc_3gpp_dec_ctrl__oread          ;
   logic            ldpc_3gpp_dec_ctrl__orstart        ;
@@ -37,14 +37,16 @@
   hb_row_t         ldpc_3gpp_dec_ctrl__orrow          ;
   //
   logic            ldpc_3gpp_dec_ctrl__olast_iter     ;
+  //
+  logic    [7 : 0] ldpc_3gpp_dec_ctrl__ouNiter        ;
+  logic            ldpc_3gpp_dec_ctrl__obusy          ;
 
 
 
   ldpc_3gpp_dec_ctrl
   #(
     .pLLR_BY_CYCLE ( pLLR_BY_CYCLE ) ,
-    .pROW_BY_CYCLE ( pROW_BY_CYCLE ) ,
-    .pUSE_DBYPASS  ( pUSE_DBYPASS  )
+    .pROW_BY_CYCLE ( pROW_BY_CYCLE )
   )
   ldpc_3gpp_dec_ctrl
   (
@@ -69,6 +71,7 @@
     //
     .oload_mode     ( ldpc_3gpp_dec_ctrl__oload_mode     ) ,
     .oc_nv_mode     ( ldpc_3gpp_dec_ctrl__oc_nv_mode     ) ,
+    .obypass        ( ldpc_3gpp_dec_ctrl__obypass        ) ,
     //
     .oread          ( ldpc_3gpp_dec_ctrl__oread          ) ,
     .orstart        ( ldpc_3gpp_dec_ctrl__orstart        ) ,
@@ -76,7 +79,10 @@
     .orstrb         ( ldpc_3gpp_dec_ctrl__orstrb         ) ,
     .orrow          ( ldpc_3gpp_dec_ctrl__orrow          ) ,
     //
-    .olast_iter     ( ldpc_3gpp_dec_ctrl__olast_iter     )
+    .olast_iter     ( ldpc_3gpp_dec_ctrl__olast_iter     ) ,
+    //
+    .ouNiter        ( ldpc_3gpp_dec_ctrl__ouNiter        ) ,
+    .obusy          ( ldpc_3gpp_dec_ctrl__obusy          )
   );
 
 
@@ -104,8 +110,6 @@
 // Description   : Main FSM. Generate address generator & vnode/cnode engines control signals
 //
 
-`include "define.vh"
-
 module ldpc_3gpp_dec_ctrl
 (
   iclk           ,
@@ -130,6 +134,7 @@ module ldpc_3gpp_dec_ctrl
   //
   oload_mode     ,
   oc_nv_mode     ,
+  obypass        ,
   //
   oread          ,
   orstart        ,
@@ -137,10 +142,11 @@ module ldpc_3gpp_dec_ctrl
   orstrb         ,
   orrow          ,
   //
-  olast_iter
+  olast_iter     ,
+  //
+  ouNiter        ,
+  obusy
 );
-
-  parameter bit pUSE_DBYPASS  = 0;  // use no decoding(bypass) mode if Niter == 0
 
   `include "../ldpc_3gpp_constants.svh"
   `include "ldpc_3gpp_dec_types.svh"
@@ -170,8 +176,9 @@ module ldpc_3gpp_dec_ctrl
   input  logic            icnode_busy    ;
   input  logic            icnode_decfail ;
   //
-  output logic            oload_mode     ;
+  output logic            oload_mode     ;  // first iteration
   output logic            oc_nv_mode     ;
+  output logic            obypass        ;  // iNiter == 0
   //
   output logic            oread          ;
   output logic            orstart        ;
@@ -180,6 +187,9 @@ module ldpc_3gpp_dec_ctrl
   output hb_row_t         orrow          ;
   //
   output logic            olast_iter     ;
+  //
+  output logic    [7 : 0] ouNiter        ;
+  output logic            obusy          ;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -252,6 +262,8 @@ module ldpc_3gpp_dec_ctrl
     end
   end
 
+  wire do_bypass    = (iNiter == 0);
+
   wire outbuf_nrdy  = iter.last & !iobuf_empty;
   wire do_last      = iter.last | fast_stop;
 
@@ -262,7 +274,7 @@ module ldpc_3gpp_dec_ctrl
     case (state)
       cRESET_STATE      : next_state = cWAIT_STATE;
       //
-      cWAIT_STATE       : next_state = ibuf_full    ? (pUSE_DBYPASS ? cWAIT_O_STATE : cVSTEP_STATE) : cWAIT_STATE;
+      cWAIT_STATE       : next_state = ibuf_full    ? (do_bypass ? cWAIT_O_STATE : cVSTEP_STATE)    : cWAIT_STATE;
       //
       cVSTEP_STATE      : next_state = vstep_done   ? cWAIT_VDONE_STATE                             : cVSTEP_STATE;
       cWAIT_VDONE_STATE : next_state = !ivnode_busy ? (do_last ? cDONE_STATE : cHSTEP_STATE)        : cWAIT_VDONE_STATE;
@@ -278,6 +290,8 @@ module ldpc_3gpp_dec_ctrl
     endcase
   end
 
+  assign obusy = (state != cWAIT_STATE);
+
   //------------------------------------------------------------------------------------------------------
   // FSM counters
   //------------------------------------------------------------------------------------------------------
@@ -285,12 +299,12 @@ module ldpc_3gpp_dec_ctrl
   always_ff @(posedge iclk) begin
     if (iclkena) begin
       if (state == cWAIT_STATE) begin
-        iter.cnt    <= iNiter;
-        iter.last   <= pUSE_DBYPASS & (iNiter == 0);
+        iter.cnt  <= iNiter;
+        iter.last <= (iNiter == 0);
       end
       else if (state == cWAIT_VDONE_STATE & !ivnode_busy) begin
-        iter.cnt    <= iter.cnt - 1'b1;
-        iter.last   <= (iter.cnt == 1);
+        iter.cnt  <= iter.cnt - 1'b1;
+        iter.last <= (iter.cnt == 1);
       end
       //
       // at (state == cWAIT_STATE) & ibuf full iused_zc and iused_row is constant or hold more then 2 times
@@ -298,7 +312,7 @@ module ldpc_3gpp_dec_ctrl
       used_zc_less2   <= (iused_zc < 2);
       //
       used_row_m2     <= (iused_row - 2);
-      used_row_less2  <= (iused_row < 2);
+      used_row_less2  <= (iused_row < 2) | do_bypass; // need only one row for bypass
       //
       do_pause        <= 1'b0;
       do_hdone        <= 1'b0;
@@ -311,6 +325,10 @@ module ldpc_3gpp_dec_ctrl
           row_cnt       <= '0;
           row_cnt.zero  <= 1'b1;
           row_cnt.done  <= used_row_less2;
+          //
+          if (state == cWAIT_STATE) begin
+            ouNiter <= '0;
+          end
         end
         //
         // zc  -> row (get full horizontal line in one row)
@@ -326,6 +344,10 @@ module ldpc_3gpp_dec_ctrl
               row_cnt.value <= row_cnt.done   ? '0    : (row_cnt.value + 1'b1);
               row_cnt.done  <= used_row_less2 ? 1'b1  : (row_cnt.value == used_row_m2);
               row_cnt.zero  <= row_cnt.done;
+              //
+              if (row_cnt.done) begin
+                ouNiter <= ouNiter + 1'b1;
+              end
             end
           end
         end
@@ -353,13 +375,14 @@ module ldpc_3gpp_dec_ctrl
   always_ff @(posedge iclk) begin
     if (iclkena) begin
       if (state == cWAIT_STATE) begin
-        oload_mode  <= 1'b1;
+        oload_mode <= 1'b1;
+        obypass    <= do_bypass;
       end
       else if (state == cWAIT_VDONE_STATE & !ivnode_busy) begin
-        oload_mode  <= 1'b0;
+        oload_mode <= 1'b0;
       end
       //
-      oc_nv_mode   <= (state == cHSTEP_STATE) | (state == cWAIT_HDONE_STATE);
+      oc_nv_mode <= (state == cHSTEP_STATE) | (state == cWAIT_HDONE_STATE);
     end
   end
 
@@ -374,7 +397,7 @@ module ldpc_3gpp_dec_ctrl
     end
   end
 
-  assign orstart  = orstrb.sof;
+  assign orstart  = orstrb.sof & orstrb.sop;
 
   assign orval    = oread; // TODO : add support of pLLR_BY_CYCLE = 2/4/8
 
