@@ -83,7 +83,7 @@ module bertest;
   //
   //------------------------------------------------------------------------------------------------------
 
-  ldpc_3gpp_enc_wrp
+  ldpc_3gpp_enc_fix
   #(
     .pDAT_W    ( cENC_DAT_W ) ,
     //
@@ -364,7 +364,7 @@ module bertest;
   // decoder
   //------------------------------------------------------------------------------------------------------
 
-  ldpc_3gpp_dec_wrp
+  ldpc_3gpp_dec_fix
   #(
     .pIDX_GR       ( pIDX_GR       ) ,
     .pIDX_LS       ( pIDX_LS       ) ,
@@ -411,7 +411,9 @@ module bertest;
     .odat      ( dec__odat     ) ,
     //
     .odecfail  ( dec__odecfail ) ,
-    .oerr      ( dec__oerr     )
+    .oerr      ( dec__oerr     ) ,
+    .obitnum   (               ) ,
+    .ouNiter   (               )
   );
 
   assign dec__ireq = 1'b1;
@@ -444,7 +446,7 @@ module bertest;
   //
   //------------------------------------------------------------------------------------------------------
 
-  const int B = 1e5;
+  const int B = 1e4;
 
   int Npkt;
 

@@ -9,8 +9,8 @@ vlib $workdir
 #
 vlog -work $workdir -incr -sv +incdir+$incdir+$rtldir $rtldir/*.sv
 vlog -work $workdir -incr -sv +incdir+$incdir+$rtldir $rtldir/buffer/*.sv
+vlog -work $workdir -incr -sv +incdir+$incdir+$rtldir $rtldir/biterr_cnt/*.sv
 #
-vlog -work $workdir -incr -sv +incdir+$incdir+$rtldir/ldpc_3gpp $rtldir/ldpc_3gpp/*.sv
 vlog -work $workdir -incr -sv +incdir+$incdir+$rtldir/ldpc_3gpp/enc $rtldir/ldpc_3gpp/enc/*.sv
 vlog -work $workdir -incr -sv +incdir+$incdir+$rtldir/ldpc_3gpp/dec $rtldir/ldpc_3gpp/dec/*.sv
 
