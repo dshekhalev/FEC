@@ -134,10 +134,8 @@
 // Project       : ldpc 3gpp TS 38.212 v15.7.0
 // Author        : Shekhalev Denis (des00)
 // Workfile      : ldpc_3gpp_dec_source.sv
-// Description   : Input LLR saturaion and input buffer address generation module
+// Description   : Input LLR saturation and input buffer address generation module
 //
-
-`include "define.vh"
 
 module ldpc_3gpp_dec_source
 (
@@ -359,7 +357,7 @@ module ldpc_3gpp_dec_source
         // write parity mask
         if (isop) begin
           write_mask   <= used_do_punct ? 3'b100 : 1'b1;  // skip and clear first 2
-          write_clear  <= used_do_punct ?  2'b11 : 2'b00; //
+          write_clear  <= used_do_punct ?  2'b11 : 2'b00;
           write_pmask  <= '0;
           write_pclear <= '0;
         end

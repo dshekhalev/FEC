@@ -124,8 +124,6 @@
 //                 Ram read  cycle == used_zc
 //
 
-`include "define.vh"
-
 module ldpc_3gpp_dec_mms_dpram
 (
   iclk          ,

@@ -80,8 +80,6 @@
 //                 parity LLR mask read delay 4 tick (2 address generator + 2 ram)
 //
 
-`include "define.vh"
-
 module ldpc_3gpp_dec_LLR_addr_gen
 (
   iclk       ,

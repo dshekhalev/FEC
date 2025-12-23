@@ -130,8 +130,6 @@
 // Description   : node multidimentsion mem top level
 //
 
-`include "define.vh"
-
 module ldpc_3gpp_dec_mem
 (
   iclk             ,

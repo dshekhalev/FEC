@@ -54,8 +54,6 @@
 // Description   : LDPC decoder check node arithmetic engine for parallel partial search : read 2 vnodes and do simple search
 //
 
-`include "define.vh"
-
 module ldpc_3gpp_dec_cnode_p_2way_engine
 (
   iclk    ,
