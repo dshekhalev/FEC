@@ -68,8 +68,6 @@
 //
 // Project       : golay24
 // Author        : Shekhalev Denis (des00)
-// Revision      : $Revision$
-// Date          : $Date$
 // Workfile      : golay24_dec_sort_list_cell.sv
 // Description   : unsigned data sequential sort module engine. take 1 cycle to make decision
 //

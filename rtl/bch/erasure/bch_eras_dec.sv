@@ -76,8 +76,6 @@
 // Description   : bch decoder with erasure top module.
 //
 
-`include "define.vh"
-
 module bch_eras_dec
 (
   iclk     ,

@@ -51,7 +51,6 @@
 // Description   : viterbi Add-Compare Select Unit with module arithmetic
 //
 
-
 module vit_3by4_dec_acsu
 (
   iclk      ,

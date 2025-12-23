@@ -73,12 +73,9 @@
 //
 // Project       : golay24
 // Author        : Shekhalev Denis (des00)
-// Revision      : $Revision$
-// Date          : $Date$
 // Workfile      : golay24_dec_processing.sv
 // Description   : the processing pipeline : generate candidates -> hd decode -> count metric
 //
-
 
 module golay24_dec_processing
 (

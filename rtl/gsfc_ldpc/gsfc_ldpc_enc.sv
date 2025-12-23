@@ -76,7 +76,6 @@
 // Description   : LDPC encoder with fixed encoding parameters and variable word length 1/7/73/511.
 //
 
-
 module gsfc_ldpc_enc
 #(
   parameter int pDAT_W  = 7 ,

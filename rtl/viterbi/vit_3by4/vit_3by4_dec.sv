@@ -76,7 +76,6 @@
 // Description   : viteri 3/4 soft decoder top
 //
 
-
 module vit_3by4_dec
 (
   iclk    ,

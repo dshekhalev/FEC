@@ -81,7 +81,6 @@
 // Description   : viterbi traceback top unit
 //
 
-
 module vit_3by4_dec_trb
 (
   iclk        ,

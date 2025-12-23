@@ -77,7 +77,6 @@
 // Description   : viterbi recursive processor
 //
 
-
 module vit_dec_rp
 (
   iclk      ,

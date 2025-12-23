@@ -66,13 +66,10 @@
 //
 // Project       : golay24
 // Author        : Shekhalev Denis (des00)
-// Revision      : $Revision$
-// Date          : $Date$
 // Workfile      : golay24_dec_source.sv
 // Description   : golay soft decoder source unit: saturate input LLRs, count channel metric
-//                  detect lease reliable LLR indexes for candidate generation
+//                  detect least reliable LLR indexes for candidate generation
 //
-
 
 module golay24_dec_source
 (
@@ -204,7 +201,7 @@ module golay24_dec_source
   end
 
   //------------------------------------------------------------------------------------------------------
-  // looking for lease relaible symbols
+  // looking for least relaible symbols
   //------------------------------------------------------------------------------------------------------
 
   golay24_dec_sort_list

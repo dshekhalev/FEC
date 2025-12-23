@@ -64,8 +64,6 @@
 //                 module use only 2 GF(2^m) mult modules
 //
 
-`include "define.vh"
-
 module bch_eras_berlekamp_ribm_t_by_t
 (
   iclk          ,
@@ -113,8 +111,8 @@ module bch_eras_berlekamp_ribm_t_by_t
   data_t sigma;
   data_t kv;
 
-  localparam int cCNT_W   = clogb2(t + 1);
-  localparam int cTCNT_W  = clogb2(t2 + 1);
+  localparam int cCNT_W   = $clog2(t + 1);
+  localparam int cTCNT_W  = $clog2(t2 + 1);
 
   logic [cCNT_W-1 : 0]  cnt;
   logic                 cnt_done;

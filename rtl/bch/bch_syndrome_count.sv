@@ -72,7 +72,6 @@
 // Description   : bch syndrome count module
 //
 
-
 module bch_syndrome_count
 (
   iclk          ,

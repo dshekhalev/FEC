@@ -80,7 +80,6 @@
 // Description   : LDPC decoder check node arithmetic top module: read vnode and count cnode. Consist of pC*pLLR_BY_CYCLE engines.
 //
 
-
 module gsfc_ldpc_dec_cnode
 (
   iclk      ,

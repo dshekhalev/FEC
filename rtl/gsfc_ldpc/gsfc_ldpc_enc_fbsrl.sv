@@ -52,7 +52,6 @@
 // Description   : The feedback shift register used for LDPC matrix generation, with fixed encoding parameters and variable word length 7/73/511.
 //
 
-
 module gsfc_ldpc_enc_fbsrl
 #(
   parameter int pDAT_W  = 7 ,

@@ -71,7 +71,6 @@
 // Description   : viterbi branch soft metric calculator
 //
 
-
 module vit_3by4_dec_bmc
 (
   iclk    ,

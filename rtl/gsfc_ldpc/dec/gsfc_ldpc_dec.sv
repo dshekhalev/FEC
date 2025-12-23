@@ -92,7 +92,6 @@
 //                 The decoded systematic bits go output during decoding on fly with error counting. Only systematic bit error is take into acount(!!!). The actual oerr value is valid at oeop tag.
 //
 
-
 module gsfc_ldpc_dec
 (
   iclk     ,

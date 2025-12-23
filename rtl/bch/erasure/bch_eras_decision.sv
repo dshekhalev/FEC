@@ -93,7 +93,6 @@
 // Description   : bch erasure decision module
 //
 
-
 module bch_eras_decision
 (
   iclk             ,

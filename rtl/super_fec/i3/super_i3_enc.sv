@@ -124,7 +124,7 @@ module super_i3_enc
   genvar g;
 
   generate
-    for (g = 0; g < 8; g++) begin
+    for (g = 0; g < 8; g++) begin : enc_inst_gen
       super_i3_bch_outer_enc
       outer_enc
       (

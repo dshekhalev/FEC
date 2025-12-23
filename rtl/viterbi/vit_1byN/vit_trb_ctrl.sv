@@ -108,7 +108,6 @@
 //                 there is no any decision unit. It's not need at all
 //
 
-
 module vit_trb_ctrl
 (
   iclk            ,

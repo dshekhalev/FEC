@@ -91,7 +91,6 @@
 //                 up to 2 commnad in command queue support
 //
 
-
 module vit_3by4_dec_trb_engine
 (
   iclk          ,

@@ -63,12 +63,9 @@
 //
 // Project       : golay24
 // Author        : Shekhalev Denis (des00)
-// Revision      : $Revision$
-// Date          : $Date$
 // Workfile      : golay24_dec_candidate_gen.sv
 // Description   : unit to calcualce candidate metric
 //
-
 
 module golay24_dec_metric_calc
 (

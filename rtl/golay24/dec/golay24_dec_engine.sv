@@ -53,12 +53,9 @@
 //
 // Project       : golay24
 // Author        : Shekhalev Denis (des00)
-// Revision      : $Revision$
-// Date          : $Date$
 // Workfile      : golay24_dec_engine.sv
 // Description   : hd LUT based decoder
 //
-
 
 module golay24_dec_engine
 (

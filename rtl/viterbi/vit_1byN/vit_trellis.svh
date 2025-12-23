@@ -95,9 +95,10 @@
   // function's to get trellis
   //------------------------------------------------------------------------------------------------------
 
-  function trellis_t get_trellis (input int tmp);
+  function automatic trellis_t get_trellis (input int tmp);
     stateb_t    nstate;
     boutputs_t  outputs;
+    trellis_t   result;
   begin
     for (int b = 0; b < 2; b++) begin
       for (int state = 0; state < cSTATE_NUM; state++) begin
@@ -107,10 +108,11 @@
           outputs[ob] = ^({b[0], state[cSTATE_W-1 : 0]} & pCODE_GEN[ob][cSTATE_W : 0]);
         end
         //
-        get_trellis.nextStates [state][b] = nstate;
-        get_trellis.outputs    [state][b] = outputs;
+        result.nextStates [state][b] = nstate;
+        result.outputs    [state][b] = outputs;
       end
     end
+    return result;
   end
   endfunction
 

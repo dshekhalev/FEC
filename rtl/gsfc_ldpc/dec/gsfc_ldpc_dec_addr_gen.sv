@@ -74,7 +74,6 @@
 // Description   : LDPC decoder shift ram read address generator
 //
 
-
 module gsfc_ldpc_dec_addr_gen
 (
   iclk       ,

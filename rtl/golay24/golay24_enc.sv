@@ -50,12 +50,9 @@
 //
 // Project       : golay24
 // Author        : Shekhalev Denis (des00)
-// Revision      : $Revision$
-// Date          : $Date$
 // Workfile      : golay24_enc.sv
 // Description   : golay extened code {24, 12, 8} encoder. g(x) = x^11 + x^10 + x^6 + x^5 + x^4 + x^2 + 1 (12'hC75)
 //
-
 
 module golay24_enc
 #(

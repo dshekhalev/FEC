@@ -88,7 +88,6 @@
 //                 The termination bits cut off from output data automatically
 //
 
-
 module vit_dec
 (
   iclk    ,

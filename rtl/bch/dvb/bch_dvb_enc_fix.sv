@@ -75,7 +75,6 @@
 // Description   : bch DVB-S2/S2x encoder wrapper
 //
 
-
 module bch_dvb_enc_fix
 (
   iclk    ,

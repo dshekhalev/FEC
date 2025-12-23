@@ -77,7 +77,6 @@
 // Description   : viterbi branch hard/soft metric calculator
 //
 
-
 module vit_dec_bmc
 (
   iclk    ,

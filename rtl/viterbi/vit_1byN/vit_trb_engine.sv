@@ -105,7 +105,6 @@
 //                 up to 2 commnad in command queue support
 //
 
-
 module vit_trb_engine
 (
   iclk        ,

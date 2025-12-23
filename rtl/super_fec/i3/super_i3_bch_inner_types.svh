@@ -1,3 +1,9 @@
+//
+// Project       : super fec (G.975.1)
+// Author        : Shekhalev Denis (des00)
+// Workfile      : super_i3_bch_inner_types.svh
+// Description   : I.3 outer BCH (2040,1930) decoder parameters
+//
 
   //------------------------------------------------------------------------------------------------------
   // GF
@@ -19,7 +25,7 @@
   localparam int cK_MAX   = 2**cM - 1 - (cN - cK) ;
 
   //------------------------------------------------------------------------------------------------------
-  // data bitwidrh per engine
+  // data bitwidth per engine
   //------------------------------------------------------------------------------------------------------
 
   localparam int cDAT_W   =  8;

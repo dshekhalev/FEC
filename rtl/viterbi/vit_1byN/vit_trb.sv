@@ -85,7 +85,6 @@
 // Description   : viterbi traceback top unit
 //
 
-
 module vit_trb
 (
   iclk      ,

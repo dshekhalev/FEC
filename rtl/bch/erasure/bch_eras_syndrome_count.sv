@@ -77,7 +77,6 @@
 // Description   : bch erasure syndrome count module
 //
 
-
 module bch_eras_syndrome_count
 (
   iclk          ,

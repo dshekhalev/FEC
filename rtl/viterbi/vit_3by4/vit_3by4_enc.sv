@@ -60,7 +60,7 @@
 // Project       : viterbi 3by4
 // Author        : Shekhalev Denis (des00)
 // Workfile      : vit_3by4_enc.sv
-// Description   :
+// Description   : viteri 3/4 encoder
 //
 
 module vit_3by4_enc

@@ -55,8 +55,6 @@
 //
 // Project       : golay24
 // Author        : Shekhalev Denis (des00)
-// Revision      : $Revision$
-// Date          : $Date$
 // Workfile      : golay24_dec_sort_list.sv
 // Description   : unsigned data sequential ascending sort top module. take 1 cycle to make decision
 //

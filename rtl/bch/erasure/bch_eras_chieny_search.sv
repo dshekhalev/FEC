@@ -89,7 +89,6 @@
 // Description   : bch erasure chieny search algorithm module
 //
 
-
 module bch_eras_chieny_search
 (
   iclk          ,

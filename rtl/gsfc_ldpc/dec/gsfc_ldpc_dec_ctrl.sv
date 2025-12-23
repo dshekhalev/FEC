@@ -96,7 +96,6 @@
 // Description   : Main FSM. Generate address generator & vnode/cnode engines control signals
 //
 
-
 module gsfc_ldpc_dec_ctrl
 (
   iclk           ,

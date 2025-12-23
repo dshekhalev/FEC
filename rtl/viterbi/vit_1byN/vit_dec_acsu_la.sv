@@ -57,7 +57,6 @@
 // Description   : viterbi Add-Compare Select Unit with module arithmetic and state look ahead technique (it can increase clock rate on some FPGA)
 //
 
-
 module vit_dec_acsu_la
 (
   iclk      ,

@@ -92,7 +92,6 @@
 //                 use previous traceback state logic to get traceback initial state immediate
 //
 
-
 module vit_3by4_dec_trb_ctrl
 (
   iclk            ,

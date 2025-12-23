@@ -1,3 +1,9 @@
+//
+// Project       : super fec (G.975.1)
+// Author        : Shekhalev Denis (des00)
+// Workfile      : super_i3_bch_inner_types.svh
+// Description   : I.3 outer BCH (3860,3824) decoder parameters
+//
 
   //------------------------------------------------------------------------------------------------------
   // GF
@@ -19,7 +25,7 @@
   localparam int cK_MAX   = 2**cM - 1 - (cN - cK) ;
 
   //------------------------------------------------------------------------------------------------------
-  // data bitwidrh per engine
+  // data bitwidth per engine
   //------------------------------------------------------------------------------------------------------
 
   localparam int cDAT_W   = 16;
@@ -30,7 +36,7 @@
   //------------------------------------------------------------------------------------------------------
 
   localparam int cEOP_EDGE   = 3824/16;     // 239 words
-  localparam int cEOF_EDGE   = 3860/16 + 1; // 241.25 words (+36 pbits  = 2.25 pbits)
+  localparam int cEOF_EDGE   = 3860/16 + 1; // 241.25 words (+36 pbits  = 2.25 words)
 
   localparam int cFRAME_SIZE = 255;         // 255 words for bypass inner check bits
 

@@ -71,7 +71,6 @@
 //                 amount of data by weigth factor
 //
 
-
 module gsfc_ldpc_dec_cnode_pre_engine
 (
   iclk    ,

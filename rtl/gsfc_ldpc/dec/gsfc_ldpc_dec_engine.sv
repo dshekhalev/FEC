@@ -109,7 +109,6 @@
 //                 The decoded systematic or parity bits go output during decoding on fly with error counting. The actual oerr value is valid at oeop tag.
 //
 
-
 module gsfc_ldpc_dec_engine
 (
   iclk     ,

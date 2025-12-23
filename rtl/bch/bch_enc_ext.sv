@@ -72,7 +72,6 @@
 // Description   : extended bch encoder top module. last bit is even bit
 //
 
-
 module bch_enc_ext
 (
   iclk   ,

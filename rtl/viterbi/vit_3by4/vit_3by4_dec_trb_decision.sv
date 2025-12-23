@@ -47,7 +47,6 @@
 // Description   : trellis path decision tree for module arithmetic
 //
 
-
 module vit_3by4_dec_trb_decision
 (
   iclk    ,

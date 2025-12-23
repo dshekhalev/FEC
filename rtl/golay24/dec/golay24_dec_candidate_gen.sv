@@ -52,12 +52,9 @@
 //
 // Project       : golay24
 // Author        : Shekhalev Denis (des00)
-// Revision      : $Revision$
-// Date          : $Date$
 // Workfile      : golay24_dec_candidate_gen.sv
 // Description   : unit to generare candidates based upon channel hard decision and less reliable LLR indexes
 //
-
 
 module golay24_dec_candidate_gen
 #(
@@ -161,21 +158,21 @@ module golay24_dec_candidate_gen
   endfunction
 
   function automatic dat_t get_errors_mask (input idx_t idx [pIDX_NUM]);
-    get_errors_mask = 0;
+    get_errors_mask = '0;
     for (int i = 0; i < pIDX_NUM; i++) begin
       get_errors_mask = get_errors_mask | get_error_mask(idx[i]);
     end
   endfunction
 
   function automatic dat_t assemble_error_mask (input dat_t error_mask [pIDX_NUM]);
-    assemble_error_mask = 0;
+    assemble_error_mask = '0;
     for (int i = 0; i < pIDX_NUM; i++) begin
       assemble_error_mask = assemble_error_mask | error_mask[i];
     end
   endfunction
 
   function automatic dat_t assemble_error_vector (input dat_t error_mask [pIDX_NUM], cnt_t cnt);
-    assemble_error_vector = 0;
+    assemble_error_vector = '0;
     for (int i = 0; i < pIDX_NUM; i++) begin
       if (cnt[i]) begin
         assemble_error_vector = assemble_error_vector | error_mask[i];

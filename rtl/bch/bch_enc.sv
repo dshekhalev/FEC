@@ -72,7 +72,6 @@
 // Description   : bch encoder top module
 //
 
-
 module bch_enc
 (
   iclk   ,

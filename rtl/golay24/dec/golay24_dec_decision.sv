@@ -69,12 +69,9 @@
 //
 // Project       : golay24
 // Author        : Shekhalev Denis (des00)
-// Revision      : $Revision$
-// Date          : $Date$
 // Workfile      : golay24_dec_decision.sv
 // Description   : ML sequential search unit: count candidate metric euclidean distance to channel metric and select candidate with mininum distance
 //
-
 
 module golay24_dec_decision
 (
