@@ -11,8 +11,8 @@
 
   // arithmetic bitwidth
   parameter int pLLR_W        = 4;            // <= 8
+  parameter int pNODE_SCALE_W = 0;            // fixed point increasing >= 0. 1 is optimal for performance/resources
   parameter int pNODE_W       = pLLR_W  + 2;  // extend internal node bitwidth
-  parameter int pNODE_ACC_W   = pNODE_W + 1;  // extend internal node accumularo bitwidth for layered/hybrid decoder
 
   // parallelization settings
 //parameter int pROW_BY_CYCLE = 1;  // amount of rows per cycle. only 1 support now
@@ -24,14 +24,23 @@
                                       // for pLLR_W == 4 pNORM_OFFSET don't work (!!!)
 
   //------------------------------------------------------------------------------------------------------
+  // parameter to do any engines optimizaions, don't modify here (!!!!)
+  //------------------------------------------------------------------------------------------------------
+
+  parameter int pCNODE_W      = pNODE_W; // don't modify here (!!!!)
+
+  //------------------------------------------------------------------------------------------------------
   // used data types
   //------------------------------------------------------------------------------------------------------
 
-  typedef logic signed  [pLLR_W-1 : 0] llr_t;
-  typedef llr_t                        zllr_t  [cZC_MAX];
+  typedef logic signed   [pLLR_W-1 : 0] llr_t;
+  typedef llr_t                         zllr_t    [cZC_MAX];
 
-  typedef logic signed [pNODE_W-1 : 0] node_t;
-  typedef node_t                       znode_t [cZC_MAX];
+  typedef logic signed  [pNODE_W-1 : 0] node_t;
+  typedef node_t                        znode_t   [cZC_MAX];
+
+  typedef logic signed [pCNODE_W-1 : 0] cnode_t;
+  typedef cnode_t                       zcnode_t  [cZC_MAX];
 
   // control strobes type
   typedef struct packed {
@@ -94,21 +103,22 @@
   //
   // function to get optimal input buffer LLR num to save resources of source unit & ram
   //
-  function automatic int get_buffer_llr_num (input int llr_w, llr_num);
+  function automatic int get_buffer_llr_num (input int llr_w, llr_num, bit do_transponse = 0);
   begin
     get_buffer_llr_num = llr_num;
     // make common for all llr_w. do optimization in future
     case (llr_num)
-      1,   2,  4, 8 : get_buffer_llr_num = 8;
-      3,   6,  9    : get_buffer_llr_num = 9;
-      5,  10        : get_buffer_llr_num = 10;
-      12, 18, 36    : get_buffer_llr_num = 36;
-      15, 30        : get_buffer_llr_num = 30;
-//    20, 40        : get_buffer_llr_num = 40;
-//    24,  72       : get_buffer_llr_num = 72;
-//    45, 90        : get_buffer_llr_num = 90;
-//    60, 180       : get_buffer_llr_num = 180;
-//    120, 360      : get_buffer_llr_num = 360;
+       1,    2,  4, 8 : get_buffer_llr_num = 8;
+       3,    9        : get_buffer_llr_num = 9;
+       5,   10        : get_buffer_llr_num = 10;
+       6,   12        : get_buffer_llr_num = 12;
+//     15,  30        : get_buffer_llr_num = 30;
+//     18,  36        : get_buffer_llr_num = 36;
+//     20,  40        : get_buffer_llr_num = 40;
+//     24,  72        : get_buffer_llr_num = 72;
+//     45,  90        : get_buffer_llr_num = 90;
+//     60, 180        : get_buffer_llr_num = 180;
+//    120, 360        : get_buffer_llr_num = 360;
     endcase
   end
   endfunction

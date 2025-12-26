@@ -12,7 +12,8 @@
   //
   parameter int pERR_W            = 16 ;
   //
-  parameter bit pCODEGR           =  1 ;
+  parameter int pCODEGR           =  1 ;
+  parameter int pCODERATE         =  1 ;
   parameter bit pXMODE            =  0 ;
   //
   parameter int pNORM_FACTOR      =  7 ;
@@ -21,46 +22,43 @@
   parameter bit pDO_LLR_INVERSION =  1 ;
   parameter bit pUSE_SRL_FIFO     =  1 ;
   parameter bit pUSE_SC_MODE      =  1 ;
-  //
-  parameter bit pFIX_MODE         =  1 ;
 
 
 
-  logic                            ldpc_dvb_dec_2d_engine__iclk         ;
-  logic                            ldpc_dvb_dec_2d_engine__ireset       ;
-  logic                            ldpc_dvb_dec_2d_engine__iclkena      ;
+  logic                   ldpc_dvb_dec_2d_engine_fix__iclk         ;
+  logic                   ldpc_dvb_dec_2d_engine_fix__ireset       ;
+  logic                   ldpc_dvb_dec_2d_engine_fix__iclkena      ;
   //
-  logic                            ldpc_dvb_dec_2d_engine__irbuf_full   ;
-  code_ctx_t                       ldpc_dvb_dec_2d_engine__icode_ctx    ;
-  logic                    [7 : 0] ldpc_dvb_dec_2d_engine__iNiter       ;
-  logic                            ldpc_dvb_dec_2d_engine__ifmode       ;
+  logic                   ldpc_dvb_dec_2d_engine_fix__irbuf_full   ;
+  logic           [7 : 0] ldpc_dvb_dec_2d_engine_fix__iNiter       ;
+  logic                   ldpc_dvb_dec_2d_engine_fix__ifmode       ;
   //
-  logic             [pTAG_W-1 : 0] ldpc_dvb_dec_2d_engine__irtag        ;
-  zllr_t                           ldpc_dvb_dec_2d_engine__irLLR        ;
-  logic           [pRADDR_W-1 : 0] ldpc_dvb_dec_2d_engine__oraddr       ;
-  logic                            ldpc_dvb_dec_2d_engine__orempty      ;
+  logic    [pTAG_W-1 : 0] ldpc_dvb_dec_2d_engine_fix__irtag        ;
+  zllr_t                  ldpc_dvb_dec_2d_engine_fix__irLLR        ;
+  logic  [pRADDR_W-1 : 0] ldpc_dvb_dec_2d_engine_fix__oraddr       ;
+  logic                   ldpc_dvb_dec_2d_engine_fix__orempty      ;
   //
-  logic                            ldpc_dvb_dec_2d_engine__iwbuf_empty  ;
+  logic                   ldpc_dvb_dec_2d_engine_fix__iwbuf_empty  ;
   //
-  logic           [pWADDR_W-1 : 0] ldpc_dvb_dec_2d_engine__owcol        ;
-  logic           [pWADDR_W-1 : 0] ldpc_dvb_dec_2d_engine__owdata_col   ;
-  logic           [pWADDR_W-1 : 0] ldpc_dvb_dec_2d_engine__owrow        ;
+  col_t                   ldpc_dvb_dec_2d_engine_fix__owcol        ;
+  col_t                   ldpc_dvb_dec_2d_engine_fix__owdata_col   ;
+  row_t                   ldpc_dvb_dec_2d_engine_fix__owrow        ;
   //
-  logic                            ldpc_dvb_dec_2d_engine__owrite       ;
-  logic                            ldpc_dvb_dec_2d_engine__owfull       ;
-  logic           [pWADDR_W-1 : 0] ldpc_dvb_dec_2d_engine__owaddr       ;
-  zdat_t                           ldpc_dvb_dec_2d_engine__owdat        ;
-  logic             [pTAG_W-1 : 0] ldpc_dvb_dec_2d_engine__owtag        ;
+  logic                   ldpc_dvb_dec_2d_engine_fix__owrite       ;
+  logic                   ldpc_dvb_dec_2d_engine_fix__owfull       ;
+  logic  [pWADDR_W-1 : 0] ldpc_dvb_dec_2d_engine_fix__owaddr       ;
+  zdat_t                  ldpc_dvb_dec_2d_engine_fix__owdat        ;
+  logic    [pTAG_W-1 : 0] ldpc_dvb_dec_2d_engine_fix__owtag        ;
   //
-  logic                            ldpc_dvb_dec_2d_engine__owdecfail    ;
-  logic             [pERR_W-1 : 0] ldpc_dvb_dec_2d_engine__owerr        ;
+  logic                   ldpc_dvb_dec_2d_engine_fix__owdecfail    ;
+  logic    [pERR_W-1 : 0] ldpc_dvb_dec_2d_engine_fix__owerr        ;
+  logic           [7 : 0] ldpc_dvb_dec_2d_engine_fix__owNiter      ;
   //
-  logic                            ldpc_dvb_dec_2d_engine__ouNiter_val  ;
-  logic                    [7 : 0] ldpc_dvb_dec_2d_engine__ouNiter      ;
+  logic                   ldpc_dvb_dec_2d_engine_fix__obusy        ;
 
 
 
-  ldpc_dvb_dec_2d_engine
+  ldpc_dvb_dec_2d_engine_fix
   #(
     .pLLR_W            ( pLLR_W            ) ,
     .pNODE_W           ( pNODE_W           ) ,
@@ -73,84 +71,79 @@
     .pERR_W            ( pERR_W            ) ,
     //
     .pCODEGR           ( pCODEGR           ) ,
+    .pCODERATE         ( pCODERATE         ) ,
     .pXMODE            ( pXMODE            ) ,
+    //
     .pNORM_FACTOR      ( pNORM_FACTOR      ) ,
     .pNORM_OFFSET      ( pNORM_OFFSET      ) ,
     //
     .pDO_LLR_INVERSION ( pDO_LLR_INVERSION ) ,
     .pUSE_SRL_FIFO     ( pUSE_SRL_FIFO     ) ,
-    .pUSE_SC_MODE      ( pUSE_SC_MODE      ) ,
-    //
-    .pFIX_MODE         ( pFIX_MODE         )
+    .pUSE_SC_MODE      ( pUSE_SC_MODE      )
   )
-  ldpc_dvb_dec_2d_engine
+  ldpc_dvb_dec_2d_engine_fix
   (
-    .iclk        ( ldpc_dvb_dec_2d_engine__iclk        ) ,
-    .ireset      ( ldpc_dvb_dec_2d_engine__ireset      ) ,
-    .iclkena     ( ldpc_dvb_dec_2d_engine__iclkena     ) ,
+    .iclk        ( ldpc_dvb_dec_2d_engine_fix__iclk        ) ,
+    .ireset      ( ldpc_dvb_dec_2d_engine_fix__ireset      ) ,
+    .iclkena     ( ldpc_dvb_dec_2d_engine_fix__iclkena     ) ,
     //
-    .irbuf_full  ( ldpc_dvb_dec_2d_engine__irbuf_full  ) ,
-    .icode_ctx   ( ldpc_dvb_dec_2d_engine__icode_ctx   ) ,
-    .iNiter      ( ldpc_dvb_dec_2d_engine__iNiter      ) ,
-    .ifmode      ( ldpc_dvb_dec_2d_engine__ifmode      ) ,
+    .irbuf_full  ( ldpc_dvb_dec_2d_engine_fix__irbuf_full  ) ,
+    .iNiter      ( ldpc_dvb_dec_2d_engine_fix__iNiter      ) ,
+    .ifmode      ( ldpc_dvb_dec_2d_engine_fix__ifmode      ) ,
     //
-    .irtag       ( ldpc_dvb_dec_2d_engine__itag        ) ,
-    .irLLR       ( ldpc_dvb_dec_2d_engine__iLLR        ) ,
-    .orempty     ( ldpc_dvb_dec_2d_engine__orempty     ) ,
-    .oraddr      ( ldpc_dvb_dec_2d_engine__oraddr      ) ,
+    .irtag       ( ldpc_dvb_dec_2d_engine_fix__itag        ) ,
+    .irLLR       ( ldpc_dvb_dec_2d_engine_fix__iLLR        ) ,
+    .orempty     ( ldpc_dvb_dec_2d_engine_fix__orempty     ) ,
+    .oraddr      ( ldpc_dvb_dec_2d_engine_fix__oraddr      ) ,
     //
-    .iwbuf_empty ( ldpc_dvb_dec_2d_engine__iwbuf_empty ) ,
+    .iwbuf_empty ( ldpc_dvb_dec_2d_engine_fix__iwbuf_empty ) ,
     //
-    .owcol       ( ldpc_dvb_dec_2d_engine__owcol       ) ,
-    .owdata_col  ( ldpc_dvb_dec_2d_engine__owdata_col  ) ,
-    .owrow       ( ldpc_dvb_dec_2d_engine__owrow       ) ,
+    .owcol       ( ldpc_dvb_dec_2d_engine_fix__owcol       ) ,
+    .owdata_col  ( ldpc_dvb_dec_2d_engine_fix__owdata_col  ) ,
+    .owrow       ( ldpc_dvb_dec_2d_engine_fix__owrow       ) ,
     //
-    .owrite      ( ldpc_dvb_dec_2d_engine__owrite      ) ,
-    .owfull      ( ldpc_dvb_dec_2d_engine__owfull      ) ,
-    .owaddr      ( ldpc_dvb_dec_2d_engine__owaddr      ) ,
-    .owdat       ( ldpc_dvb_dec_2d_engine__owdat       ) ,
-    .owtag       ( ldpc_dvb_dec_2d_engine__owtag       ) ,
+    .owrite      ( ldpc_dvb_dec_2d_engine_fix__owrite      ) ,
+    .owfull      ( ldpc_dvb_dec_2d_engine_fix__owfull      ) ,
+    .owaddr      ( ldpc_dvb_dec_2d_engine_fix__owaddr      ) ,
+    .owdat       ( ldpc_dvb_dec_2d_engine_fix__owdat       ) ,
+    .owtag       ( ldpc_dvb_dec_2d_engine_fix__owtag       ) ,
     //
-    .owdecfail   ( ldpc_dvb_dec_2d_engine__owdecfail   ) ,
-    .owerr       ( ldpc_dvb_dec_2d_engine__owerr       ) ,
+    .owdecfail   ( ldpc_dvb_dec_2d_engine_fix__owdecfail   ) ,
+    .owerr       ( ldpc_dvb_dec_2d_engine_fix__owerr       ) ,
+    .owNiter     ( ldpc_dvb_dec_2d_engine_fix__owNiter     ) ,
     //
-    .ouNiter_val ( ldpc_dvb_dec_2d_engine__ouNiter_val ) ,
-    .ouNiter     ( ldpc_dvb_dec_2d_engine__ouNiter     )
+    .obusy       ( ldpc_dvb_dec_2d_engine_fix__obusy       )
   );
 
 
-  assign ldpc_dvb_dec_2d_engine__iclk        = '0 ;
-  assign ldpc_dvb_dec_2d_engine__ireset      = '0 ;
-  assign ldpc_dvb_dec_2d_engine__iclkena     = '0 ;
-  assign ldpc_dvb_dec_2d_engine__irbuf_full  = '0 ;
-  assign ldpc_dvb_dec_2d_engine__ircode_ctx  = '0 ;
-  assign ldpc_dvb_dec_2d_engine__iNiter      = '0 ;
-  assign ldpc_dvb_dec_2d_engine__ifmode      = '0 ;
-  assign ldpc_dvb_dec_2d_engine__irtag       = '0 ;
-  assign ldpc_dvb_dec_2d_engine__irLLR       = '0 ;
-  assign ldpc_dvb_dec_2d_engine__iwbuf_empty = '0 ;
+  assign ldpc_dvb_dec_2d_engine_fix__iclk        = '0 ;
+  assign ldpc_dvb_dec_2d_engine_fix__ireset      = '0 ;
+  assign ldpc_dvb_dec_2d_engine_fix__iclkena     = '0 ;
+  assign ldpc_dvb_dec_2d_engine_fix__irbuf_full  = '0 ;
+  assign ldpc_dvb_dec_2d_engine_fix__iNiter      = '0 ;
+  assign ldpc_dvb_dec_2d_engine_fix__ifmode      = '0 ;
+  assign ldpc_dvb_dec_2d_engine_fix__irtag       = '0 ;
+  assign ldpc_dvb_dec_2d_engine_fix__irLLR       = '0 ;
+  assign ldpc_dvb_dec_2d_engine_fix__iwbuf_empty = '0 ;
 
 
 
 */
 
 //
-// Project       : ldpc 3gpp TS 38.212 v15.7.0
+// Project       : ldpc DVB-S2
 // Author        : Shekhalev Denis (des00)
-// Workfile      : ldpc_dvb_dec_2d_engine.sv
+// Workfile      : ldpc_dvb_dec_2d_engine_fix.sv
 // Description   : LDPC decoder engine with variable parameters based upon 2D normalized/offset min-sum decoding
 //
 
-`include "define.vh"
-
-module ldpc_dvb_dec_2d_engine
+module ldpc_dvb_dec_2d_engine_fix
 (
   iclk        ,
   ireset      ,
   iclkena     ,
   //
   irbuf_full  ,
-  icode_ctx   ,
   iNiter      ,
   ifmode      ,
   //
@@ -173,9 +166,9 @@ module ldpc_dvb_dec_2d_engine
   owtag       ,
   owdecfail   ,
   owerr       ,
+  owNiter     ,
   //
-  ouNiter_val ,
-  ouNiter
+  obusy
 );
 
   parameter int pRADDR_W          =  8 ;
@@ -188,50 +181,48 @@ module ldpc_dvb_dec_2d_engine
   parameter bit pDO_LLR_INVERSION =  1 ;  // do metric inversion inside decoder
 
   parameter bit pUSE_SRL_FIFO     =  1 ;  // use SRL based internal FIFO
-  //
-  parameter int pFIX_MODE         =  0 ;  // fix mode decoder
 
   `include "../ldpc_dvb_constants.svh"
   `include "ldpc_dvb_dec_types.svh"
 
-  parameter int pCODEGR           = cCODEGR_LARGE ;  // maximum used graph short(0)/large(1)/medium(2)
-  parameter bit pXMODE            = 0 ;
+  parameter int pCODEGR           = cCODEGR_LARGE ;  // short(0)/large(1)/medium(2) graph
+  parameter int pCODERATE         = 0 ;              // coderate table see in ldpc_dvb_constants.svh
+  parameter bit pXMODE            = 0 ;              // DVB-S2X code tables using
 
   //------------------------------------------------------------------------------------------------------
   //
   //------------------------------------------------------------------------------------------------------
 
-  input  logic                       iclk        ;
-  input  logic                       ireset      ;
-  input  logic                       iclkena     ;
+  input  logic                   iclk        ;
+  input  logic                   ireset      ;
+  input  logic                   iclkena     ;
   // input ram interface
-  input  logic                       irbuf_full  ;
-  input  code_ctx_t                  icode_ctx   ;
-  input  logic               [7 : 0] iNiter      ;
-  input  logic                       ifmode      ; // fast work mode with early stop
+  input  logic                   irbuf_full  ;
+  input  logic           [7 : 0] iNiter      ;
+  input  logic                   ifmode      ; // fast work mode with early stop
   //
-  input  zllr_t                      irLLR       ;
-  input  logic        [pTAG_W-1 : 0] irtag       ;
-  output logic                       orempty     ;
-  output logic      [pRADDR_W-1 : 0] oraddr      ;
+  input  zllr_t                  irLLR       ;
+  input  logic    [pTAG_W-1 : 0] irtag       ;
+  output logic                   orempty     ;
+  output logic  [pRADDR_W-1 : 0] oraddr      ;
   // output ram interface
-  input  logic                       iwbuf_empty ;
+  input  logic                   iwbuf_empty ;
   //
-  output logic      [pWADDR_W-1 : 0] owcol       ;
-  output logic      [pWADDR_W-1 : 0] owdata_col  ;
-  output logic      [pWADDR_W-1 : 0] owrow       ;
+  output col_t                   owcol       ;
+  output col_t                   owdata_col  ;
+  output row_t                   owrow       ;
   //
-  output logic                       owrite      ;
-  output logic                       owfull      ;
-  output logic      [pWADDR_W-1 : 0] owaddr      ;
-  output zdat_t                      owdat       ;
-  output logic        [pTAG_W-1 : 0] owtag       ;
+  output logic                   owrite      ;
+  output logic                   owfull      ;
+  output logic  [pWADDR_W-1 : 0] owaddr      ;
+  output zdat_t                  owdat       ;
+  output logic    [pTAG_W-1 : 0] owtag       ;
   //
-  output logic                       owdecfail   ;
-  output logic        [pERR_W-1 : 0] owerr       ;
-  // interface for statistic in fast mode
-  output logic                       ouNiter_val ;
-  output logic               [7 : 0] ouNiter     ;  // used Niter
+  output logic                   owdecfail   ;
+  output logic    [pERR_W-1 : 0] owerr       ;
+  output logic           [7 : 0] owNiter     ;  // used Niter (actual for fast mode)
+  //
+  output logic                   obusy       ;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -298,6 +289,7 @@ module ldpc_dvb_dec_2d_engine
   strb_t                          ctrl__ocycle_strb    ;
   cycle_idx_t                     ctrl__ocycle_idx     ;
   //
+  logic                   [7 : 0] ctrl__ouNiter        ;
   logic                           ctrl__olast_iter     ;
 
   //
@@ -321,21 +313,22 @@ module ldpc_dvb_dec_2d_engine
   //
   // cnode
   //
-  logic                           cnode__istart      ;
-  logic                           cnode__iload_iter  ;
+  logic                           cnode__istart       ;
+  logic                           cnode__iload_iter   ;
   //
-  logic                           cnode__ival        ;
-  strb_t                          cnode__istrb       ;
-  cnode_ctx_t                     cnode__icnode_ctx  ;
-  zllr_t                          cnode__iLLR        ;
-  znode_t                         cnode__ivnode      ;
+  logic                           cnode__ival         ;
+  strb_t                          cnode__istrb        ;
+  cnode_ctx_t                     cnode__icnode_ctx   ;
+  zllr_t                          cnode__iLLR         ;
+  znode_t                         cnode__ivnode       ;
   //
-  logic                           cnode__ocnode_val  ;
-  cycle_idx_t                     cnode__ocnode_addr ;
-  znode_t                         cnode__ocnode      ;
+  logic                           cnode__ocnode_val   ;
+  cycle_idx_t                     cnode__ocnode_addr  ;
+  znode_t                         cnode__ocnode       ;
   //
-  logic                           cnode__odecfail    ;
-  logic                           cnode__obusy       ;
+  logic                           cnode__odecfail     ;
+  logic                           cnode__odecfail_est ;
+  logic                           cnode__obusy        ;
 
   //
   // vnode
@@ -368,82 +361,48 @@ module ldpc_dvb_dec_2d_engine
   // Hs "generator"
   //------------------------------------------------------------------------------------------------------
 
-  generate
-    if (pFIX_MODE) begin
-      ldpc_dvb_dec_hs
-      #(
-      .pXMODE ( pXMODE ) ,
-      .pPIPE  ( 1      )  // 2 tick latency
-      )
-      hs
-      (
-        .iclk              ( iclk                      ) ,
-        .ireset            ( ireset                    ) ,
-        .iclkena           ( iclkena                   ) ,
-        //
-        .icode_ctx         ( hs_gen__icode_ctx         ) ,
-        //
-        .oused_col         ( hs_gen__oused_col         ) ,
-        .oused_data_col    ( hs_gen__oused_data_col    ) ,
-        .oused_row         ( hs_gen__oused_row         ) ,
-        .ocycle_max_num    ( hs_gen__ocycle_max_num    ) ,
-        //
-        .icycle_start      ( hs_gen__icycle_start      ) ,
-        .ic_nv_mode        ( hs_gen__ic_nv_mode        ) ,
-        .icycle_read       ( hs_gen__icycle_read       ) ,
-        .icycle_strb       ( hs_gen__icycle_strb       ) ,
-        .icycle_idx        ( hs_gen__icycle_idx        ) ,
-        //
-        .ocycle_read       ( hs_gen__ocycle_read       ) ,
-        .ocycle_LLR_raddr  ( hs_gen__ocycle_LLR_raddr  ) ,
-        .ocycle_node_raddr ( hs_gen__ocycle_node_raddr ) ,
-        //
-        .ocnode_strb       ( hs_gen__ocnode_strb       ) ,
-        .ocnode_ctx        ( hs_gen__ocnode_ctx        ) ,
-        //
-        .ovnode_strb       ( hs_gen__ovnode_strb       ) ,
-        .ovnode_ctx        ( hs_gen__ovnode_ctx        )
-      );
-    end
-    else begin
-      ldpc_dvb_dec_hs_gen
-      #(
-        .pXMODE ( pXMODE ) ,
-        .pPIPE  ( 1      )  // 2 tick latency
-      )
-      hs_gen
-      (
-        .iclk              ( iclk                      ) ,
-        .ireset            ( ireset                    ) ,
-        .iclkena           ( iclkena                   ) ,
-        //
-        .icode_ctx         ( hs_gen__icode_ctx         ) ,
-        //
-        .oused_col         ( hs_gen__oused_col         ) ,
-        .oused_data_col    ( hs_gen__oused_data_col    ) ,
-        .oused_row         ( hs_gen__oused_row         ) ,
-        .ocycle_max_num    ( hs_gen__ocycle_max_num    ) ,
-        //
-        .icycle_start      ( hs_gen__icycle_start      ) ,
-        .ic_nv_mode        ( hs_gen__ic_nv_mode        ) ,
-        .icycle_read       ( hs_gen__icycle_read       ) ,
-        .icycle_strb       ( hs_gen__icycle_strb       ) ,
-        .icycle_idx        ( hs_gen__icycle_idx        ) ,
-        //
-        .ocycle_read       ( hs_gen__ocycle_read       ) ,
-        .ocycle_LLR_raddr  ( hs_gen__ocycle_LLR_raddr  ) ,
-        .ocycle_node_raddr ( hs_gen__ocycle_node_raddr ) ,
-        //
-        .ocnode_strb       ( hs_gen__ocnode_strb       ) ,
-        .ocnode_ctx        ( hs_gen__ocnode_ctx        ) ,
-        //
-        .ovnode_strb       ( hs_gen__ovnode_strb       ) ,
-        .ovnode_ctx        ( hs_gen__ovnode_ctx        )
-      );
-    end
-  endgenerate
+  ldpc_dvb_dec_hs
+  #(
+    .pXMODE ( pXMODE ) ,
+    .pPIPE  ( 1      )  // 2 tick latency
+  )
+  hs
+  (
+    .iclk              ( iclk                      ) ,
+    .ireset            ( ireset                    ) ,
+    .iclkena           ( iclkena                   ) ,
+    //
+    .icode_ctx         ( hs_gen__icode_ctx         ) ,
+    //
+    .oused_col         ( hs_gen__oused_col         ) ,
+    .oused_data_col    ( hs_gen__oused_data_col    ) ,
+    .oused_row         ( hs_gen__oused_row         ) ,
+    .ocycle_max_num    ( hs_gen__ocycle_max_num    ) ,
+    //
+    .icycle_start      ( hs_gen__icycle_start      ) ,
+    .ic_nv_mode        ( hs_gen__ic_nv_mode        ) ,
+    .icycle_read       ( hs_gen__icycle_read       ) ,
+    .icycle_strb       ( hs_gen__icycle_strb       ) ,
+    .icycle_idx        ( hs_gen__icycle_idx        ) ,
+    //
+    .ocycle_read       ( hs_gen__ocycle_read       ) ,
+    .ocycle_LLR_raddr  ( hs_gen__ocycle_LLR_raddr  ) ,
+    .ocycle_node_raddr ( hs_gen__ocycle_node_raddr ) ,
+    //
+    .ocnode_strb       ( hs_gen__ocnode_strb       ) ,
+    .ocnode_ctx        ( hs_gen__ocnode_ctx        ) ,
+    //
+    .ovnode_strb       ( hs_gen__ovnode_strb       ) ,
+    .ovnode_ctx        ( hs_gen__ovnode_ctx        )
+  );
 
-  assign hs_gen__icode_ctx    = icode_ctx ;
+  always_comb begin
+    hs_gen__icode_ctx = '0;
+    //
+    hs_gen__icode_ctx.xmode    = pXMODE;
+    hs_gen__icode_ctx.gr       = pCODEGR;
+    hs_gen__icode_ctx.coderate = pCODERATE;
+  end
 
   assign hs_gen__icycle_start = ctrl__ocycle_start;
   assign hs_gen__ic_nv_mode   = ctrl__oc_nv_mode;
@@ -531,7 +490,10 @@ module ldpc_dvb_dec_2d_engine
     .ocycle_strb    ( ctrl__ocycle_strb    ) ,
     .ocycle_idx     ( ctrl__ocycle_idx     ) ,
     //
-    .olast_iter     ( ctrl__olast_iter     )
+    .olast_iter     ( ctrl__olast_iter     ) ,
+    //
+    .ouNiter        ( ctrl__ouNiter        ) ,
+    .obusy          ( obusy                )
   );
 
   assign ctrl__iNiter         = iNiter;
@@ -550,20 +512,7 @@ module ldpc_dvb_dec_2d_engine
   assign ctrl__ivnode_busy    = (ctrl__ocycle_read | vnode__obusy);
 
   assign ctrl__icnode_busy    = (ctrl__ocycle_read | cnode__obusy);
-  assign ctrl__icnode_decfail = cnode__odecfail;
-
-  //------------------------------------------------------------------------------------------------------
-  // iteration counter
-  //------------------------------------------------------------------------------------------------------
-
-  always_ff @(posedge iclk) begin
-    if (iclkena) begin
-      ouNiter_val <= vnode__obitval & vnode__obitsop & ctrl__olast_iter;
-      if (ctrl__ocycle_start & ctrl__oc_nv_mode) begin
-        ouNiter <= ctrl__oload_mode ? 1'b1 : (ouNiter + 1'b1);
-      end
-    end
-  end
+  assign ctrl__icnode_decfail = cnode__odecfail_est;
 
   //------------------------------------------------------------------------------------------------------
   // node ram with dynamic addressing
@@ -677,7 +626,9 @@ module ldpc_dvb_dec_2d_engine
   ldpc_dvb_dec_cnode
   #(
     .pLLR_W        ( pLLR_W        ) ,
+    //
     .pNODE_W       ( pNODE_W       ) ,
+    .pNODE_SCALE_W ( pNODE_SCALE_W ) ,
     //
     .pNORM_FACTOR  ( pNORM_FACTOR  ) ,
     .pNORM_OFFSET  ( pNORM_OFFSET  ) ,
@@ -686,25 +637,27 @@ module ldpc_dvb_dec_2d_engine
   )
   cnode
   (
-    .iclk        ( iclk               ) ,
-    .ireset      ( ireset             ) ,
-    .iclkena     ( iclkena            ) ,
+    .iclk         ( iclk                ) ,
+    .ireset       ( ireset              ) ,
+    .iclkena      ( iclkena             ) ,
     //
-    .istart      ( cnode__istart      ) ,
-    .iload_iter  ( cnode__iload_iter  ) ,
+    .istart       ( cnode__istart       ) ,
+    .iload_iter   ( cnode__iload_iter   ) ,
+    .inorm_bypass ( 1'b0                ) , // n.u.
     //
-    .ival        ( cnode__ival        ) ,
-    .istrb       ( cnode__istrb       ) ,
-    .icnode_ctx  ( cnode__icnode_ctx  ) ,
-    .iLLR        ( cnode__iLLR        ) ,
-    .ivnode      ( cnode__ivnode      ) ,
+    .ival         ( cnode__ival         ) ,
+    .istrb        ( cnode__istrb        ) ,
+    .icnode_ctx   ( cnode__icnode_ctx   ) ,
+    .iLLR         ( cnode__iLLR         ) ,
+    .ivnode       ( cnode__ivnode       ) ,
     //
-    .ocnode_val  ( cnode__ocnode_val  ) ,
-    .ocnode_addr ( cnode__ocnode_addr ) ,
-    .ocnode      ( cnode__ocnode      ) ,
+    .ocnode_val   ( cnode__ocnode_val   ) ,
+    .ocnode_addr  ( cnode__ocnode_addr  ) ,
+    .ocnode       ( cnode__ocnode       ) ,
     //
-    .odecfail    ( cnode__odecfail    ) ,
-    .obusy       ( cnode__obusy       )
+    .odecfail     ( cnode__odecfail     ) ,
+    .odecfail_est ( cnode__odecfail_est ) ,
+    .obusy        ( cnode__obusy        )
   );
 
   assign cnode__istart     = ctrl__ocycle_start & ctrl__oc_nv_mode;
@@ -778,6 +731,8 @@ module ldpc_dvb_dec_2d_engine
   // output data mapping
   //------------------------------------------------------------------------------------------------------
 
+  logic [7 : 0] uNiter_cnt;
+
   always_ff @(posedge iclk or posedge ireset) begin
     if (ireset) begin
       owrite <= 1'b0;
@@ -800,6 +755,11 @@ module ldpc_dvb_dec_2d_engine
         //
         owtag       <= irtag;
         owdecfail   <= ctrl__oload_mode ? 1'b0 : cnode__odecfail;
+        owNiter     <= uNiter_cnt;
+      end
+      // used iteration counter for statistic
+      if (ctrl__ocycle_start & ctrl__oc_nv_mode) begin
+        uNiter_cnt <= ctrl__oload_mode ? 1'b1 : (uNiter_cnt + 1'b1);
       end
     end
   end

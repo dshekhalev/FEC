@@ -31,7 +31,7 @@
   //
   logic    [pZC_FACTOR-1 : 0] ldpc_dvb_dec_source__owrite                 ;
   logic                       ldpc_dvb_dec_source__owfull                 ;
-  logic       [pADDR_W-1 : 0] ldpc_dvb_dec_source__owaddr                 ;
+  logic      [pWADDR_W-1 : 0] ldpc_dvb_dec_source__owaddr                 ;
   llr_t                       ldpc_dvb_dec_source__owLLR       [pWNUM]    ;
 
 
@@ -178,7 +178,7 @@ module ldpc_dvb_dec_source
   logic signed [pLLR_W-1 : 0] wLLR [pLLR_NUM] ;
 
   //------------------------------------------------------------------------------------------------------
-  // LLR saturation and invertion
+  // LLR saturation and inversion
   //------------------------------------------------------------------------------------------------------
 
   always_comb begin

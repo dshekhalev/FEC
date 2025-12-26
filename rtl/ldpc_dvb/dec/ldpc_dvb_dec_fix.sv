@@ -54,7 +54,8 @@
   logic [pDAT_W-1 : 0] ldpc_dvb_dec_fix__odat                ;
   //
   logic                ldpc_dvb_dec_fix__odecfail            ;
-  logic [pERR_W-1 : 0] ldpc_dvb_dec_fix__oerr                ;
+  logic [pERR_W-1 : 0] ldpc_dvb_dec_fix__obiterr             ;
+  logic        [7 : 0] ldpc_dvb_dec_fix__ouNiter             ;
 
 
 
@@ -112,7 +113,8 @@
     .odat      ( ldpc_dvb_dec_fix__odat      ) ,
     //
     .odecfail  ( ldpc_dvb_dec_fix__odecfail  ) ,
-    .oerr      ( ldpc_dvb_dec_fix__oerr      )
+    .obiterr   ( ldpc_dvb_dec_fix__obiterr   ) ,
+    .ouNiter   ( ldpc_dvb_dec_fix__ouNiter   )
   );
 
 
@@ -139,8 +141,6 @@
 // Workfile      : ldpc_dvb_dec_fix.sv
 // Description   : Fixed mode DVB LDPC RTL decoder with asynchronus input/output/core clocks
 //
-
-`include "define.vh"
 
 module ldpc_dvb_dec_fix
 (
@@ -172,7 +172,8 @@ module ldpc_dvb_dec_fix
   otag      ,
   //
   odecfail  ,
-  oerr
+  obiterr   ,
+  ouNiter
 );
 
   parameter int pLLR_NUM          =  8 ;  // must be multiply of cZC_MAX (360)
@@ -180,7 +181,7 @@ module ldpc_dvb_dec_fix
   parameter int pTAG_W            =  4 ;
   //
   parameter bit pDO_TRANSPONSE    =  0 ;  // do input transponse to be like DVB-S standart or not
-  parameter bit pDO_LLR_INVERSION =  1 ;  // do metric inversion or not
+  parameter bit pDO_LLR_INVERSION =  1 ;  // do internal metric inversion (iLLR >= 0 ? 1 : 0) or not
   parameter bit pUSE_SRL_FIFO     =  1 ;  // use SRL based internal FIFO
   parameter bit pFULL_BITS_OUTPUT =  0 ;  // send all(1)/data(0) bits to output
   //
@@ -226,7 +227,8 @@ module ldpc_dvb_dec_fix
   output logic        [pTAG_W-1 : 0] otag                ;
   //
   output logic                       odecfail            ;
-  output logic        [pERR_W-1 : 0] oerr                ;
+  output logic        [pERR_W-1 : 0] obiterr             ;
+  output logic               [7 : 0] ouNiter             ;  // used Niter (actual for fast mode)
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -251,7 +253,7 @@ module ldpc_dvb_dec_fix
 
   localparam int cOB_ADDR_W     = $clog2(cOB_ADDR);
   localparam int cOB_DAT_W      = cZC_MAX;
-  localparam int cOB_TAG_W      = pTAG_W + cOB_ADDR_W + pERR_W + 1;
+  localparam int cOB_TAG_W      = pTAG_W + $bits(col_t) + pERR_W + 1 + $bits(ouNiter);
 
   localparam int cZC_FACTOR     = cIB_RDAT_W/cIB_WDAT_W;
 
@@ -265,6 +267,9 @@ module ldpc_dvb_dec_fix
   logic                       source__ieop                  ;
   logic                       source__ival                  ;
   llr_t                       source__iLLR       [pLLR_NUM] ;
+
+  logic                       source__ordy                  ;
+  logic                       source__obusy                 ;
 
   logic    [cZC_FACTOR-1 : 0] source__owrite                ;
   logic   [cIB_WADDR_W-1 : 0] source__owaddr                ;
@@ -297,7 +302,6 @@ module ldpc_dvb_dec_fix
   //
   // engine
   logic                       engine__irbuf_full            ;
-  code_ctx_t                  engine__icode_ctx             ;
   logic               [7 : 0] engine__iNiter                ;
   logic                       engine__ifmode                ;
   //
@@ -320,6 +324,9 @@ module ldpc_dvb_dec_fix
 
   logic                       engine__owdecfail             ;
   logic        [pERR_W-1 : 0] engine__owerr                 ;
+  logic               [7 : 0] engine__owNiter               ;
+
+  logic                       engine__obusy                 ;
 
   //
   // obuf
@@ -354,6 +361,7 @@ module ldpc_dvb_dec_fix
   //
   logic                       sink__irdecfail               ;
   logic        [pERR_W-1 : 0] sink__irerr                   ;
+  logic               [7 : 0] sink__irNiter                 ;
   //
   logic                       sink__orempty                 ;
   logic    [cOB_ADDR_W-1 : 0] sink__oraddr                  ;
@@ -385,6 +393,31 @@ module ldpc_dvb_dec_fix
   );
 
   //------------------------------------------------------------------------------------------------------
+  // CDC for busy. Not need in reset because ordy (not obusy) use for handshake
+  //------------------------------------------------------------------------------------------------------
+
+  logic         engine_busy;
+  logic [1 : 0] engine_busy_line;
+  logic         engine_busy_at_clkin;
+
+  always_ff @(posedge iclk) begin
+    engine_busy <= engine__obusy | !obuffer__owemptya;
+  end
+
+  always_ff @(posedge iclkin or posedge engine_busy) begin
+    if (engine_busy) begin
+      engine_busy_line[0] <= 1'b1;
+    end
+    else begin
+      engine_busy_line[0] <= 1'b0;
+    end
+  end
+
+  always_ff @(posedge iclkin) begin
+    {engine_busy_at_clkin, engine_busy_line[1]} <= engine_busy_line;
+  end
+
+  //------------------------------------------------------------------------------------------------------
   // input source
   //------------------------------------------------------------------------------------------------------
 
@@ -410,8 +443,8 @@ module ldpc_dvb_dec_fix
     .ival       ( source__ival      ) ,
     .iLLR       ( source__iLLR      ) ,
     //
-    .obusy      ( obusy             ) ,
-    .ordy       ( ordy              ) ,
+    .obusy      ( source__obusy     ) ,
+    .ordy       ( source__ordy      ) ,
     //
     .iemptya    ( ibuffer__owemptya ) ,
     .ifulla     ( ibuffer__owfulla  ) ,
@@ -426,6 +459,9 @@ module ldpc_dvb_dec_fix
   assign source__ieop = ieop;
   assign source__ival = ival & ordy;
   assign source__iLLR = iLLR;
+
+  assign ordy  = source__ordy;
+  assign obusy = source__obusy | engine_busy_at_clkin;
 
   //------------------------------------------------------------------------------------------------------
   // input buffer :: 2 tick read delay
@@ -496,9 +532,11 @@ module ldpc_dvb_dec_fix
   // engine
   //------------------------------------------------------------------------------------------------------
 
-  ldpc_dvb_dec_2d_engine
+  ldpc_dvb_dec_2d_engine_fix
   #(
     .pLLR_W            ( pLLR_W            ) ,
+    //
+    .pNODE_SCALE_W     ( pNODE_SCALE_W     ) ,
     .pNODE_W           ( pNODE_W           ) ,
     //
     .pRADDR_W          ( cIB_RADDR_W       ) ,
@@ -509,15 +547,15 @@ module ldpc_dvb_dec_fix
     .pERR_W            ( pERR_W            ) ,
     //
     .pCODEGR           ( pCODEGR           ) ,
+    .pCODERATE         ( pCODERATE         ) ,
     .pXMODE            ( pXMODE            ) ,
+    //
     .pNORM_FACTOR      ( pNORM_FACTOR      ) ,
     .pNORM_OFFSET      ( pNORM_OFFSET      ) ,
     //
     .pDO_LLR_INVERSION ( pDO_LLR_INVERSION ) ,
     .pUSE_SRL_FIFO     ( pUSE_SRL_FIFO     ) ,
-    .pUSE_SC_MODE      ( pUSE_SC_MODE      ) ,
-    //
-    .pFIX_MODE         ( 1                 )
+    .pUSE_SC_MODE      ( pUSE_SC_MODE      )
   )
   engine
   (
@@ -526,7 +564,6 @@ module ldpc_dvb_dec_fix
     .iclkena     ( 1'b1                ) ,
     //
     .irbuf_full  ( engine__irbuf_full  ) ,
-    .icode_ctx   ( engine__icode_ctx   ) ,
     .iNiter      ( engine__iNiter      ) ,
     .ifmode      ( engine__ifmode      ) ,
     //
@@ -548,12 +585,13 @@ module ldpc_dvb_dec_fix
     .owtag       ( engine__owtag       ) ,
     //
     .owdecfail   ( engine__owdecfail   ) ,
-    .owerr       ( engine__owerr       )
+    .owerr       ( engine__owerr       ) ,
+    .owNiter     ( engine__owNiter     ) ,
+    //
+    .obusy       ( engine__obusy       )
   );
 
   assign engine__irbuf_full   = ibuffer__orfull;
-
-  assign engine__icode_ctx    = '{xmode : pXMODE, gr : pCODEGR, coderate : pCODERATE};
 
   assign {engine__ifmode,
           engine__iNiter,
@@ -617,6 +655,7 @@ module ldpc_dvb_dec_fix
   assign obuffer__iwtag   = { pFULL_BITS_OUTPUT ? engine__owcol : engine__owdata_col,
                               engine__owdecfail,
                               engine__owerr,
+                              engine__owNiter,
                               engine__owtag};
 
   assign obuffer__irempty = sink__orempty;
@@ -649,6 +688,7 @@ module ldpc_dvb_dec_fix
     //
     .irdecfail ( sink__irdecfail ) ,
     .irerr     ( sink__irerr     ) ,
+    .irNiter   ( sink__irNiter   ) ,
     //
     .orempty   ( sink__orempty   ) ,
     .oraddr    ( sink__oraddr    ) ,
@@ -663,7 +703,8 @@ module ldpc_dvb_dec_fix
     .otag      ( otag            ) ,
     //
     .odecfail  ( odecfail        ) ,
-    .oerr      ( oerr            )
+    .oerr      ( obiterr         ) ,
+    .oNiter    ( ouNiter         )
   );
 
   assign sink__irfull = obuffer__orfull;
@@ -672,6 +713,7 @@ module ldpc_dvb_dec_fix
   assign {sink__irsize    ,
           sink__irdecfail ,
           sink__irerr     ,
+          sink__irNiter   ,
           sink__irtag     } = obuffer__ortag;
 
 endmodule

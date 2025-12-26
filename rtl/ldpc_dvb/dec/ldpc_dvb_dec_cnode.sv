@@ -10,25 +10,27 @@
 
 
 
-  logic       ldpc_dvb_dec_cnode__iclk        ;
-  logic       ldpc_dvb_dec_cnode__ireset      ;
-  logic       ldpc_dvb_dec_cnode__iclkena     ;
+  logic       ldpc_dvb_dec_cnode__iclk         ;
+  logic       ldpc_dvb_dec_cnode__ireset       ;
+  logic       ldpc_dvb_dec_cnode__iclkena      ;
   //
-  logic       ldpc_dvb_dec_cnode__istart      ;
-  logic       ldpc_dvb_dec_cnode__iload_iter  ;
+  logic       ldpc_dvb_dec_cnode__istart       ;
+  logic       ldpc_dvb_dec_cnode__iload_iter   ;
+  logic       ldpc_dvb_dec_cnode__inorm_bypass ;
   //
-  logic       ldpc_dvb_dec_cnode__ival        ;
-  strb_t      ldpc_dvb_dec_cnode__istrb       ;
-  cnode_ctx_t ldpc_dvb_dec_cnode__icnode_ctx  ;
-  zllr_t      ldpc_dvb_dec_cnode__iLLR        ;
-  znode_t     ldpc_dvb_dec_cnode__ivnode      ;
+  logic       ldpc_dvb_dec_cnode__ival         ;
+  strb_t      ldpc_dvb_dec_cnode__istrb        ;
+  cnode_ctx_t ldpc_dvb_dec_cnode__icnode_ctx   ;
+  zllr_t      ldpc_dvb_dec_cnode__iLLR         ;
+  znode_t     ldpc_dvb_dec_cnode__ivnode       ;
   //
-  logic       ldpc_dvb_dec_cnode__ocnode_val  ;
-  cycle_idx_t ldpc_dvb_dec_cnode__ocnode_addr ;
-  znode_t     ldpc_dvb_dec_cnode__ocnode      ;
+  logic       ldpc_dvb_dec_cnode__ocnode_val   ;
+  cycle_idx_t ldpc_dvb_dec_cnode__ocnode_addr  ;
+  znode_t     ldpc_dvb_dec_cnode__ocnode       ;
   //
-  logic       ldpc_dvb_dec_cnode__odecfail    ;
-  logic       ldpc_dvb_dec_cnode__obusy       ;
+  logic       ldpc_dvb_dec_cnode__odecfail     ;
+  logic       ldpc_dvb_dec_cnode__odecfail_est ;
+  logic       ldpc_dvb_dec_cnode__obusy        ;
 
 
 
@@ -42,38 +44,41 @@
   )
   ldpc_dvb_dec_cnode
   (
-    .iclk        ( ldpc_dvb_dec_cnode__iclk        ) ,
-    .ireset      ( ldpc_dvb_dec_cnode__ireset      ) ,
-    .iclkena     ( ldpc_dvb_dec_cnode__iclkena     ) ,
+    .iclk         ( ldpc_dvb_dec_cnode__iclk         ) ,
+    .ireset       ( ldpc_dvb_dec_cnode__ireset       ) ,
+    .iclkena      ( ldpc_dvb_dec_cnode__iclkena      ) ,
     //
-    .istart      ( ldpc_dvb_dec_cnode__istart      ) ,
-    .iload_iter  ( ldpc_dvb_dec_cnode__iload_iter  ) ,
+    .istart       ( ldpc_dvb_dec_cnode__istart       ) ,
+    .iload_iter   ( ldpc_dvb_dec_cnode__iload_iter   ) ,
+    .inorm_bypass ( ldpc_dvb_dec_cnode__inorm_bypass ) ,
     //
-    .ival        ( ldpc_dvb_dec_cnode__ival        ) ,
-    .istrb       ( ldpc_dvb_dec_cnode__istrb       ) ,
-    .icnode_ctx  ( ldpc_dvb_dec_cnode__icnode_ctx  ) ,
-    .iLLR        ( ldpc_dvb_dec_cnode__iLLR        ) ,
-    .ivnode      ( ldpc_dvb_dec_cnode__ivnode      ) ,
+    .ival         ( ldpc_dvb_dec_cnode__ival         ) ,
+    .istrb        ( ldpc_dvb_dec_cnode__istrb        ) ,
+    .icnode_ctx   ( ldpc_dvb_dec_cnode__icnode_ctx   ) ,
+    .iLLR         ( ldpc_dvb_dec_cnode__iLLR         ) ,
+    .ivnode       ( ldpc_dvb_dec_cnode__ivnode       ) ,
     //
-    .ocnode_val  ( ldpc_dvb_dec_cnode__ocnode_val  ) ,
-    .ocnode_addr ( ldpc_dvb_dec_cnode__ocnode_addr ) ,
-    .ocnode      ( ldpc_dvb_dec_cnode__ocnode      ) ,
+    .ocnode_val   ( ldpc_dvb_dec_cnode__ocnode_val   ) ,
+    .ocnode_addr  ( ldpc_dvb_dec_cnode__ocnode_addr  ) ,
+    .ocnode       ( ldpc_dvb_dec_cnode__ocnode       ) ,
     //
-    .odecfail    ( ldpc_dvb_dec_cnode__odecfail    ) ,
-    .obusy       ( ldpc_dvb_dec_cnode__obusy       )
+    .odecfail     ( ldpc_dvb_dec_cnode__odecfail     ) ,
+    .odecfail_est ( ldpc_dvb_dec_cnode__odecfail_est ) ,
+    .obusy        ( ldpc_dvb_dec_cnode__obusy        )
   );
 
 
-  assign ldpc_dvb_dec_cnode__iclk       = '0 ;
-  assign ldpc_dvb_dec_cnode__ireset     = '0 ;
-  assign ldpc_dvb_dec_cnode__iclkena    = '0 ;
-  assign ldpc_dvb_dec_cnode__istart     = '0 ;
-  assign ldpc_dvb_dec_cnode__iload_iter = '0 ;
-  assign ldpc_dvb_dec_cnode__ival       = '0 ;
-  assign ldpc_dvb_dec_cnode__istrb      = '0 ;
-  assign ldpc_dvb_dec_cnode__icnode_ctx = '0 ;
-  assign ldpc_dvb_dec_cnode__iLLR       = '0 ;
-  assign ldpc_dvb_dec_cnode__ivnode     = '0 ;
+  assign ldpc_dvb_dec_cnode__iclk         = '0 ;
+  assign ldpc_dvb_dec_cnode__ireset       = '0 ;
+  assign ldpc_dvb_dec_cnode__iclkena      = '0 ;
+  assign ldpc_dvb_dec_cnode__istart       = '0 ;
+  assign ldpc_dvb_dec_cnode__iload_iter   = '0 ;
+  assign ldpc_dvb_dec_cnode__inorm_bypass = '0 ;
+  assign ldpc_dvb_dec_cnode__ival         = '0 ;
+  assign ldpc_dvb_dec_cnode__istrb        = '0 ;
+  assign ldpc_dvb_dec_cnode__icnode_ctx   = '0 ;
+  assign ldpc_dvb_dec_cnode__iLLR         = '0 ;
+  assign ldpc_dvb_dec_cnode__ivnode       = '0 ;
 
 
 
@@ -86,27 +91,28 @@
 // Description   : Min-sum horizontal step top-module
 //
 
-
 module ldpc_dvb_dec_cnode
 (
-  iclk        ,
-  ireset      ,
-  iclkena     ,
+  iclk         ,
+  ireset       ,
+  iclkena      ,
   //
-  istart      ,
-  iload_iter  ,
+  istart       ,
+  iload_iter   ,
+  inorm_bypass ,
   //
-  ival        ,
-  istrb       ,
-  icnode_ctx  ,
-  iLLR        ,
-  ivnode      ,
+  ival         ,
+  istrb        ,
+  icnode_ctx   ,
+  iLLR         ,
+  ivnode       ,
   //
-  ocnode_val  ,
-  ocnode_addr ,
-  ocnode      ,
+  ocnode_val   ,
+  ocnode_addr  ,
+  ocnode       ,
   //
-  odecfail    ,
+  odecfail     ,
+  odecfail_est ,
   obusy
 );
 
@@ -119,25 +125,27 @@ module ldpc_dvb_dec_cnode
   //
   //------------------------------------------------------------------------------------------------------
 
-  input  logic       iclk        ;
-  input  logic       ireset      ;
-  input  logic       iclkena     ;
+  input  logic       iclk         ;
+  input  logic       ireset       ;
+  input  logic       iclkena      ;
   //
-  input  logic       istart      ;
-  input  logic       iload_iter  ;
+  input  logic       istart       ;
+  input  logic       iload_iter   ;
+  input  logic       inorm_bypass ; // normalization bypass (for low snr modes)
   //
-  input  logic       ival        ;
-  input  strb_t      istrb       ;
-  input  cnode_ctx_t icnode_ctx  ;
-  input  zllr_t      iLLR        ;
-  input  znode_t     ivnode      ;
+  input  logic       ival         ;
+  input  strb_t      istrb        ;
+  input  cnode_ctx_t icnode_ctx   ;
+  input  zllr_t      iLLR         ;
+  input  znode_t     ivnode       ;
   //
-  output logic       ocnode_val  ;
-  output cycle_idx_t ocnode_addr ;
-  output znode_t     ocnode      ;
+  output logic       ocnode_val   ;
+  output cycle_idx_t ocnode_addr  ;
+  output znode_t     ocnode       ;
   //
-  output logic       odecfail    ;
-  output logic       obusy       ;
+  output logic       odecfail     ;
+  output logic       odecfail_est ;
+  output logic       obusy        ;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -209,33 +217,33 @@ module ldpc_dvb_dec_cnode
   logic                           vnode_fifo__ofull   ;
   //
   // restore ctrl
-  logic                          ctrl__irdy       ;
-  vn_min_col_t                   ctrl__inum_m1    ;
-  logic                          ctrl__oread      ;
-  logic                          ctrl__orslt_read ;
-  vn_min_col_t                   ctrl__oread_idx  ;
+  logic                           ctrl__irdy       ;
+  vn_min_col_t                    ctrl__inum_m1    ;
+  logic                           ctrl__oread      ;
+  logic                           ctrl__orslt_read ;
+  vn_min_col_t                    ctrl__oread_idx  ;
   //
   // restore unit
-  zdat_t                         restore__istart               ;
+  zdat_t                          restore__istart               ;
   //
-  zdat_t                         restore__ival                 ;
-  vn_min_col_t                   restore__ivnode_idx  [cZC_MAX];
-  zdat_t                         restore__ivnode_sign          ;
-  zdat_t                         restore__ivnode_mask          ;
-  vn_min_t                       restore__ivn_min     [cZC_MAX];
-  cnode_ctx_t                    restore__icnode_ctx  [cZC_MAX];
+  zdat_t                          restore__ival                 ;
+  vn_min_col_t                    restore__ivnode_idx  [cZC_MAX];
+  zdat_t                          restore__ivnode_sign          ;
+  zdat_t                          restore__ivnode_mask          ;
+  vn_min_t                        restore__ivn_min     [cZC_MAX];
+  cnode_ctx_t                     restore__icnode_ctx  [cZC_MAX];
   //
-  zdat_t                         restore__ocnode_val           ;
-  cnode_ctx_t                    restore__ocnode_ctx  [cZC_MAX];
-  znode_t                        restore__ocnode               ;
+  zdat_t                          restore__ocnode_val           ;
+  cnode_ctx_t                     restore__ocnode_ctx  [cZC_MAX];
+  zcnode_t                        restore__ocnode               ;
   //
   // output barrel shifter
-  logic                          obs__ival    ;
-  znode_t                        obs__idat    ;
-  shift_t                        obs__ishift  ;
+  logic                           obs__ival    ;
+  znode_t                         obs__idat    ;
+  shift_t                         obs__ishift  ;
   //
-  logic                          obs__oval    ;
-  znode_t                        obs__odat    ;
+  logic                           obs__oval    ;
+  znode_t                         obs__odat    ;
 
   //------------------------------------------------------------------------------------------------------
   // input barrel shifter
@@ -266,7 +274,7 @@ module ldpc_dvb_dec_cnode
       ibs__ival   <= ival;
       ibs__ishift <= icnode_ctx.shift;
       for (int i = 0; i < cZC_MAX; i++) begin
-        ibs__idat[i] <= iload_iter ? iLLR[i] : ivnode[i];
+        ibs__idat[i] <= iload_iter ? (iLLR[i] <<< pNODE_SCALE_W) : ivnode[i];
       end
     end
   end
@@ -303,17 +311,21 @@ module ldpc_dvb_dec_cnode
     for (g = 0; g < cZC_MAX; g++) begin : sort_inst
       ldpc_dvb_dec_sort_engine
       #(
-        .pLLR_W       ( pLLR_W       ) ,
-        .pNODE_W      ( pNODE_W      ) ,
+        .pLLR_W        ( pLLR_W        ) ,
         //
-        .pNORM_FACTOR ( pNORM_FACTOR ) ,
-        .pNORM_OFFSET ( pNORM_OFFSET )
+        .pNODE_W       ( pNODE_W       ) ,
+        .pNODE_SCALE_W ( pNODE_SCALE_W ) ,
+        //
+        .pNORM_FACTOR  ( pNORM_FACTOR  ) ,
+        .pNORM_OFFSET  ( pNORM_OFFSET  )
       )
       sort
       (
         .iclk                ( iclk                          ) ,
         .ireset              ( ireset                        ) ,
         .iclkena             ( iclkena                       ) ,
+        //
+        .inorm_bypass        ( inorm_bypass                  ) ,
         //
         .istart              ( sort__istart              [g] ) ,
         //
@@ -342,7 +354,7 @@ module ldpc_dvb_dec_cnode
 
       assign sort__istrb  [g] = used_ibs_strb ;
 
-      assign sort__ivnode [g] = ibs__odat [g][pNODE_W-1 : 0];
+      assign sort__ivnode [g] = ibs__odat [g];
 
       assign sort__ivmask [g] = (g == 0) & used_ibs_ctx.mask_0_bit;
 
@@ -371,7 +383,8 @@ module ldpc_dvb_dec_cnode
     .irow_minfail ( sort__ominfail      ) ,
     //
     .oval         (                     ) ,
-    .odecfail     ( odecfail            )
+    .odecfail     ( odecfail            ) ,
+    .odecfail_est ( odecfail_est        )
   );
 
   //------------------------------------------------------------------------------------------------------
@@ -380,7 +393,7 @@ module ldpc_dvb_dec_cnode
 
   generate
     if (pUSE_SRL_FIFO) begin
-      ldpc_dvb_dec_srl_fifo
+      codec_srl_fifo
       #(
         .pDEPTH_W ( cVNODE_FIFO_DEPTH_W ) ,
         .pDAT_W   ( cVNODE_FIFO_DAT_W   )
@@ -401,11 +414,13 @@ module ldpc_dvb_dec_cnode
         .ordat   ( vnode_fifo__ordat  ) ,
         //
         .oempty  ( vnode_fifo__oempty ) ,
-        .ofull   ( vnode_fifo__ofull  )
+        .ofull   ( vnode_fifo__ofull  ) ,
+        .ohfull  (                    ) ,   // not used
+        .ousedw  (                    )     // not used
       );
     end
     else begin
-      ldpc_dvb_dec_fifo
+      codec_fifo
       #(
         .pDEPTH_W ( cVNODE_FIFO_DEPTH_W ) ,
         .pDAT_W   ( cVNODE_FIFO_DAT_W   )
@@ -426,7 +441,9 @@ module ldpc_dvb_dec_cnode
         .ordat   ( vnode_fifo__ordat  ) ,
         //
         .oempty  ( vnode_fifo__oempty ) ,
-        .ofull   ( vnode_fifo__ofull  )
+        .ofull   ( vnode_fifo__ofull  ) ,
+        .ohfull  (                    ) ,   // not used
+        .ousedw  (                    )     // not used
       );
     end
   endgenerate
@@ -515,6 +532,8 @@ module ldpc_dvb_dec_cnode
         .ocnode      ( restore__ocnode      [g] )
       );
 
+      assign restore__istart      [g] = 1'b0; // not used
+
       assign restore__ivnode_mask [g] = (g == 0) & restore__icnode_ctx[g].mask_0_bit;
 
       if (pUSE_SRL_FIFO) begin
@@ -599,17 +618,20 @@ module ldpc_dvb_dec_cnode
   end
 
   //------------------------------------------------------------------------------------------------------
-  // obusy is look ahead signal for control
-  // there is 4 tick betwen write/read to node ram this logic + matrix reorder save it for each iteration
+  // obusy logic
   //------------------------------------------------------------------------------------------------------
+
+  logic vnode_fifo_datval;
 
   always_ff @(posedge iclk or posedge ireset) begin
     if (ireset) begin
-      obusy <= 1'b0;
+      vnode_fifo_datval <= 1'b0;
     end
     else if (iclkena) begin
-      obusy <= !vnode_fifo__oempty; // fifo_empty use because there can be holes in oval flow (!!!)
+      vnode_fifo_datval <= !vnode_fifo__oempty;
     end
   end
+
+  assign obusy = ocnode_val | vnode_fifo_datval; // fifo_empty use because there can be holes in oval flow (!!!)
 
 endmodule

@@ -19,6 +19,7 @@
   //
   logic  ldpc_dvb_dec_decfail_cnt__oval         ;
   logic  ldpc_dvb_dec_decfail_cnt__odecfail     ;
+  logic  ldpc_dvb_dec_decfail_cnt__odecfail_est ;
 
 
 
@@ -40,7 +41,8 @@
     .irow_minfail ( ldpc_dvb_dec_decfail_cnt__irow_minfail ) ,
     //
     .oval         ( ldpc_dvb_dec_decfail_cnt__oval         ) ,
-    .odecfail     ( ldpc_dvb_dec_decfail_cnt__odecfail     )
+    .odecfail     ( ldpc_dvb_dec_decfail_cnt__odecfail     ) ,
+    .odecfail_est ( ldpc_dvb_dec_decfail_cnt__odecfail_est )
   );
 
 
@@ -79,7 +81,8 @@ module ldpc_dvb_dec_decfail_cnt
   irow_minfail ,
   //
   oval         ,
-  odecfail
+  odecfail     ,
+  odecfail_est
 );
 
   parameter int pERR_W = 16;
@@ -103,13 +106,14 @@ module ldpc_dvb_dec_decfail_cnt
   input  zdat_t irow_minfail ;
   //
   output logic  oval         ;
-  output logic  odecfail     ;
+  output logic  odecfail     ;  // no errors or minimum erros at output (if there is abs(node) <= 1)
+  output logic  odecfail_est ;  // estimated decfail (decoder get different checks for 3 sequential frames)
 
   //------------------------------------------------------------------------------------------------------
   //
   //------------------------------------------------------------------------------------------------------
 
-  localparam int cSUM_36_NUM      = cZC_MAX/36;
+  localparam int cSUM_36_NUM      = (cZC_MAX < 36) ? 1 : cZC_MAX/36;
 
   localparam int cADDER_TREE_NUM  = 2**$clog2(cSUM_36_NUM);
 
@@ -159,8 +163,8 @@ module ldpc_dvb_dec_decfail_cnt
 
   always_comb begin
     for (int i = 0; i < cSUM_36_NUM; i++) begin
-      sum__ibiterr      [i] = irow_decfail[i*36 +: 36];
-      mindecfail2wideor [i] = irow_minfail[i*36 +: 36];
+      sum__ibiterr      [i] = (cZC_MAX < 36) ? irow_decfail : irow_decfail[i*36 +: 36];
+      mindecfail2wideor [i] = (cZC_MAX < 36) ? irow_minfail : irow_minfail[i*36 +: 36];
     end
   end
 
@@ -176,7 +180,7 @@ module ldpc_dvb_dec_decfail_cnt
     if (iclkena) begin
       mindecfail_wideor_val <= ival;
       for (int i = 0; i < cSUM_36_NUM; i++) begin
-        mindecfail_wideor <= |mindecfail2wideor[i];
+        mindecfail_wideor[i] <= |mindecfail2wideor[i];
       end
       //
       if (istart) begin
@@ -263,27 +267,42 @@ module ldpc_dvb_dec_decfail_cnt
   // accumulators & decision
   //------------------------------------------------------------------------------------------------------
 
-  logic [3 : 0] pre_checks; // more then enougth for used edge
+  logic        [1 : 0] pre_checks_val;
+  logic [pERR_W-1 : 0] pre_checks [2];
+
+  wire pre_checks_sames = (checks == pre_checks[0]) & (pre_checks[0] == pre_checks[1]);
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
       checks_val <= adder__oval;
       if (istart) begin
-        checks        <= '0;
-        pre_checks[0] <= iload_iter ? '0 : checks;
-        pre_checks[1] <= iload_iter ? '0 : pre_checks[0];
+        checks <= '0;
+        if (iload_iter) begin
+          pre_checks_val  <= '0;
+          pre_checks      <= '{default : '0};
+        end
+        else begin
+          pre_checks_val  <= (pre_checks_val << 1) | 1'b1;
+          pre_checks[0]   <= checks;
+          pre_checks[1]   <= pre_checks[0];
+        end
       end
       else if (adder__oval) begin
         checks <= checks + adder__oerr;
       end
       //
-      oval <= checks_val;
-      if (min_decfail) begin
-        odecfail <= (checks != pre_checks[0]) | (checks > 2);
-      end
-      else begin
-        odecfail <= (checks != 0);
-      end
+      oval      <= checks_val;
+      // true decfail
+      odecfail  <= min_decfail ? (checks > 2) : (checks != 0);
+      // estimated decfail
+      case (pre_checks_val)
+        2'b11 : begin
+          odecfail_est <= (min_decfail & (checks > 2)) | !pre_checks_sames ;
+        end
+        default : begin
+          odecfail_est <= min_decfail | (checks != 0);
+        end
+      endcase
     end
   end
 

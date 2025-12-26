@@ -32,6 +32,7 @@
   logic      ldpc_dvb_dec_vnode_sum__obiteop           ;
   logic      ldpc_dvb_dec_vnode_sum__obitdat           ;
   logic      ldpc_dvb_dec_vnode_sum__obiterr           ;
+  col_t      ldpc_dvb_dec_vnode_sum__obitaddr          ;
 
 
 
@@ -66,7 +67,8 @@
     .obitsop           ( ldpc_dvb_dec_vnode_sum__obitsop           ) ,
     .obiteop           ( ldpc_dvb_dec_vnode_sum__obiteop           ) ,
     .obitdat           ( ldpc_dvb_dec_vnode_sum__obitdat           ) ,
-    .obiterr           ( ldpc_dvb_dec_vnode_sum__obiterr           )
+    .obiterr           ( ldpc_dvb_dec_vnode_sum__obiterr           ) ,
+    .obitaddr          ( ldpc_dvb_dec_vnode_sum__obitaddr          )
   );
 
 
@@ -182,7 +184,7 @@ module ldpc_dvb_dec_vnode_sum
     if (iclkena) begin
       strb  <= istrb;
       //
-      hdbit <= pDO_LLR_INVERSION ? (iLLR <= 0) : (iLLR >= 0);
+      hdbit <= pDO_LLR_INVERSION ? (iLLR <= 0) : (iLLR < 0);
       //
       if (ival) begin
         ovnode_sum        <= (istrb.sop ? iLLR : ovnode_sum) + icnode;
@@ -202,7 +204,7 @@ module ldpc_dvb_dec_vnode_sum
   end
 
   // register is outside
-  assign ovnode_hd = (ovnode_sum <= 0);
+  assign ovnode_hd = pDO_LLR_INVERSION ? (ovnode_sum <= 0) : (ovnode_sum < 0);
 
   //------------------------------------------------------------------------------------------------------
   // hard decision and bit interface
@@ -218,7 +220,7 @@ module ldpc_dvb_dec_vnode_sum
       obiterr = '0;
     end
     else begin
-      obitdat = pDO_LLR_INVERSION ? (ovnode_sum <= 0) : (ovnode_sum >= 0);
+      obitdat = pDO_LLR_INVERSION ? (ovnode_sum <= 0) : (ovnode_sum < 0);
       obiterr = obitdat ^ hdbit; // can do so, because LLR and it's HD hold at least 2 cycles while vnode counting
     end
   end

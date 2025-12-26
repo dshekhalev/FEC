@@ -90,7 +90,8 @@ module bertest;
   logic [cDEC_DAT_W-1 : 0] dec__odat      ;
 
   logic                    dec__odecfail  ;
-  logic     [pERR_W-1 : 0] dec__oerr      ;
+  logic     [pERR_W-1 : 0] dec__obiterr   ;
+  logic            [7 : 0] dec__ouNiter   ;
 
   //------------------------------------------------------------------------------------------------------
   // encoder
@@ -300,8 +301,8 @@ module bertest;
     .otag      (               ) ,
     //
     .odecfail  ( dec__odecfail ) ,
-    .oerr      ( dec__oerr     ) ,
-
+    .obiterr   ( dec__obiterr  ) ,
+    .ouNiter   ( dec__ouNiter  )
   );
 
 
@@ -474,7 +475,7 @@ module bertest;
             err     = code.do_compare(decode);
             //
             numerr[k]     += err;
-            est_numerr[k] += dec__oerr;
+            est_numerr[k] += dec__obiterr;
             //
             $display("%0t decode done %0d. decfail = %0d, err = %0d, est err %0d", $time, n, dec__odecfail, numerr[k], est_numerr[k]);
           end

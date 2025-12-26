@@ -16,7 +16,7 @@
   logic                    ldpc_dvb_dec_sink__ireset    ;
   logic                    ldpc_dvb_dec_sink__iclkena   ;
   //
-  logic   [pRADDR_W-1 : 0] ldpc_dvb_dec_sink__irsize    ;
+  col_t                    ldpc_dvb_dec_sink__irsize    ;
   //
   logic                    ldpc_dvb_dec_sink__irfull    ;
   logic    [pRDAT_W-1 : 0] ldpc_dvb_dec_sink__irdat     ;
@@ -24,6 +24,7 @@
   //
   logic                    ldpc_dvb_dec_sink__irdecfail ;
   logic     [pERR_W-1 : 0] ldpc_dvb_dec_sink__irerr     ;
+  logic            [7 : 0] ldpc_dvb_dec_sink__irNiter   ;
   //
   logic                    ldpc_dvb_dec_sink__orempty   ;
   logic   [pRADDR_W-1 : 0] ldpc_dvb_dec_sink__oraddr    ;
@@ -39,6 +40,7 @@
   //
   logic                    ldpc_dvb_dec_sink__odecfail  ;
   logic     [pERR_W-1 : 0] ldpc_dvb_dec_sink__oerr      ;
+  logic            [7 : 0] ldpc_dvb_dec_sink__oNiter    ;
 
 
 
@@ -67,6 +69,7 @@
     //
     .irdecfail ( ldpc_dvb_dec_sink__irdecfail ) ,
     .irerr     ( ldpc_dvb_dec_sink__irerr     ) ,
+    .irNiter   ( ldpc_dvb_dec_sink__irNiter   ) ,
     //
     .orempty   ( ldpc_dvb_dec_sink__orempty   ) ,
     .oraddr    ( ldpc_dvb_dec_sink__oraddr    ) ,
@@ -81,20 +84,22 @@
     .otag      ( ldpc_dvb_dec_sink__otag      ) ,
     //
     .odecfail  ( ldpc_dvb_dec_sink__odecfail  ) ,
-    .oerr      ( ldpc_dvb_dec_sink__oerr      )
+    .oerr      ( ldpc_dvb_dec_sink__oerr      ) ,
+    .oNiter    ( ldpc_dvb_dec_sink__oNiter    )
   );
 
 
-  assign ldpc_dvb_dec_sink__iclk       = '0 ;
-  assign ldpc_dvb_dec_sink__ireset     = '0 ;
-  assign ldpc_dvb_dec_sink__iclkena    = '0 ;
-  assign ldpc_dvb_dec_sink__irsize     = '0 ;
-  assign ldpc_dvb_dec_sink__irfull     = '0 ;
-  assign ldpc_dvb_dec_sink__irdat      = '0 ;
-  assign ldpc_dvb_dec_sink__irtag      = '0 ;
-  assign ldpc_dvb_dec_sink__irdecfail  = '0 ;
-  assign ldpc_dvb_dec_sink__irerr      = '0 ;
-  assign ldpc_dvb_dec_sink__ireq       = '0 ;
+  assign ldpc_dvb_dec_sink__iclk      = '0 ;
+  assign ldpc_dvb_dec_sink__ireset    = '0 ;
+  assign ldpc_dvb_dec_sink__iclkena   = '0 ;
+  assign ldpc_dvb_dec_sink__irsize    = '0 ;
+  assign ldpc_dvb_dec_sink__irfull    = '0 ;
+  assign ldpc_dvb_dec_sink__irdat     = '0 ;
+  assign ldpc_dvb_dec_sink__irtag     = '0 ;
+  assign ldpc_dvb_dec_sink__irdecfail = '0 ;
+  assign ldpc_dvb_dec_sink__irerr     = '0 ;
+  assing ldpc_dvb_dec_sink__irNiter   = '0 ;
+  assign ldpc_dvb_dec_sink__ireq      = '0 ;
 
 
 
@@ -106,8 +111,6 @@
 // Workfile      : ldpc_dvb_dec_sink.sv
 // Description   : Ouput decoder interface module for decoders which using output memory.
 //
-
-`include "define.vh"
 
 module ldpc_dvb_dec_sink
 #(
@@ -131,6 +134,7 @@ module ldpc_dvb_dec_sink
   //
   irerr     ,
   irdecfail ,
+  irNiter   ,
   //
   orempty   ,
   oraddr    ,
@@ -145,9 +149,11 @@ module ldpc_dvb_dec_sink
   otag      ,
   //
   odecfail  ,
-  oerr
+  oerr      ,
+  oNiter
 );
 
+  `include "../ldpc_dvb_constants.svh"
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -157,7 +163,7 @@ module ldpc_dvb_dec_sink
   input  logic                  ireset              ;
   input  logic                  iclkena             ;
   //
-  input  logic [pRADDR_W-1 : 0] irsize              ;
+  input  col_t                  irsize              ;
   //
   input  logic                  irfull              ;
   input  logic  [pRDAT_W-1 : 0] irdat               ;
@@ -165,6 +171,7 @@ module ldpc_dvb_dec_sink
   //
   input  logic                  irdecfail           ;
   input  logic   [pERR_W-1 : 0] irerr               ;
+  input  logic          [7 : 0] irNiter             ;
   //
   output logic                  orempty             ;
   output logic [pRADDR_W-1 : 0] oraddr              ;
@@ -180,12 +187,13 @@ module ldpc_dvb_dec_sink
   //
   output logic                  odecfail            ;
   output logic   [pERR_W-1 : 0] oerr                ;
+  output logic          [7 : 0] oNiter              ;
 
   //------------------------------------------------------------------------------------------------------
   //
   //------------------------------------------------------------------------------------------------------
 
-  localparam int cTAG_W = pTAG_W + pERR_W + 1;
+  localparam int cTAG_W = pTAG_W + pERR_W + 1 + 8;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -229,8 +237,8 @@ module ldpc_dvb_dec_sink
     .otag      ( sink__otag  )
   );
 
-  assign sink__irtag            = {irdecfail, irerr, irtag};
+  assign sink__irtag                    = {irdecfail, irerr, irNiter, irtag};
 
-  assign {odecfail, oerr, otag} = sink__otag;
+  assign {odecfail, oerr, oNiter, otag} = sink__otag;
 
 endmodule

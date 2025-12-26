@@ -13,6 +13,8 @@
   logic         ldpc_dvb_dec_sort_engine__ireset              ;
   logic         ldpc_dvb_dec_sort_engine__iclkena             ;
   //
+  logic         ldpc_dvb_dec_sort_engine__inorm_bypass        ;
+  //
   logic         ldpc_dvb_dec_sort_engine__istart              ;
   //
   logic         ldpc_dvb_dec_sort_engine__ival                ;
@@ -48,6 +50,8 @@
     .ireset              ( ldpc_dvb_dec_sort_engine__ireset              ) ,
     .iclkena             ( ldpc_dvb_dec_sort_engine__iclkena             ) ,
     //
+    .inorm_bypass        ( ldpc_dvb_dec_sort_engine__inorm_bypass        ) ,
+    //
     .istart              ( ldpc_dvb_dec_sort_engine__istart              ) ,
     //
     .ival                ( ldpc_dvb_dec_sort_engine__ival                ) ,
@@ -70,14 +74,15 @@
   );
 
 
-  assign ldpc_dvb_dec_sort_engine__iclk    = '0 ;
-  assign ldpc_dvb_dec_sort_engine__ireset  = '0 ;
-  assign ldpc_dvb_dec_sort_engine__iclkena = '0 ;
-  assign ldpc_dvb_dec_sort_engine__istart  = '0 ;
-  assign ldpc_dvb_dec_sort_engine__ival    = '0 ;
-  assign ldpc_dvb_dec_sort_engine__istrb   = '0 ;
-  assign ldpc_dvb_dec_sort_engine__ivmask  = '0 ;
-  assign ldpc_dvb_dec_sort_engine__ivnode  = '0 ;
+  assign ldpc_dvb_dec_sort_engine__iclk         = '0 ;
+  assign ldpc_dvb_dec_sort_engine__ireset       = '0 ;
+  assign ldpc_dvb_dec_sort_engine__iclkena      = '0 ;
+  assign ldpc_dvb_dec_sort_engine__inorm_bypass = '0 ;
+  assign ldpc_dvb_dec_sort_engine__istart       = '0 ;
+  assign ldpc_dvb_dec_sort_engine__ival         = '0 ;
+  assign ldpc_dvb_dec_sort_engine__istrb        = '0 ;
+  assign ldpc_dvb_dec_sort_engine__ivmask       = '0 ;
+  assign ldpc_dvb_dec_sort_engine__ivnode       = '0 ;
 
 
 
@@ -92,9 +97,11 @@
 
 module ldpc_dvb_dec_sort_engine
 (
-  iclk             ,
+  iclk                ,
   ireset              ,
   iclkena             ,
+  //
+  inorm_bypass        ,
   //
   istart              ,
   //
@@ -127,6 +134,8 @@ module ldpc_dvb_dec_sort_engine
   input  logic        iclk                ;
   input  logic        ireset              ;
   input  logic        iclkena             ;
+  //
+  input  logic        inorm_bypass        ; // normalization bypass (for low snr modes)
   //
   input  logic        istart              ;
   //
@@ -256,7 +265,7 @@ module ldpc_dvb_dec_sort_engine
   end
 
   // edge comparator for decfail
-  wire vn_sort_leq1 = (vn_sort.min1[pNODE_W-1 : 1] == 0);  // <= 0..1
+  wire vn_sort_leq1 = (vn_sort.min1[pNODE_W-1 : pNODE_SCALE_W+1] == 0);  // <= 0..1
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
@@ -266,17 +275,21 @@ module ldpc_dvb_dec_sort_engine
       if (vn_sort_done) begin
         osort_num_m1    <= vn_sort_num_m1;
         osort_rslt      <= vn_sort;
-        if (pNORM_OFFSET) begin
-          osort_rslt.min1 <= vn_sort.min1 - (vn_sort.min1 != 0);  // offset value is 1
-          osort_rslt.min2 <= vn_sort.min2 - (vn_sort.min2 != 0);  // it's positive value
+        osort_rslt.min1 <= vn_sort.min1;
+        osort_rslt.min2 <= vn_sort.min2;
+        if (!inorm_bypass) begin
+          if (pNORM_OFFSET) begin
+            osort_rslt.min1 <= vn_sort.min1 - (vn_sort.min1 != 0);  // offset value is 1
+            osort_rslt.min2 <= vn_sort.min2 - (vn_sort.min2 != 0);  // it's positive value
+          end
+          else begin
+            osort_rslt.min1 <= normalize(vn_sort.min1);
+            osort_rslt.min2 <= normalize(vn_sort.min2);
+          end
         end
-        else begin
-          osort_rslt.min1 <= normalize(vn_sort.min1);
-          osort_rslt.min2 <= normalize(vn_sort.min2);
-        end
-      end
-    end
-  end
+      end // vn_sort_done
+    end // iclkena
+  end // iclk
 
   //------------------------------------------------------------------------------------------------------
   // look ahead signals
@@ -297,7 +310,7 @@ module ldpc_dvb_dec_sort_engine
   function automatic vnode_t normalize (input vnode_t dat);
     logic [pNODE_W+2 : 0] tmp; // + 3 bit
   begin
-    if (pNORM_FACTOR != 0) begin //0.875
+    if (pNORM_FACTOR != 0) begin
       case (pNORM_FACTOR)
         1       : begin // 0.125
           tmp =  dat + 4;

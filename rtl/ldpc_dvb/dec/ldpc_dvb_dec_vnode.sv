@@ -294,7 +294,7 @@ module ldpc_dvb_dec_vnode
 
   generate
     if (pUSE_SRL_FIFO) begin
-      ldpc_dvb_dec_srl_fifo
+      codec_srl_fifo
       #(
         .pDEPTH_W ( cCNODE_FIFO_DEPTH_W ) ,
         .pDAT_W   ( cCNODE_FIFO_DAT_W   )
@@ -315,11 +315,13 @@ module ldpc_dvb_dec_vnode
         .ordat   ( cnode_fifo__ordat  ) ,
         //
         .oempty  ( cnode_fifo__oempty ) ,
-        .ofull   ( cnode_fifo__ofull  )
+        .ofull   ( cnode_fifo__ofull  ) ,
+        .ohfull  (                    ) ,   // not used
+        .ousedw  (                    )     // not used
       );
     end
     else begin
-      ldpc_dvb_dec_fifo
+      codec_fifo
       #(
         .pDEPTH_W ( cCNODE_FIFO_DEPTH_W ) ,
         .pDAT_W   ( cCNODE_FIFO_DAT_W   )
@@ -340,7 +342,9 @@ module ldpc_dvb_dec_vnode
         .ordat   ( cnode_fifo__ordat  ) ,
         //
         .oempty  ( cnode_fifo__oempty ) ,
-        .ofull   ( cnode_fifo__ofull  )
+        .ofull   ( cnode_fifo__ofull  ) ,
+        .ohfull  (                    ) ,   // not used
+        .ousedw  (                    )     // not used
       );
     end
   endgenerate

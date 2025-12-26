@@ -2,9 +2,10 @@
 
 
 
-  parameter int pLLR_W  = 4 ;
-  parameter int pNODE_W = 8 ;
-  parameter int pCTX_W  = 8 ;
+  parameter int pLLR_W   = 4       ;
+  parameter int pNODE_W  = 8       ;
+  parameter int pCNODE_W = pNODE_W ;
+  parameter int pCTX_W   = 8       ;
 
 
 
@@ -23,15 +24,16 @@
   //
   logic                        ldpc_dvb_dec_cnode_restore__ocnode_val  ;
   logic         [pCTX_W-1 : 0] ldpc_dvb_dec_cnode_restore__ocnode_ctx  ;
-  node_t                       ldpc_dvb_dec_cnode_restore__ocnode      ;
+  cnode_t                      ldpc_dvb_dec_cnode_restore__ocnode      ;
 
 
 
   ldpc_dvb_dec_cnode_restore
   #(
-    .pLLR_W  ( pLLR_W  ) ,
-    .pNODE_W ( pNODE_W ) ,
-    .pCTX_W  ( pCTX_W  )
+    .pLLR_W   ( pLLR_W   ) ,
+    .pNODE_W  ( pNODE_W  ) ,
+    .pCNODE_W ( pCNODE_W ) ,
+    .pCTX_W   ( pCTX_W   )
   )
   ldpc_dvb_dec_cnode_restore
   (
@@ -120,7 +122,7 @@ module ldpc_dvb_dec_cnode_restore
   //
   output logic                       ocnode_val  ;
   output logic        [pCTX_W-1 : 0] ocnode_ctx  ;
-  output node_t                      ocnode      ;
+  output cnode_t                     ocnode      ;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -154,11 +156,18 @@ module ldpc_dvb_dec_cnode_restore
   // usefull functions
   //------------------------------------------------------------------------------------------------------
 
-  function automatic node_t unpack_cnode (input vnode_t min1, min2, input logic min2_sel, sign);
+  localparam int cCN_MAX = 2**(pCNODE_W-1);
+
+  function automatic cnode_t unpack_cnode (input vnode_t min1, min2, input logic min2_sel, sign);
     vnode_t cn_abs;
   begin
     cn_abs       = min2_sel ? min2 : min1;
-    unpack_cnode = (cn_abs ^ {pNODE_W{sign}}) + sign;
+    // saturate to prevent + 2^(pCNODE_W-1) incorect inversion
+    if (cn_abs >= cCN_MAX) begin
+      cn_abs = cCN_MAX-1;
+    end
+    //
+    unpack_cnode = (cn_abs ^ {pCNODE_W{sign}}) + sign;
   end
   endfunction
 

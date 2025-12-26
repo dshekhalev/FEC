@@ -8,6 +8,7 @@ set workdir ../work
 vlib $workdir
 #
 vlog -work $workdir -incr -sv +incdir+$incdir+$rtldir $rtldir/*.sv
+vlog -work $workdir -incr -sv +incdir+$incdir+$rtldir $rtldir/fifo/*.sv
 vlog -work $workdir -incr -sv +incdir+$incdir+$rtldir $rtldir/buffer/*.sv
 vlog -work $workdir -incr -sv +incdir+$incdir+$rtldir $rtldir/biterr_cnt/*.sv
 #

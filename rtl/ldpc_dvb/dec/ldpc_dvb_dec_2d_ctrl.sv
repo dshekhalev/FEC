@@ -34,6 +34,9 @@
   cycle_idx_t         ldpc_dvb_dec_2d_ctrl__ocycle_idx     ;
   //
   logic               ldpc_dvb_dec_2d_ctrl__olast_iter     ;
+  //
+  logic       [7 : 0] ldpc_dvb_dec_2d_ctrl__ouNiter        ;
+  logic               ldpc_dvb_dec_2d_ctrl__obusy          ;
 
 
 
@@ -68,7 +71,10 @@
     .ocycle_strb    ( ldpc_dvb_dec_2d_ctrl__ocycle_strb    ) ,
     .ocycle_idx     ( ldpc_dvb_dec_2d_ctrl__ocycle_idx     ) ,
     //
-    .olast_iter     ( ldpc_dvb_dec_2d_ctrl__olast_iter     )
+    .olast_iter     ( ldpc_dvb_dec_2d_ctrl__olast_iter     ) ,
+    //
+    .ouNiter        ( ldpc_dvb_dec_2d_ctrl__ouNiter        ) ,
+    .obusy          ( ldpc_dvb_dec_2d_ctrl__obusy          )
   );
 
 
@@ -92,7 +98,7 @@
 */
 
 //
-// Project       : ldpc 3gpp TS 38.212 v15.7.0
+// Project       : ldpc DVB-S2
 // Author        : Shekhalev Denis (des00)
 // Workfile      : ldpc_dvb_dec_2d_ctrl.sv
 // Description   : 2D min-sum main controller
@@ -128,7 +134,10 @@ module ldpc_dvb_dec_2d_ctrl
   ocycle_strb    ,
   ocycle_idx     ,
   //
-  olast_iter
+  olast_iter     ,
+  //
+  ouNiter        ,
+  obusy
 );
 
   `include "../ldpc_dvb_constants.svh"
@@ -167,6 +176,9 @@ module ldpc_dvb_dec_2d_ctrl
   output cycle_idx_t         ocycle_idx     ;
   //
   output logic               olast_iter     ;
+  //
+  output logic       [7 : 0] ouNiter        ;
+  output logic               obusy          ;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -227,8 +239,8 @@ module ldpc_dvb_dec_2d_ctrl
   end
 
   wire do_bypass    = (iNiter == 0);
-  wire outbuf_nrdy  = iter.last & !iobuf_empty;
-  wire do_last      = iter.last | fast_stop;
+  wire outbuf_nrdy  = (iter.last | (ifmode & !icnode_decfail)) & !iobuf_empty;
+  wire do_last      =  iter.last | fast_stop;
 
   always_comb begin
     case (state)
@@ -244,11 +256,13 @@ module ldpc_dvb_dec_2d_ctrl
       //
       cWAIT_O_STATE     : next_state = !outbuf_nrdy   ? cVSTEP_STATE : cWAIT_O_STATE;
       //
-      cDONE_STATE       : next_state = cWAIT_STATE;
+      cDONE_STATE       : next_state = cRESET_STATE;  // need to wait 1 tick after obuf_empty for correct hs_gen context decoding
       //
       default           : next_state = cRESET_STATE;
     endcase
   end
+
+  assign obusy = (state != cWAIT_STATE);
 
   //------------------------------------------------------------------------------------------------------
   // FSM counters
@@ -265,12 +279,16 @@ module ldpc_dvb_dec_2d_ctrl
           cycle_cnt.zero <= 1'b1;
           //
           used_cycle_m2  <= icycle_max_num - 2;
+          //
+          ouNiter        <= '0;
         end
         //
         cHSTEP_STATE      : begin
           cycle_cnt.value <=  cycle_cnt.done ? '0 : (cycle_cnt.value + 1'b1);
           cycle_cnt.done  <= (cycle_cnt.value == used_cycle_m2);
           cycle_cnt.zero  <=  cycle_cnt.done;
+          //
+          ouNiter         <= ouNiter + cycle_cnt.zero;
         end
         //
         cVSTEP_STATE      : begin
