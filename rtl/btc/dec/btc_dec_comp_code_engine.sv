@@ -368,7 +368,9 @@ module btc_dec_comp_code_engine
     .ordat   ( hd_fifo__ordat   ) ,
     //
     .oempty  ( hd_fifo__oempty  ) ,
-    .ofull   ( hd_fifo__ofull   )
+    .ofull   ( hd_fifo__ofull   ) ,
+    .ohfull  (                  ) ,  // n.u.
+    .ousedw  (                  )
   );
 
   assign hd_fifo__iwrite  = ival;
@@ -400,7 +402,9 @@ module btc_dec_comp_code_engine
     .ordat   ( Lapri_fifo__ordat   ) ,
     //
     .oempty  ( Lapri_fifo__oempty  ) ,
-    .ofull   ( Lapri_fifo__ofull   )
+    .ofull   ( Lapri_fifo__ofull   ) ,
+    .ohfull  (                     ) ,  // n.u.
+    .ousedw  (                     )
   );
 
   assign Lapri_fifo__iwrite  = ival & (imode.code_type == cE_HAM_CODE);
