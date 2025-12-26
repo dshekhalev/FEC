@@ -15,5 +15,5 @@ vlog -work $workdir +initreg+0 -sv +incdir+$incdir+$tbdir/bch $tbdir/rs/rs_eras_
 
 set seed [clock seconds]
 
-vsim -sv_seed $seed rs_enc_dec_tb -lib $workdir
+vsim -sv_seed $seed rs_eras_enc_dec_tb -lib $workdir
 run -all
