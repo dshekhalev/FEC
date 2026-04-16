@@ -389,7 +389,7 @@ module dvb_s2x_demo_test;
       rx_data[addr] = dec__m_axis_tdata;
       //
       if (addr == 0) begin
-        $display("ldpc statistic: biterr %0d, decfail %0d, used_iter %0d", dec__oldpc_decfail, dec__oldpc_decfail, dec__oldpc_used_niter);
+        $display("ldpc statistic: biterr %0d, decfail %0d, used_iter %0d", dec__oldpc_biterr, dec__oldpc_decfail, dec__oldpc_used_niter);
         $display("bch  statistic: biterr %0d, decfail %0d", dec__obch_biterr, dec__obch_decfail);
       end
       //
