@@ -93,6 +93,9 @@ module bertest;
   logic     [pERR_W-1 : 0] dec__obiterr   ;
   logic            [7 : 0] dec__ouNiter   ;
 
+  logic                    fifo__ofull ;
+  logic                    fifo__ohfull;
+
   //------------------------------------------------------------------------------------------------------
   // encoder
   //------------------------------------------------------------------------------------------------------
@@ -131,7 +134,7 @@ module bertest;
     .otag      (             )
   );
 
-  assign enc__ireq = dec__ordy;
+  assign enc__ireq = !fifo__ohfull;
 
   //------------------------------------------------------------------------------------------------------
   // QPSK mapper. Power is 2
@@ -233,6 +236,65 @@ module bertest;
   end
 
   //------------------------------------------------------------------------------------------------------
+  // handshake dataflow FIFO
+  //------------------------------------------------------------------------------------------------------
+
+  localparam int cFIFO_DAT_W = pLLR_NUM * cDAT_W + 2;
+
+  logic                     fifo__iwrite;
+  logic [cFIFO_DAT_W-1 : 0] fifo__iwdat;
+
+  logic                     fifo__iread;
+  logic                     fifo__orval;
+  logic [cFIFO_DAT_W-1 : 0] fifo__ordat;
+
+  logic                     fifo__oempty;
+
+  //
+  //
+  //
+
+  codec_srl_fifo
+  #(
+    .pDEPTH_W ( 5           ) ,
+    .pDAT_W   ( cFIFO_DAT_W ) ,
+    .pNO_REG  ( 1           )
+  )
+  fifo
+  (
+    .iclk    ( iclk    ) ,
+    .ireset  ( ireset  ) ,
+    .iclkena ( iclkena ) ,
+    //
+    .iclear  ( 1'b0    ) ,
+    //
+    .iwrite  ( fifo__iwrite ) ,
+    .iwdat   ( fifo__iwdat  ) ,
+    //
+    .iread   ( fifo__iread  ) ,
+    .orval   ( fifo__orval  ) ,
+    .ordat   ( fifo__ordat  ) ,
+    //
+    .oempty  ( fifo__oempty ) ,
+    .ofull   ( fifo__ofull  ) ,
+    .ohfull  ( fifo__ohfull ) ,
+    .ousedw  (              )
+  );
+
+  always_comb begin
+    fifo__iwrite               = awgn_val;
+    fifo__iwdat[cFIFO_DAT_W-1] = awgn_sop;
+    fifo__iwdat[cFIFO_DAT_W-2] = awgn_eop;
+    //
+    for (int i = 0; i < pLLR_NUM/2; i++) begin
+      fifo__iwdat[i*2*cDAT_W + cDAT_W +: cDAT_W] = {dat2llr_re[i]};
+      fifo__iwdat[i*2*cDAT_W          +: cDAT_W] = {dat2llr_im[i]};
+    end
+  end
+
+  assign fifo__iread = dec__ordy & !fifo__oempty;
+
+  //------------------------------------------------------------------------------------------------------
   // get LLR stream
   //------------------------------------------------------------------------------------------------------
 
@@ -242,12 +304,13 @@ module bertest;
   logic signed [pLLR_W-1 : 0] dec__iLLR  [pLLR_NUM] ;
 
   always_comb begin
-    dec__isop = awgn_sop;
-    dec__ival = awgn_val;
-    dec__ieop = awgn_eop;
+    dec__ival = fifo__orval;
+    dec__isop = fifo__ordat[cFIFO_DAT_W-1];
+    dec__ieop = fifo__ordat[cFIFO_DAT_W-2];
+    //
     for (int i = 0; i < pLLR_NUM/2; i++) begin
-      dec__iLLR[2*i + 1] = dat2llr_re[i];
-      dec__iLLR[2*i + 0] = dat2llr_im[i];
+      dec__iLLR[2*i + 1] = fifo__ordat[i*2*cDAT_W + cDAT_W +: cDAT_W];
+      dec__iLLR[2*i + 0] = fifo__ordat[i*2*cDAT_W          +: cDAT_W];
     end
   end
 
@@ -334,7 +397,7 @@ module bertest;
   //
   //------------------------------------------------------------------------------------------------------
 
-  const int B = 1e5;
+  const int B = 2e5;
 
   int Npkt;
 
