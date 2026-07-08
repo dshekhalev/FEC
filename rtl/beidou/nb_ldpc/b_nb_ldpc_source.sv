@@ -2,89 +2,93 @@
 
 
 
-  parameter int pDAT_W  = 6 ;
-  parameter int pADDR_W = 8 ;
-  parameter int pTAG_W  = 8 ;
+  parameter int pDAT_W    = 6 ;
+  parameter int pADDR_W   = 8 ;
+  parameter int pTAG_W    = 8 ;
+  //
+  parameter bit pDEC_MODE = 0 ;
 
 
 
-  logic                      b_nb_ldpc_enc_source__iclk        ;
-  logic                      b_nb_ldpc_enc_source__ireset      ;
-  logic                      b_nb_ldpc_enc_source__iclkena     ;
+  logic                      b_nb_ldpc_source__iclk        ;
+  logic                      b_nb_ldpc_source__ireset      ;
+  logic                      b_nb_ldpc_source__iclkena     ;
   //
-  code_idx_t                 b_nb_ldpc_enc_source__icode_idx   ;
+  code_idx_t                 b_nb_ldpc_source__icode_idx   ;
   //
-  logic                      b_nb_ldpc_enc_source__isop        ;
-  logic                      b_nb_ldpc_enc_source__ival        ;
-  logic                      b_nb_ldpc_enc_source__ieop        ;
-  logic       [pDAT_W-1 : 0] b_nb_ldpc_enc_source__idat        ;
-  logic       [pTAG_W-1 : 0] b_nb_ldpc_enc_source__itag        ;
+  logic                      b_nb_ldpc_source__isop        ;
+  logic                      b_nb_ldpc_source__ival        ;
+  logic                      b_nb_ldpc_source__ieop        ;
+  logic       [pDAT_W-1 : 0] b_nb_ldpc_source__idat        ;
+  logic       [pTAG_W-1 : 0] b_nb_ldpc_source__itag        ;
   //
-  logic                      b_nb_ldpc_enc_source__ifulla      ;
-  logic                      b_nb_ldpc_enc_source__iemptya     ;
+  logic                      b_nb_ldpc_source__ifulla      ;
+  logic                      b_nb_ldpc_source__iemptya     ;
   //
-  logic                      b_nb_ldpc_enc_source__ordy        ;
-  logic                      b_nb_ldpc_enc_source__obusy       ;
-  logic                      b_nb_ldpc_enc_source__osource_err ;
+  logic                      b_nb_ldpc_source__ordy        ;
+  logic                      b_nb_ldpc_source__obusy       ;
+  logic                      b_nb_ldpc_source__osource_err ;
   //
-  code_idx_t                 b_nb_ldpc_enc_source__ocode_idx   ;
+  code_idx_t                 b_nb_ldpc_source__ocode_idx   ;
   //
-  logic                      b_nb_ldpc_enc_source__owrite      ;
-  logic                      b_nb_ldpc_enc_source__owfull      ;
-  logic      [pADDR_W-1 : 0] b_nb_ldpc_enc_source__owaddr      ;
-  gf_data_t                  b_nb_ldpc_enc_source__owdat       ;
-  logic       [pTAG_W-1 : 0] b_nb_ldpc_enc_source__owtag       ;
+  logic                      b_nb_ldpc_source__owrite      ;
+  logic                      b_nb_ldpc_source__owfull      ;
+  logic      [pADDR_W-1 : 0] b_nb_ldpc_source__owaddr      ;
+  gf_data_t                  b_nb_ldpc_source__owdat       ;
+  logic       [pTAG_W-1 : 0] b_nb_ldpc_source__owtag       ;
 
 
 
-  b_nb_ldpc_enc_source
+  b_nb_ldpc_source
   #(
-    .pDAT_W  ( pDAT_W  ) ,
-    .pADDR_W ( pADDR_W ) ,
-    .pTAG_W  ( pTAG_W  )
+    .pDAT_W    ( pDAT_W    ) ,
+    .pADDR_W   ( pADDR_W   ) ,
+    .pTAG_W    ( pTAG_W    ) ,
+    //
+    .pDEC_MODE ( pDEC_MODE )
   )
-  b_nb_ldpc_enc_source
+  b_nb_ldpc_source
   (
-    .iclk        ( b_nb_ldpc_enc_source__iclk        ) ,
-    .ireset      ( b_nb_ldpc_enc_source__ireset      ) ,
-    .iclkena     ( b_nb_ldpc_enc_source__iclkena     ) ,
+    .iclk        ( b_nb_ldpc_source__iclk        ) ,
+    .ireset      ( b_nb_ldpc_source__ireset      ) ,
+    .iclkena     ( b_nb_ldpc_source__iclkena     ) ,
     //
-    .icode_idx   ( b_nb_ldpc_enc_source__icode_idx   ) ,
+    .icode_idx   ( b_nb_ldpc_source__icode_idx   ) ,
     //
-    .isop        ( b_nb_ldpc_enc_source__isop        ) ,
-    .ival        ( b_nb_ldpc_enc_source__ival        ) ,
-    .ieop        ( b_nb_ldpc_enc_source__ieop        ) ,
-    .idat        ( b_nb_ldpc_enc_source__idat        ) ,
-    .itag        ( b_nb_ldpc_enc_source__itag        ) ,
+    .isop        ( b_nb_ldpc_source__isop        ) ,
+    .ival        ( b_nb_ldpc_source__ival        ) ,
+    .ieop        ( b_nb_ldpc_source__ieop        ) ,
+    .idat        ( b_nb_ldpc_source__idat        ) ,
+    .itag        ( b_nb_ldpc_source__itag        ) ,
     //
-    .ifulla      ( b_nb_ldpc_enc_source__ifulla      ) ,
-    .iemptya     ( b_nb_ldpc_enc_source__iemptya     ) ,
+    .ifulla      ( b_nb_ldpc_source__ifulla      ) ,
+    .iemptya     ( b_nb_ldpc_source__iemptya     ) ,
     //
-    .ordy        ( b_nb_ldpc_enc_source__ordy        ) ,
-    .obusy       ( b_nb_ldpc_enc_source__obusy       ) ,
-    .osource_err ( b_nb_ldpc_enc_source__osource_err ) ,
+    .ordy        ( b_nb_ldpc_source__ordy        ) ,
+    .obusy       ( b_nb_ldpc_source__obusy       ) ,
+    .osource_err ( b_nb_ldpc_source__osource_err ) ,
     //
-    .ocode_idx   ( b_nb_ldpc_enc_source__ocode_idx   ) ,
+    .ocode_idx   ( b_nb_ldpc_source__ocode_idx   ) ,
     //
-    .owrite      ( b_nb_ldpc_enc_source__owrite      ) ,
-    .owfull      ( b_nb_ldpc_enc_source__owfull      ) ,
-    .owaddr      ( b_nb_ldpc_enc_source__owaddr      ) ,
-    .owdat       ( b_nb_ldpc_enc_source__owdat       ) ,
-    .owtag       ( b_nb_ldpc_enc_source__owtag       )
+    .owrite      ( b_nb_ldpc_source__owrite      ) ,
+    .owfull      ( b_nb_ldpc_source__owfull      ) ,
+    .owaddr      ( b_nb_ldpc_source__owaddr      ) ,
+    .owdat       ( b_nb_ldpc_source__owdat       ) ,
+    .owtag       ( b_nb_ldpc_source__owtag       )
   );
 
 
-  assign b_nb_ldpc_enc_source__iclk      = '0 ;
-  assign b_nb_ldpc_enc_source__ireset    = '0 ;
-  assign b_nb_ldpc_enc_source__iclkena   = '0 ;
-  assign b_nb_ldpc_enc_source__icode_idx = '0 ;
-  assign b_nb_ldpc_enc_source__isop      = '0 ;
-  assign b_nb_ldpc_enc_source__ival      = '0 ;
-  assign b_nb_ldpc_enc_source__ieop      = '0 ;
-  assign b_nb_ldpc_enc_source__idat      = '0 ;
-  assign b_nb_ldpc_enc_source__itag      = '0 ;
-  assign b_nb_ldpc_enc_source__ifulla    = '0 ;
-  assign b_nb_ldpc_enc_source__iemptya   = '0 ;
+  assign b_nb_ldpc_source__iclk      = '0 ;
+  assign b_nb_ldpc_source__ireset    = '0 ;
+  assign b_nb_ldpc_source__iclkena   = '0 ;
+  assign b_nb_ldpc_source__icode_idx = '0 ;
+  assign b_nb_ldpc_source__isop      = '0 ;
+  assign b_nb_ldpc_source__ival      = '0 ;
+  assign b_nb_ldpc_source__ieop      = '0 ;
+  assign b_nb_ldpc_source__idat      = '0 ;
+  assign b_nb_ldpc_source__itag      = '0 ;
+  assign b_nb_ldpc_source__ifulla    = '0 ;
+  assign b_nb_ldpc_source__iemptya   = '0 ;
 
 
 
@@ -93,15 +97,17 @@
 //
 // Project       : BeiDou non binaray ldpc
 // Author        : Shekhalev Denis (des00)
-// Workfile      : b_nb_ldpc_enc_source.svh
-// Description   : encoder source unit with DWC (1->6) option
+// Workfile      : b_nb_ldpc_source.svh
+// Description   : encoder/decoder hard decision source unit with DWC (1->6) option
 //
 
-module b_nb_ldpc_enc_source
+module b_nb_ldpc_source
 #(
-  parameter int pDAT_W  = 6 ,
-  parameter int pADDR_W = 8 ,
-  parameter int pTAG_W  = 8
+  parameter int pDAT_W    = 6 ,
+  parameter int pADDR_W   = 8 ,
+  parameter int pTAG_W    = 8 ,
+  //
+  parameter bit pDEC_MODE = 0   // encoder(0)/decoder(1) mode
 )
 (
   iclk        ,
@@ -132,7 +138,7 @@ module b_nb_ldpc_enc_source
   owtag
 );
 
-  `include "b_nb_ldpc_enc_types.svh"
+  `include "b_nb_ldpc_constants.svh"
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -270,7 +276,12 @@ module b_nb_ldpc_enc_source
       end
       //
       sop         <= isop;
-      osource_err <= owfull & !sop & (owaddr != (cROW_TAB[ocode_idx]-1));
+      if (pDEC_MODE) begin
+        osource_err <= owfull & !sop & (owaddr != (cCOL_TAB[ocode_idx]-1));
+      end
+      else begin
+        osource_err <= owfull & !sop & (owaddr != (cROW_TAB[ocode_idx]-1));
+      end
     end
   end
 

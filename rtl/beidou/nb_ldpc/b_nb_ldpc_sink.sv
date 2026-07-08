@@ -2,74 +2,78 @@
 
 
 
-  parameter int pADDR_W = 1 ;
-  parameter int pDAT_W  = 2 ;
-  parameter int pTAG_W  = 4 ;
-
-
-
-  logic                     b_nb_ldpc_enc_sink__iclk      ;
-  logic                     b_nb_ldpc_enc_sink__ireset    ;
-  logic                     b_nb_ldpc_enc_sink__iclkena   ;
+  parameter int pADDR_W   = 1 ;
+  parameter int pDAT_W    = 2 ;
+  parameter int pTAG_W    = 4 ;
   //
-  code_idx_t                b_nb_ldpc_enc_sink__icode_idx ;
-  //
-  logic                     b_nb_ldpc_enc_sink__irfull    ;
-  gf_data_t                 b_nb_ldpc_enc_sink__irdat     ;
-  logic      [pTAG_W-1 : 0] b_nb_ldpc_enc_sink__irtag     ;
-  logic                     b_nb_ldpc_enc_sink__orempty   ;
-  logic     [pADDR_W-1 : 0] b_nb_ldpc_enc_sink__oraddr    ;
-  //
-  logic                     b_nb_ldpc_enc_sink__ireq      ;
-  logic                     b_nb_ldpc_enc_sink__ofull     ;
-  //
-  logic                     b_nb_ldpc_enc_sink__osop      ;
-  logic                     b_nb_ldpc_enc_sink__oeop      ;
-  logic                     b_nb_ldpc_enc_sink__oval      ;
-  logic      [pDAT_W-1 : 0] b_nb_ldpc_enc_sink__odat      ;
-  logic      [pTAG_W-1 : 0] b_nb_ldpc_enc_sink__otag      ;
+  parameter bit pDEC_MODE = 0 ;
 
 
 
-  b_nb_ldpc_enc_sink
+  logic                     b_nb_ldpc_sink__iclk      ;
+  logic                     b_nb_ldpc_sink__ireset    ;
+  logic                     b_nb_ldpc_sink__iclkena   ;
+  //
+  code_idx_t                b_nb_ldpc_sink__icode_idx ;
+  //
+  logic                     b_nb_ldpc_sink__irfull    ;
+  gf_data_t                 b_nb_ldpc_sink__irdat     ;
+  logic      [pTAG_W-1 : 0] b_nb_ldpc_sink__irtag     ;
+  logic                     b_nb_ldpc_sink__orempty   ;
+  logic     [pADDR_W-1 : 0] b_nb_ldpc_sink__oraddr    ;
+  //
+  logic                     b_nb_ldpc_sink__ireq      ;
+  logic                     b_nb_ldpc_sink__ofull     ;
+  //
+  logic                     b_nb_ldpc_sink__osop      ;
+  logic                     b_nb_ldpc_sink__oeop      ;
+  logic                     b_nb_ldpc_sink__oval      ;
+  logic      [pDAT_W-1 : 0] b_nb_ldpc_sink__odat      ;
+  logic      [pTAG_W-1 : 0] b_nb_ldpc_sink__otag      ;
+
+
+
+  b_nb_ldpc_sink
   #(
-    .pADDR_W ( pADDR_W ) ,
-    .pDAT_W  ( pDAT_W  ) ,
-    .pTAG_W  ( pTAG_W  )
+    .pADDR_W   ( pADDR_W   ) ,
+    .pDAT_W    ( pDAT_W    ) ,
+    .pTAG_W    ( pTAG_W    ) ,
+    //
+    .pDEC_MODE ( pDEC_MODE )
   )
-  b_nb_ldpc_enc_sink
+  b_nb_ldpc_sink
   (
-    .iclk      ( b_nb_ldpc_enc_sink__iclk      ) ,
-    .ireset    ( b_nb_ldpc_enc_sink__ireset    ) ,
-    .iclkena   ( b_nb_ldpc_enc_sink__iclkena   ) ,
+    .iclk      ( b_nb_ldpc_sink__iclk      ) ,
+    .ireset    ( b_nb_ldpc_sink__ireset    ) ,
+    .iclkena   ( b_nb_ldpc_sink__iclkena   ) ,
     //
-    .icode_idx ( b_nb_ldpc_enc_sink__icode_idx ) ,
+    .icode_idx ( b_nb_ldpc_sink__icode_idx ) ,
     //
-    .irfull    ( b_nb_ldpc_enc_sink__irfull    ) ,
-    .irdat     ( b_nb_ldpc_enc_sink__irdat     ) ,
-    .irtag     ( b_nb_ldpc_enc_sink__irtag     ) ,
-    .orempty   ( b_nb_ldpc_enc_sink__orempty   ) ,
-    .oraddr    ( b_nb_ldpc_enc_sink__oraddr    ) ,
+    .irfull    ( b_nb_ldpc_sink__irfull    ) ,
+    .irdat     ( b_nb_ldpc_sink__irdat     ) ,
+    .irtag     ( b_nb_ldpc_sink__irtag     ) ,
+    .orempty   ( b_nb_ldpc_sink__orempty   ) ,
+    .oraddr    ( b_nb_ldpc_sink__oraddr    ) ,
     //
-    .ireq      ( b_nb_ldpc_enc_sink__ireq      ) ,
-    .ofull     ( b_nb_ldpc_enc_sink__ofull     ) ,
+    .ireq      ( b_nb_ldpc_sink__ireq      ) ,
+    .ofull     ( b_nb_ldpc_sink__ofull     ) ,
     //
-    .osop      ( b_nb_ldpc_enc_sink__osop      ) ,
-    .oeop      ( b_nb_ldpc_enc_sink__oeop      ) ,
-    .oval      ( b_nb_ldpc_enc_sink__oval      ) ,
-    .odat      ( b_nb_ldpc_enc_sink__odat      ) ,
-    .otag      ( b_nb_ldpc_enc_sink__otag      )
+    .osop      ( b_nb_ldpc_sink__osop      ) ,
+    .oeop      ( b_nb_ldpc_sink__oeop      ) ,
+    .oval      ( b_nb_ldpc_sink__oval      ) ,
+    .odat      ( b_nb_ldpc_sink__odat      ) ,
+    .otag      ( b_nb_ldpc_sink__otag      )
   );
 
 
-  assign b_nb_ldpc_enc_sink__iclk      = '0 ;
-  assign b_nb_ldpc_enc_sink__ireset    = '0 ;
-  assign b_nb_ldpc_enc_sink__iclkena   = '0 ;
-  assign b_nb_ldpc_enc_sink__icode_idx = '0 ;
-  assign b_nb_ldpc_enc_sink__irfull    = '0 ;
-  assign b_nb_ldpc_enc_sink__irdat     = '0 ;
-  assign b_nb_ldpc_enc_sink__irtag     = '0 ;
-  assign b_nb_ldpc_enc_sink__ireq      = '0 ;
+  assign b_nb_ldpc_sink__iclk      = '0 ;
+  assign b_nb_ldpc_sink__ireset    = '0 ;
+  assign b_nb_ldpc_sink__iclkena   = '0 ;
+  assign b_nb_ldpc_sink__icode_idx = '0 ;
+  assign b_nb_ldpc_sink__irfull    = '0 ;
+  assign b_nb_ldpc_sink__irdat     = '0 ;
+  assign b_nb_ldpc_sink__irtag     = '0 ;
+  assign b_nb_ldpc_sink__ireq      = '0 ;
 
 
 
@@ -78,16 +82,17 @@
 //
 // Project       : BeiDou non binaray ldpc
 // Author        : Shekhalev Denis (des00)
-// Workfile      : b_nb_ldpc_enc_sink.svh
-// Description   : encoder source unit with DWC (1->6) option
+// Workfile      : b_nb_ldpc_sink.svh
+// Description   : codec sink unit with DWC (6->1) option
 //
 
-module b_nb_ldpc_enc_sink
+module b_nb_ldpc_sink
 #(
-  parameter int pDAT_W  = 6 ,
-  parameter int pADDR_W = 8 ,
+  parameter int pDAT_W    = 6 ,
+  parameter int pADDR_W   = 8 ,
+  parameter int pTAG_W    = 4 ,
   //
-  parameter int pTAG_W  = 4
+  parameter bit pDEC_MODE = 0   // encoder(0)/decoder(1) mode
 )
 (
   iclk      ,
@@ -112,7 +117,7 @@ module b_nb_ldpc_enc_sink
   otag
 );
 
-  `include "b_nb_ldpc_enc_types.svh"
+  `include "b_nb_ldpc_constants.svh"
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -232,7 +237,13 @@ module b_nb_ldpc_enc_sink
       else if (state == cDO_STATE & ireq) begin
         if (bcnt.done) begin
           wcnt.value <=  wcnt.done ? '0 : (wcnt.value + 1'b1);
-          wcnt.done  <= (wcnt.value == (cCOL_TAB[icode_idx] - 2));
+          //
+          if (pDEC_MODE) begin
+            wcnt.done <= (wcnt.value == (cROW_TAB[icode_idx] - 2));
+          end
+          else begin
+            wcnt.done <= (wcnt.value == (cCOL_TAB[icode_idx] - 2));
+          end
         end
       end
     end
