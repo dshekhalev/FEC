@@ -26,6 +26,8 @@
   //
   logic       b_nb_ldpc_enc_ctrl__ocycle_read    ;
   cycle_idx_t b_nb_ldpc_enc_ctrl__ocycle_idx     ;
+  //
+  logic       b_nb_ldpc_enc_ctrl__obusy          ;
 
 
 
@@ -52,7 +54,9 @@
     .odat_n_parity  ( b_nb_ldpc_enc_ctrl__odat_n_parity  ) ,
     //
     .ocycle_read    ( b_nb_ldpc_enc_ctrl__ocycle_read    ) ,
-    .ocycle_idx     ( b_nb_ldpc_enc_ctrl__ocycle_idx     )
+    .ocycle_idx     ( b_nb_ldpc_enc_ctrl__ocycle_idx     ) ,
+    //
+    .obusy          ( b_nb_ldpc_enc_ctrl__obusy          )
   );
 
 
@@ -100,7 +104,9 @@ module b_nb_ldpc_enc_ctrl
   odat_n_parity  ,
   //
   ocycle_read    ,
-  ocycle_idx
+  ocycle_idx     ,
+  //
+  obusy
 );
 
   `include "b_nb_ldpc_enc_types.svh"
@@ -130,6 +136,8 @@ module b_nb_ldpc_enc_ctrl
   //
   output logic       ocycle_read    ;
   output cycle_idx_t ocycle_idx     ;
+  //
+  output logic       obusy          ;
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -182,6 +190,8 @@ module b_nb_ldpc_enc_ctrl
       endcase
     end
   end
+
+  assign obusy = (state != cWAIT_STATE);
 
   //------------------------------------------------------------------------------------------------------
   // FSM counters & decoding

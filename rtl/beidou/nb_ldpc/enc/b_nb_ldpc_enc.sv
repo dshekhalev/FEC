@@ -190,7 +190,7 @@ module b_nb_ldpc_enc
   localparam int cIBUF_DAT_W  = $bits(gf_data_t);
   localparam int cIBUF_TAG_W  = $bits(code_idx_t) + pTAG_W;
 
-  localparam int cOBUF_ADDR_W = cLOG2_N_MAX     ;
+  localparam int cOBUF_ADDR_W = cLOG2_N_MAX;
   localparam int cOBUF_DAT_W  = $bits(gf_data_t);
   localparam int cOBUF_TAG_W  = $bits(code_idx_t) + pTAG_W;
 
@@ -199,6 +199,14 @@ module b_nb_ldpc_enc
   //------------------------------------------------------------------------------------------------------
 
   // source
+  code_idx_t                  source__icode_idx   ;
+  //
+  logic                       source__isop        ;
+  logic                       source__ival        ;
+  logic                       source__ieop        ;
+  logic        [pDAT_W-1 : 0] source__idat        ;
+  logic        [pTAG_W-1 : 0] source__itag        ;
+  //
   logic                       source__ifulla      ;
   logic                       source__iemptya     ;
   //
@@ -272,6 +280,8 @@ module b_nb_ldpc_enc
   //
   logic                       ctrl__ocycle_read    ;
   cycle_idx_t                 ctrl__ocycle_idx     ;
+  //
+  logic                       ctrl__obusy          ;
 
   // mac unit
   logic                       mac__idat_n_parity ;
@@ -317,7 +327,6 @@ module b_nb_ldpc_enc
   logic                       sink__orempty   ;
   logic  [cOBUF_ADDR_W-1 : 0] sink__oraddr    ;
 
-
   //------------------------------------------------------------------------------------------------------
   // reset CDC for all clocks
   //------------------------------------------------------------------------------------------------------
@@ -345,18 +354,31 @@ module b_nb_ldpc_enc
   );
 
   //------------------------------------------------------------------------------------------------------
-  // obusy CDC
+  //
   //------------------------------------------------------------------------------------------------------
 
   assign ordy         = source__ordy;
-  assign obusy        = source__obusy;
   assign osource_err  = source__osource_err;
+
+  //------------------------------------------------------------------------------------------------------
+  // obusy CDC :: busy is not handske singnal
+  //------------------------------------------------------------------------------------------------------
+
+  logic [1 : 0] ctrl_busy;
+  logic [1 : 0] obuf_busy;
+
+  always_ff @(posedge iclkin) begin
+    ctrl_busy <= (ctrl_busy << 1) | ctrl__obusy;
+    obuf_busy <= (obuf_busy << 1) | obuf__owfull;
+    //
+    obusy     <= source__obusy | ctrl_busy[1] | obuf_busy[1];
+  end
 
   //------------------------------------------------------------------------------------------------------
   // source
   //------------------------------------------------------------------------------------------------------
 
-  b_nb_ldpc_enc_source
+  b_nb_ldpc_source
   #(
     .pDAT_W  ( pDAT_W       ) ,
     .pADDR_W ( cIBUF_ADDR_W ) ,
@@ -368,13 +390,13 @@ module b_nb_ldpc_enc
     .ireset      ( ireset              ) ,
     .iclkena     ( 1'b1                ) ,
     //
-    .icode_idx   ( icode_idx           ) ,
+    .icode_idx   ( source__icode_idx   ) ,
     //
-    .isop        ( isop                ) ,
-    .ival        ( ival & ordy         ) ,
-    .ieop        ( ieop                ) ,
-    .idat        ( idat                ) ,
-    .itag        ( itag                ) ,
+    .isop        ( source__isop        ) ,
+    .ival        ( source__ival        ) ,
+    .ieop        ( source__ieop        ) ,
+    .idat        ( source__idat        ) ,
+    .itag        ( source__itag        ) ,
     //
     .ifulla      ( source__ifulla      ) ,
     .iemptya     ( source__iemptya     ) ,
@@ -392,8 +414,16 @@ module b_nb_ldpc_enc
     .owtag       ( source__owtag       )
   );
 
-  assign source__ifulla  = ibuf__owfulla  ;
-  assign source__iemptya = ibuf__owemptya ;
+  assign source__icode_idx = icode_idx;
+
+  assign source__isop      = isop;
+  assign source__ival      = ival & ordy;
+  assign source__ieop      = ieop;
+  assign source__idat      = idat;
+  assign source__itag      = itag;
+
+  assign source__ifulla    = ibuf__owfulla  ;
+  assign source__iemptya   = ibuf__owemptya ;
 
   //------------------------------------------------------------------------------------------------------
   // input bufer
@@ -541,7 +571,9 @@ module b_nb_ldpc_enc
     .odat_n_parity  ( ctrl__odat_n_parity  ) ,
     //
     .ocycle_read    ( ctrl__ocycle_read    ) ,
-    .ocycle_idx     ( ctrl__ocycle_idx     )
+    .ocycle_idx     ( ctrl__ocycle_idx     ) ,
+    //
+    .obusy          ( ctrl__obusy          )
   );
 
   assign ctrl__ibuf_full      = ibuf__orfull  ;
@@ -650,7 +682,7 @@ module b_nb_ldpc_enc
   // sink
   //------------------------------------------------------------------------------------------------------
 
-  b_nb_ldpc_enc_sink
+  b_nb_ldpc_sink
   #(
     .pADDR_W ( cOBUF_ADDR_W ) ,
     .pDAT_W  ( pDAT_W       ) ,
