@@ -177,6 +177,7 @@ module b_nb_ldpc_sink
   } wcnt;
 
   struct packed {
+    logic         zero;
     logic         done;
     logic [2 : 0] value;
   } bcnt;
@@ -215,16 +216,19 @@ module b_nb_ldpc_sink
       always_ff @(posedge iclk) begin
         if (iclkena) begin
           if (state == cRESET_STATE) begin
-            bcnt <= '0;
+            bcnt      <= '0;
+            bcnt.zero <= 1'b1;
           end
           else if (state == cDO_STATE & ireq) begin
             bcnt.value <=  bcnt.done ? '0 : (bcnt.value + 1'b1);
             bcnt.done  <= (bcnt.value == (cBCNT_MAX-2));
+            bcnt.zero  <= bcnt.done;
           end
         end
       end
     end
     else begin
+      assign bcnt.zero = 1'b1;
       assign bcnt.done = 1'b1;
     end
   endgenerate
@@ -249,7 +253,6 @@ module b_nb_ldpc_sink
     end
   end
 
-
   assign oraddr = wcnt.value[pADDR_W-1 : 0];
 
   //------------------------------------------------------------------------------------------------------
@@ -267,9 +270,9 @@ module b_nb_ldpc_sink
       osop    <= 1'b0;
     end
     else if (iclkena) begin
-      val     <= (val << 1) | (state == cDO_STATE & ireq & bcnt.done);
+      val     <= (val     << 1) | (state == cDO_STATE & ireq & bcnt.zero);
       //
-      set_sf  <= (set_sf << 1) | start;
+      set_sf  <= (set_sf  << 1) | start;
       //
       if (set_sf[1]) begin
         ofull <= 1'b1;
@@ -316,19 +319,18 @@ module b_nb_ldpc_sink
     else begin : dwc_logic
       gf_data_t val2out;
       gf_data_t dat2out;
-      gf_data_t eop2out;
 
       always_ff @(posedge iclk) begin
         if (iclkena) begin
           val2out <= val[1] ? '1    : (val2out << 1);
           dat2out <= val[1] ? irdat : (dat2out << 1); // msb first
-          eop2out <= eop[1] ? 1'b1  : (eop2out << 1);
         end
       end
 
       assign oval = val2out[$high(val2out)];
       assign odat = dat2out[$high(dat2out)];
-      assign oeop = eop2out[$high(dat2out)];
+
+      assign oeop = eop[2];
 
     end
   endgenerate

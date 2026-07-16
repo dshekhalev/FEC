@@ -6,56 +6,56 @@
 
 
 
-  logic                    b_nb_ldpc_mac_unit__iclk          ;
-  logic                    b_nb_ldpc_mac_unit__ireset        ;
-  logic                    b_nb_ldpc_mac_unit__iclkena       ;
+  logic                    b_nb_ldpc_enc_mac_unit__iclk          ;
+  logic                    b_nb_ldpc_enc_mac_unit__ireset        ;
+  logic                    b_nb_ldpc_enc_mac_unit__iclkena       ;
   //
-  logic                    b_nb_ldpc_mac_unit__idat_n_parity ;
+  logic                    b_nb_ldpc_enc_mac_unit__idat_n_parity ;
   //
-  logic                    b_nb_ldpc_mac_unit__ival          ;
-  gf_dat_t                 b_nb_ldpc_mac_unit__idat          ;
-  gf_dat_t                 b_nb_ldpc_mac_unit__igdat         ;
-  strb_t                   b_nb_ldpc_mac_unit__istrb         ;
+  logic                    b_nb_ldpc_enc_mac_unit__ival          ;
+  gf_dat_t                 b_nb_ldpc_enc_mac_unit__idat          ;
+  gf_dat_t                 b_nb_ldpc_enc_mac_unit__igdat         ;
+  strb_t                   b_nb_ldpc_enc_mac_unit__istrb         ;
   //
-  logic                    b_nb_ldpc_mac_unit__owrite        ;
-  logic                    b_nb_ldpc_mac_unit__owfull        ;
-  gf_dat_t                 b_nb_ldpc_mac_unit__owdat         ;
-  logic    [pADDR_W-1 : 0] b_nb_ldpc_mac_unit__owaddr        ;
+  logic                    b_nb_ldpc_enc_mac_unit__owrite        ;
+  logic                    b_nb_ldpc_enc_mac_unit__owfull        ;
+  gf_dat_t                 b_nb_ldpc_enc_mac_unit__owdat         ;
+  logic    [pADDR_W-1 : 0] b_nb_ldpc_enc_mac_unit__owaddr        ;
 
 
 
-  b_nb_ldpc_mac_unit
+  b_nb_ldpc_enc_mac_unit
   #(
     .pADDR_W ( pADDR_W )
   )
-  b_nb_ldpc_mac_unit
+  b_nb_ldpc_enc_mac_unit
   (
-    .iclk          ( b_nb_ldpc_mac_unit__iclk          ) ,
-    .ireset        ( b_nb_ldpc_mac_unit__ireset        ) ,
-    .iclkena       ( b_nb_ldpc_mac_unit__iclkena       ) ,
+    .iclk          ( b_nb_ldpc_enc_mac_unit__iclk          ) ,
+    .ireset        ( b_nb_ldpc_enc_mac_unit__ireset        ) ,
+    .iclkena       ( b_nb_ldpc_enc_mac_unit__iclkena       ) ,
     //
-    .idat_n_parity ( b_nb_ldpc_mac_unit__idat_n_parity ) ,
+    .idat_n_parity ( b_nb_ldpc_enc_mac_unit__idat_n_parity ) ,
     //
-    .ival          ( b_nb_ldpc_mac_unit__ival          ) ,
-    .idat          ( b_nb_ldpc_mac_unit__idat          ) ,
-    .igdat         ( b_nb_ldpc_mac_unit__igdat         ) ,
-    .istrb         ( b_nb_ldpc_mac_unit__istrb         ) ,
+    .ival          ( b_nb_ldpc_enc_mac_unit__ival          ) ,
+    .idat          ( b_nb_ldpc_enc_mac_unit__idat          ) ,
+    .igdat         ( b_nb_ldpc_enc_mac_unit__igdat         ) ,
+    .istrb         ( b_nb_ldpc_enc_mac_unit__istrb         ) ,
     //
-    .owrite        ( b_nb_ldpc_mac_unit__owrite        ) ,
-    .owfull        ( b_nb_ldpc_mac_unit__owfull        ) ,
-    .owdat         ( b_nb_ldpc_mac_unit__owdat         ) ,
-    .owaddr        ( b_nb_ldpc_mac_unit__owaddr        )
+    .owrite        ( b_nb_ldpc_enc_mac_unit__owrite        ) ,
+    .owfull        ( b_nb_ldpc_enc_mac_unit__owfull        ) ,
+    .owdat         ( b_nb_ldpc_enc_mac_unit__owdat         ) ,
+    .owaddr        ( b_nb_ldpc_enc_mac_unit__owaddr        )
   );
 
 
-  assign b_nb_ldpc_mac_unit__iclk          = '0 ;
-  assign b_nb_ldpc_mac_unit__ireset        = '0 ;
-  assign b_nb_ldpc_mac_unit__iclkena       = '0 ;
-  assign b_nb_ldpc_mac_unit__idat_n_parity = '0 ;
-  assign b_nb_ldpc_mac_unit__ival          = '0 ;
-  assign b_nb_ldpc_mac_unit__idat          = '0 ;
-  assign b_nb_ldpc_mac_unit__igdat         = '0 ;
-  assign b_nb_ldpc_mac_unit__istrb         = '0 ;
+  assign b_nb_ldpc_enc_mac_unit__iclk          = '0 ;
+  assign b_nb_ldpc_enc_mac_unit__ireset        = '0 ;
+  assign b_nb_ldpc_enc_mac_unit__iclkena       = '0 ;
+  assign b_nb_ldpc_enc_mac_unit__idat_n_parity = '0 ;
+  assign b_nb_ldpc_enc_mac_unit__ival          = '0 ;
+  assign b_nb_ldpc_enc_mac_unit__idat          = '0 ;
+  assign b_nb_ldpc_enc_mac_unit__igdat         = '0 ;
+  assign b_nb_ldpc_enc_mac_unit__istrb         = '0 ;
 
 
 
@@ -64,11 +64,11 @@
 //
 // Project       : BeiDou non binaray ldpc
 // Author        : Shekhalev Denis (des00)
-// Workfile      : b_nb_ldpc_mac_unit.svh
+// Workfile      : b_nb_ldpc_enc_mac_unit.svh
 // Description   : encoder galua field MAC unit
 //
 
-module b_nb_ldpc_mac_unit
+module b_nb_ldpc_enc_mac_unit
 #(
   parameter int pADDR_W = 8
 )
@@ -178,7 +178,7 @@ module b_nb_ldpc_mac_unit
     end
     else if (iclkena) begin
       owrite <=  idat_n_parity ? ival : (gf_acc_val & gf_acc_strb.eop);
-      owfull <= !idat_n_parity &        (gf_acc_val & gf_acc_strb.eof);
+      owfull <= !idat_n_parity &        (gf_acc_val & gf_acc_strb.eop & gf_acc_strb.eof);
     end
   end
 
@@ -186,7 +186,7 @@ module b_nb_ldpc_mac_unit
     if (iclkena) begin
       if (idat_n_parity) begin
         if (ival) begin
-          owaddr <= istrb.sof ? 1'b0 : (owaddr + 1'b1);
+          owaddr <= (istrb.sop & istrb.sof) ? 1'b0 : (owaddr + 1'b1);
         end
         owdat <= idat;
       end

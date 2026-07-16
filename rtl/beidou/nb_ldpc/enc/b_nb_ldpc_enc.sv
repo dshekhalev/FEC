@@ -186,11 +186,11 @@ module b_nb_ldpc_enc
   //
   //------------------------------------------------------------------------------------------------------
 
-  localparam int cIBUF_ADDR_W = cLOG2_K_MAX;
+  localparam int cIBUF_ADDR_W = cLOG2_K_MAX - (pBCNV_MAX_IDX == 0);
   localparam int cIBUF_DAT_W  = $bits(gf_data_t);
   localparam int cIBUF_TAG_W  = $bits(code_idx_t) + pTAG_W;
 
-  localparam int cOBUF_ADDR_W = cLOG2_N_MAX;
+  localparam int cOBUF_ADDR_W = cLOG2_N_MAX - (pBCNV_MAX_IDX == 0);
   localparam int cOBUF_DAT_W  = $bits(gf_data_t);
   localparam int cOBUF_TAG_W  = $bits(code_idx_t) + pTAG_W;
 
@@ -480,7 +480,7 @@ module b_nb_ldpc_enc
   assign ibuf__iraddr   = g_tab__oraddr ;
 
   //------------------------------------------------------------------------------------------------------
-  // context unit
+  // context table
   //------------------------------------------------------------------------------------------------------
 
   b_nb_ldpc_g_tab
@@ -591,7 +591,7 @@ module b_nb_ldpc_enc
   // mac unit
   //------------------------------------------------------------------------------------------------------
 
-  b_nb_ldpc_mac_unit
+  b_nb_ldpc_enc_mac_unit
   #(
     .pADDR_W ( cOBUF_ADDR_W )
   )

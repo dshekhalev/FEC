@@ -27,26 +27,24 @@
   typedef logic [cGF_M-1 : 0] gf_data_t;
 
   //------------------------------------------------------------------------------------------------------
-  // matrix settings
+  // check matrix settings
   //------------------------------------------------------------------------------------------------------
 
-  localparam int cCOL_TAB [4] = '{88, 200, 96, 162};
-  localparam int cROW_TAB [4] = '{44, 100, 48, 81};
+  localparam int cCOL_TAB   [4] = '{ 88, 200,  96, 162};
+  localparam int cROW_TAB   [4] = '{ 44, 100,  48,  81};
+
+  localparam int cH_NUM_TAB [4] = '{176, 400, 192, 324};
 
   // the largest
-  localparam int cN_MAX = 200;
-  localparam int cK_MAX = 100;
+  localparam int cN_MAX         = 200;
+  localparam int cK_MAX         = 100;
 
-  localparam int cLOG2_N_MAX = $clog2(cN_MAX);
-  localparam int cLOG2_K_MAX = $clog2(cK_MAX);
+  localparam int cH_N_MAX       = 400;
+
+  localparam int cLOG2_N_MAX    = $clog2(cN_MAX);
+  localparam int cLOG2_K_MAX    = $clog2(cK_MAX);
+  localparam int cLOG2_H_N_MAX  = $clog2(cH_N_MAX);
 
   typedef logic [cLOG2_N_MAX-1 : 0] col_t;
   typedef logic [cLOG2_K_MAX-1 : 0] row_t;
-
-  localparam int cCYCLE_IDX_W = 13; // parity G matrix for {200, 100} is 6899 non null elements
-
-  typedef logic [cCYCLE_IDX_W-1 : 0] cycle_idx_t;
-
-
-
 
