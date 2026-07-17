@@ -1,6 +1,6 @@
 BeiDou Navigation Satellite System non-binary LDPC (Open Service Signal B1C (Version 1.0))
 
-Decoder support only BCNV1_SF3 : 64-ary LDPC (88,44), other codes is not inside netlist.
+Decoder support only BCNV1 SF3 : 64-ary LDPC (88, 44), other codes is not inside netlist.
 
 Decoder use hard decision improved min-sum decoding with 4 truncated symbols per vector. 
 
@@ -10,4 +10,4 @@ Demo example inside. The expected results is inside "expected_results.png" file.
 
 vivado 2020.2 Kintex 7 - 2, all modes support 
 
-Decoder	: LUT/REG/RAMB 	~3k/~4k/4	~200MHz (BCNV1_SF3 decoding time ~1ms for 8 iterations)
+Decoder	: LUT/REG/RAMB 	~4k/~4k/4	~200MHz (BCNV1 SF3 decoding time ~1ms for 8 iterations)

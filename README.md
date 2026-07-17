@@ -31,3 +31,4 @@ New feature added: full-featured netlists with limited operating modes support. 
 
 1. DVB-S2/S2X compliant codec up to 1.5Gpbs at decoder input.
 2. NASA GSFC LDPC (7136, 8160) codec up to 4Gpbs at decoder input.
+2. Beidou NB LDPC (88, 44) decoder 

@@ -2,7 +2,7 @@ BeiDou Navigation Satellite System non-binary LDPC (Open Service Signal B1C (Ver
 
 Encoder architecture code modes support 
 
-BCNV1_SF3 : 64-ary LDPC (88,44)
+BCNV1_SF3 : 64-ary LDPC (88, 44)
 
 BCNV1_SF2 : 64-ary LDPC (200, 100)
 
