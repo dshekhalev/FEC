@@ -183,6 +183,7 @@ module b_nb_ldpc_sink
   } bcnt;
 
   logic [2 : 0] val;
+  logic [2 : 0] rval;
   logic [2 : 0] eop;
 
   logic [1 : 0] set_sf; // set sop/full
@@ -205,7 +206,7 @@ module b_nb_ldpc_sink
     end
   end
 
-  assign orempty = (state == cDO_STATE & ireq & done);
+  assign orempty = (state == cDO_STATE) & ireq & done;
 
   //------------------------------------------------------------------------------------------------------
   // counters
@@ -219,7 +220,7 @@ module b_nb_ldpc_sink
             bcnt      <= '0;
             bcnt.zero <= 1'b1;
           end
-          else if (state == cDO_STATE & ireq) begin
+          else if ((state == cDO_STATE) & ireq) begin
             bcnt.value <=  bcnt.done ? '0 : (bcnt.value + 1'b1);
             bcnt.done  <= (bcnt.value == (cBCNT_MAX-2));
             bcnt.zero  <= bcnt.done;
@@ -238,7 +239,7 @@ module b_nb_ldpc_sink
       if (state == cRESET_STATE) begin
         wcnt <= '0;
       end
-      else if (state == cDO_STATE & ireq) begin
+      else if ((state == cDO_STATE) & ireq) begin
         if (bcnt.done) begin
           wcnt.value <=  wcnt.done ? '0 : (wcnt.value + 1'b1);
           //
@@ -264,13 +265,18 @@ module b_nb_ldpc_sink
   always_ff @(posedge iclk or posedge ireset) begin
     if (ireset) begin
       val     <= '0;
+      rval    <= '0;
+      eop     <= '0;
+      //
       set_sf  <= '0;
       //
       ofull   <= 1'b0;
       osop    <= 1'b0;
     end
     else if (iclkena) begin
-      val     <= (val     << 1) | (state == cDO_STATE & ireq & bcnt.zero);
+      val     <= (val     << 1) | ((state == cDO_STATE) & ireq);
+      rval    <= (rval    << 1) | ((state == cDO_STATE) & ireq & bcnt.zero);
+      eop     <= (eop     << 1) | ((state == cDO_STATE) & ireq & done);
       //
       set_sf  <= (set_sf  << 1) | start;
       //
@@ -292,8 +298,6 @@ module b_nb_ldpc_sink
 
   always_ff @(posedge iclk) begin
     if (iclkena) begin
-      eop <= (eop << 1) | (state == cDO_STATE & done);
-      //
       if (start) begin
         otag <= irtag;
       end
@@ -304,34 +308,29 @@ module b_nb_ldpc_sink
   // data logic
   //------------------------------------------------------------------------------------------------------
 
+  assign oval = val[2];
+  assign oeop = eop[2];
+
   generate
     if (pDAT_W == 6) begin : dat6_logic
-      assign oval = val[2];
-
       always_ff @(posedge iclk) begin
         if (iclkena) begin
           odat <= irdat;
         end
       end
-
-      assign oeop = eop[2];
     end
     else begin : dwc_logic
-      gf_data_t val2out;
       gf_data_t dat2out;
 
       always_ff @(posedge iclk) begin
         if (iclkena) begin
-          val2out <= val[1] ? '1    : (val2out << 1);
-          dat2out <= val[1] ? irdat : (dat2out << 1); // msb first
+          if (val[1]) begin
+            dat2out <= rval[1] ? irdat : (dat2out << 1); // msb first
+          end
         end
       end
 
-      assign oval = val2out[$high(val2out)];
       assign odat = dat2out[$high(dat2out)];
-
-      assign oeop = eop[2];
-
     end
   endgenerate
 
