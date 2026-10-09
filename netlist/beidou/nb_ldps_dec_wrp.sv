@@ -12,7 +12,7 @@
   logic          nb_ldpc_dec_wrp__isop            ;
   logic          nb_ldpc_dec_wrp__ival            ;
   logic          nb_ldpc_dec_wrp__ieop            ;
-  logic          nb_ldpc_dec_wrp__idat            ;
+  logic  [3 : 0] nb_ldpc_dec_wrp__iLLR            ;
   logic  [7 : 0] nb_ldpc_dec_wrp__itag            ;
   //
   logic          nb_ldpc_dec_wrp__ordy            ;
@@ -27,6 +27,7 @@
   //
   logic  [7 : 0] nb_ldpc_dec_wrp__ouNiter         ;
   logic          nb_ldpc_dec_wrp__odecfail        ;
+  logic          nb_ldpc_dec_wrp__odecstall       ;
   logic [10 : 0] nb_ldpc_dec_wrp__obit_err        ;
   logic  [7 : 0] nb_ldpc_dec_wrp__osymb_err       ;
 
@@ -45,7 +46,7 @@
     .isop            ( nb_ldpc_dec_wrp__isop            ) ,
     .ival            ( nb_ldpc_dec_wrp__ival            ) ,
     .ieop            ( nb_ldpc_dec_wrp__ieop            ) ,
-    .idat            ( nb_ldpc_dec_wrp__idat            ) ,
+    .iLLR            ( nb_ldpc_dec_wrp__iLLR            ) ,
     .itag            ( nb_ldpc_dec_wrp__itag            ) ,
     //
     .ordy            ( nb_ldpc_dec_wrp__ordy            ) ,
@@ -60,6 +61,7 @@
     //
     .ouNiter         ( nb_ldpc_dec_wrp__ouNiter         ) ,
     .odecfail        ( nb_ldpc_dec_wrp__odecfail        ) ,
+    .odecstall       ( nb_ldpc_dec_wrp__odecstall       ) ,
     .obit_err        ( nb_ldpc_dec_wrp__obit_err        ) ,
     .osymb_err       ( nb_ldpc_dec_wrp__osymb_err       )
   );
@@ -73,7 +75,7 @@
   assign nb_ldpc_dec_wrp__isop      = '0 ;
   assign nb_ldpc_dec_wrp__ival      = '0 ;
   assign nb_ldpc_dec_wrp__ieop      = '0 ;
-  assign nb_ldpc_dec_wrp__idat      = '0 ;
+  assign nb_ldpc_dec_wrp__iLLR      = '0 ;
   assign nb_ldpc_dec_wrp__itag      = '0 ;
 
 
@@ -100,7 +102,7 @@ module nb_ldpc_dec_wrp
   isop            ,
   ival            ,
   ieop            ,
-  idat            ,
+  iLLR            ,
   itag            ,
   //
   ordy            ,
@@ -115,6 +117,7 @@ module nb_ldpc_dec_wrp
   //
   ouNiter         ,
   odecfail        ,
+  odecstall       ,
   obit_err        ,
   osymb_err
 );
@@ -133,7 +136,7 @@ module nb_ldpc_dec_wrp
   input  logic          isop            ;
   input  logic          ival            ;
   input  logic          ieop            ;
-  input  logic          idat            ;
+  input  logic  [3 : 0] iLLR            ;
   input  logic  [7 : 0] itag            ;
   //
   output logic          ordy            ;
@@ -148,6 +151,7 @@ module nb_ldpc_dec_wrp
   //
   output logic  [7 : 0] ouNiter         ;
   output logic          odecfail        ;
+  output logic          odecstall       ;
   output logic [10 : 0] obit_err        ;
   output logic  [7 : 0] osymb_err       ;
 
@@ -168,7 +172,7 @@ module nb_ldpc_dec_wrp
     .isop            ( isop            ) ,
     .ival            ( ival            ) ,
     .ieop            ( ieop            ) ,
-    .idat            ( idat            ) ,
+    .iLLR            ( iLLR            ) ,
     .itag            ( itag            ) ,
     //
     .ordy            ( ordy            ) ,
@@ -183,6 +187,7 @@ module nb_ldpc_dec_wrp
     //
     .ouNiter         ( ouNiter         ) ,
     .odecfail        ( odecfail        ) ,
+    .odecstall       ( odecstall       ) ,
     .obit_err        ( obit_err        ) ,
     .osymb_err       ( osymb_err       )
   );

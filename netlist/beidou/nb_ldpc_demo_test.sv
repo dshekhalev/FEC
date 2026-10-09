@@ -47,7 +47,7 @@ module nb_ldpc_demo_test;
   logic                     dec__isop            ;
   logic                     dec__ival            ;
   logic                     dec__ieop            ;
-  logic      [pDAT_W-1 : 0] dec__idat            ;
+  logic             [3 : 0] dec__iLLR            ;
   logic      [pTAG_W-1 : 0] dec__itag            ;
   //
   logic                     dec__ordy            ;
@@ -62,6 +62,7 @@ module nb_ldpc_demo_test;
   //
   logic             [7 : 0] dec__ouNiter         ;
   logic                     dec__odecfail        ;
+  logic                     dec__odecstall       ;
   logic            [10 : 0] dec__obit_err        ;
   logic             [7 : 0] dec__osymb_err       ;
 
@@ -119,7 +120,7 @@ module nb_ldpc_demo_test;
     .isop            ( dec__isop            ) ,
     .ival            ( dec__ival            ) ,
     .ieop            ( dec__ieop            ) ,
-    .idat            ( dec__idat            ) ,
+    .iLLR            ( dec__iLLR            ) ,
     .itag            ( dec__itag            ) ,
     //
     .ordy            ( dec__ordy            ) ,
@@ -134,6 +135,7 @@ module nb_ldpc_demo_test;
     //
     .ouNiter         ( dec__ouNiter         ) ,
     .odecfail        ( dec__odecfail        ) ,
+    .odecstall       ( dec__odecstall       ) ,
     .obit_err        ( dec__obit_err        ) ,
     .osymb_err       ( dec__osymb_err       )
   );
@@ -141,8 +143,16 @@ module nb_ldpc_demo_test;
   assign dec__isop      = osop ;
   assign dec__ival      = oval ;
   assign dec__ieop      = oeop ;
-  assign dec__idat      = osop ? ~odat : odat;
   assign dec__itag      = otag ;
+
+  always_comb begin
+    if (osop) begin
+      dec__iLLR = odat ? 4 : -4;
+    end
+    else begin
+      dec__iLLR = odat ? -4 : 4;
+    end
+  end
 
   //------------------------------------------------------------------------------------------------------
   //
