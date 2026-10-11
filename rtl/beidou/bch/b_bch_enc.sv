@@ -2,8 +2,8 @@
 
 
 
-  parameter int pTAG_W          = 8 ;
-  parameter bit pUSE_LARGE_POLY = 0 ;
+  parameter bit pUSE_L_POLY = 0 ;
+  parameter int pTAG_W      = 8 ;
 
 
 
@@ -11,10 +11,8 @@
   logic                b_bch_enc__ireset  ;
   logic                b_bch_enc__iclkena ;
   //
-  logic                b_bch_enc__isop    ;
   logic                b_bch_enc__ival    ;
-  logic                b_bch_enc__ieop    ;
-  logic                b_bch_enc__idat    ;
+  logic [cDAT_W-1 : 0] b_bch_enc__idat    ;
   logic [pTAG_W-1 : 0] b_bch_enc__itag    ;
   logic                b_bch_enc__ordy    ;
   //
@@ -29,8 +27,8 @@
 
   b_bch_enc
   #(
-    .pTAG_W          ( pTAG_W          ) ,
-    .pUSE_LARGE_POLY ( pUSE_LARGE_POLY )
+    .pUSE_L_POLY ( pUSE_L_POLY ) ,
+    .pTAG_W      ( pTAG_W      )
   )
   b_bch_enc
   (
@@ -38,9 +36,7 @@
     .ireset  ( b_bch_enc__ireset  ) ,
     .iclkena ( b_bch_enc__iclkena ) ,
     //
-    .isop    ( b_bch_enc__isop    ) ,
     .ival    ( b_bch_enc__ival    ) ,
-    .ieop    ( b_bch_enc__ieop    ) ,
     .idat    ( b_bch_enc__idat    ) ,
     .itag    ( b_bch_enc__itag    ) ,
     .ordy    ( b_bch_enc__ordy    ) ,
@@ -57,9 +53,7 @@
   assign b_bch_enc__iclk    = '0 ;
   assign b_bch_enc__ireset  = '0 ;
   assign b_bch_enc__iclkena = '0 ;
-  assign b_bch_enc__isop    = '0 ;
   assign b_bch_enc__ival    = '0 ;
-  assign b_bch_enc__ieop    = '0 ;
   assign b_bch_enc__idat    = '0 ;
   assign b_bch_enc__itag    = '0 ;
   assign b_bch_enc__irdy    = '0 ;
@@ -72,22 +66,22 @@
 // Project       : BeiDou bch
 // Author        : Shekhalev Denis (des00)
 // Workfile      : b_bch_enc.svh
-// Description   : encoder for binary data
+// Description   : encoder for data word, used bits iLcode ? data[7 : 0] : data[5 : 0]
+//                 send to output serial stream, MSB first (!!!)
 //
+
 
 module b_bch_enc
 #(
-  parameter int pTAG_W          = 8 ,
-  parameter bit pUSE_LARGE_POLY = 0   // use {21,6}/{51, 8} mode (0)
+  parameter bit pUSE_L_POLY = 0 ,
+  parameter int pTAG_W      = 8
 )
 (
   iclk    ,
   ireset  ,
   iclkena ,
   //
-  isop    ,
   ival    ,
-  ieop    ,
   idat    ,
   itag    ,
   ordy    ,
@@ -100,6 +94,14 @@ module b_bch_enc
   otag
 );
 
+  `include "b_bch_constants.svh"
+
+  //------------------------------------------------------------------------------------------------------
+  //
+  //------------------------------------------------------------------------------------------------------
+
+  localparam int cDAT_W = cDBIT_NUM[pUSE_L_POLY] ;
+
   //------------------------------------------------------------------------------------------------------
   //
   //------------------------------------------------------------------------------------------------------
@@ -108,10 +110,8 @@ module b_bch_enc
   input  logic                ireset  ;
   input  logic                iclkena ;
   //
-  input  logic                isop    ;
   input  logic                ival    ;
-  input  logic                ieop    ;
-  input  logic                idat    ;
+  input  logic [cDAT_W-1 : 0] idat    ;
   input  logic [pTAG_W-1 : 0] itag    ;
   output logic                ordy    ;
   //
@@ -126,17 +126,8 @@ module b_bch_enc
   //
   //------------------------------------------------------------------------------------------------------
 
-  localparam int cCNT_W = 6; // up to 63
-
-  localparam int cDBIT_NUM  [2] = '{6,  8};
-  localparam int cBIT_NUM   [2] = '{21, 51};
-
-  localparam bit [8 : 0] cGPOLY [2] = '{
-                                      9'b0_0101_0111, // x^6 +       x^4 +       x^2 + x + 1
-                                      9'b1_1001_1111  // x^8 + x^7 + x^4 + x^3 + x^2 + x + 1
-                                      };
-
-  typedef logic [cDBIT_NUM[pUSE_LARGE_POLY]-1 : 0] this_t;
+  localparam int cCNT_MAX = cBIT_NUM[pUSE_L_POLY];
+  localparam int cCNT_W   = $clog2(cCNT_MAX);
 
   //------------------------------------------------------------------------------------------------------
   //
@@ -153,7 +144,7 @@ module b_bch_enc
     logic [cCNT_W-1 : 0] value;
   } cnt;
 
-  this_t dat_buffer;
+  logic [cDAT_W-1 : 0] dat;
 
   //------------------------------------------------------------------------------------------------------
   // FSM
@@ -161,15 +152,13 @@ module b_bch_enc
 
   wire used_rdy = oval ? irdy : 1'b1;
 
-  wire start    = ival & !isop & ieop;
-
   always_ff @(posedge iclk or posedge ireset) begin
     if (ireset) begin
       state <= cRESET_STATE;
     end
     else if (iclkena) begin
       case (state)
-        cRESET_STATE  : state <= (ival & !isop & ieop) ? cDO_STATE    : cRESET_STATE;
+        cRESET_STATE  : state <= ival                  ? cDO_STATE    : cRESET_STATE;
         cDO_STATE     : state <= (cnt.done & used_rdy) ? cRESET_STATE : cDO_STATE ;
       endcase
     end
@@ -188,20 +177,19 @@ module b_bch_enc
           cnt       <= '0;
           cnt.zero  <= 1'b1;
           //
-          if (ival) begin // data move to lsb
-            dat_buffer                    <= (dat_buffer >> 1);
-            dat_buffer[$high(dat_buffer)] <= idat;
+          for (int i = 0; i < cDAT_W; i++) begin
+            dat[i] <= idat[cDAT_W-1-i];     // msb first (!!!)
           end
         end
         //
         cDO_STATE  : begin
           if (used_rdy) begin
             cnt.value   <= (cnt.value + 1'b1);
-            cnt.done    <= (cnt.value == (cBIT_NUM[pUSE_LARGE_POLY]-2));
+            cnt.done    <= (cnt.value == (cCNT_MAX-2));
             cnt.zero    <= 1'b0;
             //
-            dat_buffer                    <=  (dat_buffer >> 1);
-            dat_buffer[$high(dat_buffer)] <= ^(dat_buffer & cGPOLY[pUSE_LARGE_POLY]);
+            dat           <= (dat >> 1);
+            dat[cDAT_W-1] <= encode_bit(dat, pUSE_L_POLY);
           end
         end
       endcase
@@ -227,7 +215,7 @@ module b_bch_enc
     if (iclkena) begin
       case (state)
         cRESET_STATE : begin
-          if (ival & isop) begin
+          if (ival) begin
             otag <= itag;
           end
         end
@@ -236,7 +224,7 @@ module b_bch_enc
           if (!oval | (oval & irdy)) begin
             osop <= cnt.zero;
             oeop <= cnt.done;
-            odat <= dat_buffer[0];
+            odat <= dat[0];
           end
         end
       endcase
