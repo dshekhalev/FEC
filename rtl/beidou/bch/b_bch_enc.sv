@@ -66,7 +66,7 @@
 // Project       : BeiDou bch
 // Author        : Shekhalev Denis (des00)
 // Workfile      : b_bch_enc.svh
-// Description   : encoder for data word, used bits iLcode ? data[7 : 0] : data[5 : 0]
+// Description   : encoder for data word
 //                 send to output serial stream, MSB first (!!!)
 //
 
